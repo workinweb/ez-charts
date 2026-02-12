@@ -11,8 +11,11 @@ When a user uploads or describes data:
 
 Chart types (chartType key): horizontal-bar, horizontal-bar-gradient, horizontal-bar-multi, horizontal-bar-image, horizontal-bar-thin, vertical-bar, vertical-bar-multi, line, line-multi, pie, pie-image, donut, half-donut, fillable, fillable-donut, breakdown, breakdown-thin, benchmark, treemap, scatter.
 
+For chart types that support images (horizontal-bar-image, pie-image): You only need to provide key/name and value for each item. Small placeholder images are auto-generated from the labels—no need to provide image URLs.
+
 Data shapes by chartType:
 - Bar/pie/breakdown: data = [{ key or name, value, color? }]. Multi-bar: [{ key, values: number[], multipleColors? }].
+- horizontal-bar-image: data = [{ key, value }] — images auto-generated from key. pie-image: data = [{ name, value }] — images auto-generated from name.
 - Line (single): data = [{ data: [{ date: "YYYY-MM-DD", value: number }, ...] }] — MUST wrap points in a series. Use ISO dates ("2024-01-15") for x-axis.
 - Line-multi: data = [{ data: [{date, value}], color? }, ...] — one object per series.
 - Scatter: data = [{ xValue, yValue, name }].

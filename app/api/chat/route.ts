@@ -1,5 +1,6 @@
 import { aj } from "@/arcject/config";
 import { createChartInputSchema } from "@/lib/chat-chart-schema";
+import { generateChartImageUrl } from "@/lib/chart-image-utils";
 import {
   CHART_SYSTEM_PROMPT,
   GUARDRAIL_SYSTEM_PROMPT,
@@ -90,11 +91,41 @@ export async function POST(req: Request) {
           description:
             "Create a chart with the given configuration. Call this when the user asks for a chart and you have the data ready.",
           inputSchema: createChartInputSchema,
-          execute: async ({ chartType, title, data }) => ({
-            chartType,
-            title: title ?? "Chart",
-            data,
-          }),
+          execute: async ({ chartType, title, data }) => {
+            let processedData = data;
+
+            if (chartType === "horizontal-bar-image") {
+              processedData = (data as Array<Record<string, unknown>>).map(
+                (item) => {
+                  const key = (item.key as string) ?? (item.name as string) ?? "";
+                  return {
+                    ...item,
+                    image:
+                      (item.image as string) ??
+                      generateChartImageUrl(key),
+                  };
+                },
+              );
+            } else if (chartType === "pie-image") {
+              processedData = (data as Array<Record<string, unknown>>).map(
+                (item) => {
+                  const name = (item.name as string) ?? (item.key as string) ?? "";
+                  return {
+                    ...item,
+                    logo:
+                      (item.logo as string) ??
+                      generateChartImageUrl(name),
+                  };
+                },
+              );
+            }
+
+            return {
+              chartType,
+              title: title ?? "Chart",
+              data: processedData,
+            };
+          },
         }),
       },
     });
