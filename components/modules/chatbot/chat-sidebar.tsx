@@ -181,20 +181,25 @@ export function ChatSidebarContent() {
                   )}
 
                   {msg.role === "user" && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-end gap-2">
+                      <span className="text-[13px] font-semibold text-sidebar-foreground">
+                        User
+                      </span>
                       <div className="flex size-5 items-center justify-center rounded-full bg-sidebar-foreground/10">
                         <span className="text-[9px] font-bold text-sidebar-foreground/60">
-                          You
+                          U
                         </span>
                       </div>
-                      <span className="text-[13px] font-semibold text-sidebar-foreground">
-                        You
-                      </span>
                     </div>
                   )}
 
                   {text && (
-                    <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-sidebar-foreground/80">
+                    <p
+                      className={cn(
+                        "whitespace-pre-wrap text-[13px] leading-relaxed text-sidebar-foreground/80",
+                        msg.role === "user" && "text-right",
+                      )}
+                    >
                       {text}
                     </p>
                   )}
@@ -214,7 +219,10 @@ export function ChatSidebarContent() {
                     type="button"
                     onClick={() => {
                       setActiveSection("new");
-                      if (typeof window !== "undefined" && window.location.pathname !== "/")
+                      if (
+                        typeof window !== "undefined" &&
+                        window.location.pathname !== "/"
+                      )
                         router.push("/");
                     }}
                     className="inline font-medium text-[#6C5DD3] underline-offset-2 hover:underline hover:text-[#5a4dbf]"
