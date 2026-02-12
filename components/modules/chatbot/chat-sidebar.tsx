@@ -46,6 +46,36 @@ function getMessageText(msg: {
     .join("");
 }
 
+/** For user messages: show only the written text + file names, not the full attached data */
+function getDisplayText(msg: {
+  role?: string;
+  parts?: Array<{ type: string; text?: string }>;
+}): string {
+  const raw = getMessageText(msg);
+  if (!raw || msg.role !== "user") return raw;
+
+  // Format: "user text\n\n---\n[Attached file: name]\ncontent..." or just file context
+  const sep = "\n\n---\n";
+  const idx = raw.indexOf(sep);
+  if (idx === -1) return raw;
+
+  const userPart = raw.slice(0, idx).trim();
+  const fileSection = raw.slice(idx + sep.length);
+  const fileNames: string[] = [];
+  const fileRe = /\[Attached file: ([^\]]+)\]/g;
+  let m: RegExpExecArray | null;
+  while ((m = fileRe.exec(fileSection)) !== null) {
+    fileNames.push(m[1] ?? "");
+  }
+
+  if (fileNames.length === 0) return userPart || raw;
+  const fileRef =
+    fileNames.length === 1
+      ? ` (${fileNames[0]})`
+      : ` (+ ${fileNames.length} files: ${fileNames.slice(0, 3).join(", ")}${fileNames.length > 3 ? "…" : ""})`;
+  return userPart ? `${userPart}${fileRef}` : `Analyzed${fileRef}`;
+}
+
 /** Check if message has a completed createChart tool result */
 function messageHasCompletedChart(msg: {
   role?: string;
@@ -60,6 +90,19 @@ function messageHasCompletedChart(msg: {
       typeof p.output === "object" &&
       "chartType" in p.output &&
       "data" in p.output,
+  );
+}
+
+/** Check if message has a createChart tool call in progress (input streaming or awaiting execution) */
+function messageHasPendingChartTool(msg: {
+  role?: string;
+  parts?: Array<{ type?: string; state?: string }>;
+}): boolean {
+  if (msg.role !== "assistant" || !msg.parts) return false;
+  return msg.parts.some(
+    (p) =>
+      p?.type === "tool-createChart" &&
+      (p?.state === "input-streaming" || p?.state === "input-available"),
   );
 }
 
@@ -110,6 +153,10 @@ export function ChatSidebarContent() {
     !isLoading &&
     lastMsg?.role === "assistant" &&
     messageHasCompletedChart(lastMsg);
+  const isToolCallingChart =
+    isLoading &&
+    lastMsg?.role === "assistant" &&
+    messageHasPendingChartTool(lastMsg);
   const hasParsing = attachedFiles.some((f) => f.parsing);
 
   const [chartPopoverOpen, setChartPopoverOpen] = useState(false);
@@ -138,10 +185,7 @@ export function ChatSidebarContent() {
           chatSidebarView !== "chat" && "hidden",
         )}
       >
-        <div
-          ref={scrollRef}
-          className="flex-1 overflow-y-auto px-4 py-4"
-        >
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
           <div className="space-y-5">
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center gap-3 py-12">
@@ -164,7 +208,8 @@ export function ChatSidebarContent() {
             )}
 
             {messages.map((msg) => {
-              const text = getMessageText(msg);
+              const text =
+                msg.role === "user" ? getDisplayText(msg) : getMessageText(msg);
 
               return (
                 <div key={msg.id} className="space-y-2">
@@ -179,7 +224,7 @@ export function ChatSidebarContent() {
                           className="size-5 rounded-full object-cover"
                         />
                         <span className="text-[13px] font-semibold text-sidebar-foreground">
-                          Ez Charts
+                          EZ Charts
                         </span>
                       </div>
                     </div>
@@ -252,7 +297,7 @@ export function ChatSidebarContent() {
                         className="size-5 rounded-full object-cover"
                       />
                       <span className="text-[13px] font-semibold text-sidebar-foreground">
-                        Ez Charts
+                        EZ Charts
                       </span>
                     </div>
                   </div>
@@ -264,6 +309,31 @@ export function ChatSidebarContent() {
                   </div>
                 </div>
               )}
+
+            {isToolCallingChart && (
+              <div className="space-y-2">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src="/logo.png"
+                      alt="Logo"
+                      width={20}
+                      height={20}
+                      className="size-5 rounded-full object-cover"
+                    />
+                    <span className="text-[13px] font-semibold text-sidebar-foreground">
+                      EZ Charts
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 rounded-xl bg-[#BCBDEA]/15 px-3 py-2.5 ring-1 ring-[#6C5DD3]/20">
+                  <Loader2 className="size-3.5 shrink-0 animate-spin text-[#6C5DD3]" />
+                  <span className="text-[13px] text-sidebar-foreground/90">
+                    Gathering chart data…
+                  </span>
+                </div>
+              </div>
+            )}
 
             {error && <ErrorMessage error={error} />}
           </div>

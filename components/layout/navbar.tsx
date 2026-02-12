@@ -2,30 +2,29 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import type { SectionKey } from "@/stores/section-store";
+import { useSectionStore } from "@/stores/section-store";
 import {
-  Search,
-  LayoutGrid,
+  Bookmark,
   FileText,
   LayoutDashboard,
-  Users,
+  LayoutGrid,
   Link2,
-  Bookmark,
-  SlidersHorizontal,
-  FilePlus,
-  Settings,
   Menu,
+  Search,
+  Settings,
+  SlidersHorizontal,
   Sparkles,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSectionStore } from "@/stores/section-store";
-import type { SectionKey } from "@/stores/section-store";
 
 const navLinks = [
   { label: "Dashboard", href: "/" },
@@ -137,19 +136,6 @@ export function Navbar() {
               );
             })}
           </div>
-        </div>
-
-        {/* Right */}
-        <div className="flex items-center gap-3">
-          <Avatar className="size-9 ring-2 ring-white/50 sm:size-10">
-            <AvatarImage
-              src="https://api.dicebear.com/9.x/avataaars/svg?seed=finance"
-              alt="User"
-            />
-            <AvatarFallback className="bg-[#3D5B46]/10 text-xs font-medium text-[#3D5B46]">
-              KB
-            </AvatarFallback>
-          </Avatar>
         </div>
       </div>
     </nav>
