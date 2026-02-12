@@ -4,13 +4,35 @@ import {
   ChevronDown,
   MoreHorizontal,
   Share,
-  ExternalLink,
   Bookmark,
   Home,
+  LayoutGrid,
+  Presentation,
 } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+const navItems = [
+  { label: "Home", href: "/", icon: Home },
+  { label: "Examples", href: "/examples", icon: LayoutGrid },
+] as const;
 
 export function AppNavbar() {
+  const pathname = usePathname();
+
+  const currentLabel =
+    navItems.find(
+      (n) =>
+        n.href === pathname || (n.href !== "/" && pathname?.startsWith(n.href)),
+    )?.label ?? "Home page";
+
   return (
     <header className="flex h-11 shrink-0 items-center justify-between border-b border-border/40 bg-[#E9EEF0] px-3 sm:px-4">
       {/* Left */}
@@ -18,10 +40,10 @@ export function AppNavbar() {
         {/* Logo */}
         <div className="ml-1 flex items-center gap-1.5 sm:ml-2">
           <div className="flex size-5 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-green-600">
-            <span className="text-[8px] font-bold text-white">C</span>
+            <span className="text-[8px] font-bold text-white">AZ</span>
           </div>
           <span className="text-[13px] font-semibold text-foreground/80">
-            CalyxFlow
+            Charts
           </span>
           <ChevronDown className="hidden size-3 text-foreground/40 sm:block" />
         </div>
@@ -52,13 +74,31 @@ export function AppNavbar() {
         </span>
 
         <div className="mx-2 h-4 w-px bg-border" />
-        <div className="flex items-center gap-1.5">
-          <Home className="size-3.5 text-foreground/40" />
-          <span className="text-[12px] font-medium text-foreground/60">
-            Home page
-          </span>
-          <ChevronDown className="size-3 text-foreground/30" />
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-[12px] font-medium text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-foreground/80">
+              <Home className="size-3.5 text-foreground/40" />
+              <span>{currentLabel}</span>
+              <ChevronDown className="size-3 text-foreground/30" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="center"
+            className="min-w-[160px] rounded-xl border-0 bg-white p-1 shadow-xl"
+          >
+            {navItems.map(({ label, href, icon: Icon }) => (
+              <DropdownMenuItem key={href} asChild>
+                <Link
+                  href={href}
+                  className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-foreground/80 hover:bg-foreground/5 hover:text-foreground focus:bg-foreground/5"
+                >
+                  <Icon className="size-3.5 text-foreground/50" />
+                  {label}
+                </Link>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Right */}

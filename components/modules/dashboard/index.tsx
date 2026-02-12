@@ -2,3 +2,6 @@ export { ChartsOverview } from "./charts-overview";
 export { FavoritesStats } from "./favorites-stats";
 export { ChartTypesDistribution } from "./chart-types-distribution";
 export { RecentCharts } from "./recent-charts";
+export { SlidesOverview } from "./slides-overview";
+export { DataSourcesBreakdown } from "./data-sources-breakdown";
+export { RecentSlideDecks } from "./recent-slide-decks";

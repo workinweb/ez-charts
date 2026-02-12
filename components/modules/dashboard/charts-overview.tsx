@@ -40,51 +40,51 @@ function CustomTooltip({
 
 export function ChartsOverview() {
   return (
-    <Card className="col-span-full overflow-hidden rounded-[28px] bg-[#BCBDEA] p-5 shadow-sm ring-0 sm:rounded-[40px] sm:p-8 lg:col-span-7">
+    <Card className="col-span-full min-w-0 overflow-hidden rounded-[28px] bg-[#BCBDEA] p-5 shadow-sm ring-0 sm:rounded-[40px] sm:p-6 lg:p-8 lg:col-span-7">
       <div className="mb-8 flex items-center justify-between">
         <h3 className="text-[20px] font-medium text-[#3D4035]">
           Charts Overview
         </h3>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 lg:gap-8">
+      <div className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 lg:gap-8">
         <div className="flex flex-col gap-6">
-          <div className="flex flex-1 flex-col justify-center rounded-[32px] bg-white/80 p-8 shadow-sm">
+          <div className="flex flex-1 flex-col justify-center rounded-[32px] bg-white/80 p-5 shadow-sm sm:p-6 lg:p-8">
             <p className="text-[13px] font-medium text-[#3D4035]/60">
               This Month
             </p>
             <div className="flex items-baseline gap-1">
-              <span className="text-[48px] font-light tracking-tight text-[#3D4035]">
+              <span className="text-[32px] font-light tracking-tight text-[#3D4035] lg:text-[48px]">
                 42
               </span>
-              <span className="text-[28px] font-light text-[#3D4035]/60">
+              <span className="text-[20px] font-light text-[#3D4035]/60 lg:text-[28px]">
                 charts
               </span>
             </div>
           </div>
 
-          <div className="flex flex-1 flex-col justify-center rounded-[32px] bg-[#354052] p-8 shadow-sm">
+          <div className="flex flex-1 flex-col justify-center rounded-[32px] bg-[#354052] p-5 shadow-sm sm:p-6 lg:p-8">
             <p className="text-[13px] font-medium text-white/60">
               Total All-Time
             </p>
             <div className="flex items-baseline gap-1">
-              <span className="text-[48px] font-light tracking-tight text-white">
+              <span className="text-[32px] font-light tracking-tight text-white lg:text-[48px]">
                 598
               </span>
-              <span className="text-[28px] font-light text-white/60">
+              <span className="text-[20px] font-light text-white/60 lg:text-[28px]">
                 charts
               </span>
             </div>
           </div>
         </div>
 
-        <div className="relative flex flex-col justify-between rounded-[32px] bg-white/80 p-8 shadow-sm">
+        <div className="relative flex flex-col justify-between rounded-[32px] bg-white/80 p-5 shadow-sm sm:p-6 lg:p-8">
           <div className="mb-6 flex items-start justify-between">
             <Badge className="h-[24px] rounded-lg border-0 bg-[#6C5DD3] px-3 text-[12px] font-semibold text-white">
               Live
             </Badge>
             <div className="text-right">
-              <p className="text-[36px] font-bold leading-none text-[#3D4035]">
+              <p className="text-[28px] font-bold leading-none text-[#3D4035] lg:text-[36px]">
                 28.6
               </p>
               <p className="text-[12px] font-medium text-[#3D4035]/50">

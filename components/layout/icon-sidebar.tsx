@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Search,
   LayoutGrid,
   FileText,
   LayoutDashboard,
@@ -9,36 +8,47 @@ import {
   Link2,
   Bookmark,
   SlidersHorizontal,
-  FilePlus,
+  Sparkles,
   Settings,
 } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useSectionStore } from "@/stores/section-store";
+import type { SectionKey } from "@/stores/section-store";
 
 interface SidebarIcon {
   icon: React.ElementType;
   label: string;
-  active?: boolean;
+  sectionKey: SectionKey;
 }
 
 const mainIcons: SidebarIcon[] = [
-  { icon: LayoutGrid, label: "Dashboard" },
-  { icon: FileText, label: "Documents" },
-  { icon: LayoutDashboard, label: "Layout" },
-  { icon: Users, label: "Team" },
-  { icon: Link2, label: "Links" },
-  { icon: Bookmark, label: "Saved" },
-  { icon: SlidersHorizontal, label: "Adjustments" },
+  { icon: LayoutGrid, label: "Dashboard", sectionKey: "dashboard" },
+  { icon: FileText, label: "Documents", sectionKey: "documents" },
+  { icon: LayoutDashboard, label: "Layout", sectionKey: "layout" },
+  { icon: Users, label: "Team", sectionKey: "team" },
+  { icon: Link2, label: "Links", sectionKey: "links" },
+  { icon: Bookmark, label: "Saved", sectionKey: "saved" },
+  { icon: SlidersHorizontal, label: "Adjustments", sectionKey: "adjustments" },
 ];
 
 const bottomIcons: SidebarIcon[] = [
-  { icon: FilePlus, label: "New" },
-  { icon: Settings, label: "Settings" },
+  { icon: Sparkles, label: "AI Builds", sectionKey: "new" },
+  { icon: Settings, label: "Settings", sectionKey: "settings" },
 ];
 
-function IconBtn({ icon: Icon, label, active }: SidebarIcon) {
+function IconBtn({
+  icon: Icon,
+  label,
+  sectionKey,
+  active,
+  onClick,
+}: SidebarIcon & { active: boolean; onClick: () => void }) {
   return (
     <button
+      type="button"
       title={label}
+      onClick={onClick}
       className={cn(
         "flex size-9 items-center justify-center rounded-xl transition-all duration-200",
         active
@@ -52,21 +62,29 @@ function IconBtn({ icon: Icon, label, active }: SidebarIcon) {
 }
 
 export function IconSidebar() {
-  return (
-    <aside className="hidden h-full w-16 shrink-0 flex-col items-center gap-3 bg-background py-4 pl-3 rounded-l-3xl md:flex">
-      <div className="flex flex-col items-center rounded-2xl bg-white/80 p-1.5 shadow-sm ring-1 ring-black/[0.04]">
-        <button
-          title="Search"
-          className="flex size-9 items-center justify-center rounded-xl text-foreground/40 transition-colors hover:bg-foreground/5 hover:text-foreground/60"
-        >
-          <Search className="size-[17px]" strokeWidth={1.7} />
-        </button>
-      </div>
+  const pathname = usePathname();
+  const router = useRouter();
+  const { activeSection, setActiveSection } = useSectionStore();
+  const isOnHome = pathname === "/";
 
+  const handleIconClick = (sectionKey: SectionKey) => {
+    setActiveSection(sectionKey);
+    if (!isOnHome) {
+      router.push("/");
+    }
+  };
+
+  return (
+    <aside className="hidden h-full w-18 shrink-0 flex-col items-center gap-3 bg-background py-4 pl-3 rounded-l-3xl md:flex">
       <div className="flex flex-1 flex-col items-center rounded-2xl bg-white/80 p-1.5 shadow-sm ring-1 ring-black/[0.04]">
         <div className="flex flex-col items-center gap-0.5">
           {mainIcons.map((item) => (
-            <IconBtn key={item.label} {...item} />
+            <IconBtn
+              key={item.sectionKey}
+              {...item}
+              active={activeSection === item.sectionKey}
+              onClick={() => handleIconClick(item.sectionKey)}
+            />
           ))}
         </div>
       </div>
@@ -74,7 +92,12 @@ export function IconSidebar() {
       <div className="flex flex-col items-center rounded-2xl bg-white/80 p-1.5 shadow-sm ring-1 ring-black/[0.04]">
         <div className="flex flex-col items-center gap-0.5">
           {bottomIcons.map((item) => (
-            <IconBtn key={item.label} {...item} />
+            <IconBtn
+              key={item.sectionKey}
+              {...item}
+              active={activeSection === item.sectionKey}
+              onClick={() => handleIconClick(item.sectionKey)}
+            />
           ))}
         </div>
       </div>

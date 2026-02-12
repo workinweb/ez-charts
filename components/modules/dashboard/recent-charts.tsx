@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   BarChart3,
   LineChart,
@@ -147,9 +148,12 @@ export function RecentCharts() {
                   <p className="text-[13px] font-medium text-[#3D4035]/50">
                     {chart.date}
                   </p>
-                  <button className="mt-1 text-[13px] font-semibold text-[#6C5DD3] hover:underline">
+                  <Link
+                    href={`/charts/${chart.id}`}
+                    className="mt-1 inline-block text-[13px] font-semibold text-[#6C5DD3] hover:underline"
+                  >
                     Open
-                  </button>
+                  </Link>
                 </div>
               </div>
             );

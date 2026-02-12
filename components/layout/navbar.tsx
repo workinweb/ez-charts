@@ -20,29 +20,46 @@ import {
   FilePlus,
   Settings,
   Menu,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useSectionStore } from "@/stores/section-store";
+import type { SectionKey } from "@/stores/section-store";
 
 const navLinks = [
-  { label: "Dashboard", href: "/", active: true },
+  { label: "Dashboard", href: "/" },
   { label: "Favorites", href: "/favorites" },
   { label: "All Charts", href: "/charts" },
+  { label: "Slides", href: "/slides" },
 ];
 
-const toolIcons = [
+const toolIcons: {
+  icon: React.ElementType;
+  label: string;
+  sectionKey?: SectionKey;
+}[] = [
   { icon: Search, label: "Search" },
-  { icon: LayoutGrid, label: "Dashboard" },
-  { icon: FileText, label: "Documents" },
-  { icon: LayoutDashboard, label: "Layout" },
-  { icon: Users, label: "Team" },
-  { icon: Link2, label: "Links" },
-  { icon: Bookmark, label: "Saved" },
-  { icon: SlidersHorizontal, label: "Adjustments" },
-  { icon: FilePlus, label: "New" },
-  { icon: Settings, label: "Settings" },
+  { icon: LayoutGrid, label: "Dashboard", sectionKey: "dashboard" },
+  { icon: FileText, label: "Documents", sectionKey: "documents" },
+  { icon: LayoutDashboard, label: "Layout", sectionKey: "layout" },
+  { icon: Users, label: "Team", sectionKey: "team" },
+  { icon: Link2, label: "Links", sectionKey: "links" },
+  { icon: Bookmark, label: "Saved", sectionKey: "saved" },
+  { icon: SlidersHorizontal, label: "Adjustments", sectionKey: "adjustments" },
+  { icon: Sparkles, label: "AI Builds", sectionKey: "new" },
+  { icon: Settings, label: "Settings", sectionKey: "settings" },
 ];
+
+function isLinkActive(href: string, pathname: string): boolean {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(href + "/");
+}
 
 export function Navbar() {
+  const pathname = usePathname();
+  const setActiveSection = useSectionStore((s) => s.setActiveSection);
+
   return (
     <nav className="flex items-center justify-between px-3 py-3 sm:px-5 sm:py-4">
       <div className="flex w-full items-center justify-between rounded-[32px] bg-white/80 px-4 py-2.5 shadow-sm ring-1 ring-black/[0.02] sm:px-6 sm:py-3">
@@ -65,27 +82,32 @@ export function Navbar() {
             >
               {/* Mobile nav links */}
               <div className="mb-2 border-b border-black/5 pb-2">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.label}
-                    href={link.href}
-                    className={cn(
-                      "flex items-center rounded-xl px-3 py-2 text-[13px] font-medium transition-colors",
-                      link.active
-                        ? "bg-[#BCBDEA]/20 text-[#3D4035]"
-                        : "text-[#3D4035]/60 hover:bg-black/[0.03] hover:text-[#3D4035]/90"
-                    )}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+                {navLinks.map((link) => {
+                  const active = isLinkActive(link.href, pathname ?? "");
+                  return (
+                    <Link
+                      key={link.label}
+                      href={link.href}
+                      className={cn(
+                        "flex items-center rounded-xl px-3 py-2 text-[13px] font-medium transition-colors",
+                        active
+                          ? "bg-[#BCBDEA]/20 text-[#3D4035]"
+                          : "text-[#3D4035]/60 hover:bg-black/[0.03] hover:text-[#3D4035]/90",
+                      )}
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                })}
               </div>
               {/* Mobile tool icons */}
               <div className="grid grid-cols-5 gap-1">
-                {toolIcons.map(({ icon: Icon, label }) => (
+                {toolIcons.map(({ icon: Icon, label, sectionKey }) => (
                   <button
                     key={label}
                     title={label}
+                    type="button"
+                    onClick={() => sectionKey && setActiveSection(sectionKey)}
                     className="flex size-9 items-center justify-center rounded-xl text-foreground/40 transition-colors hover:bg-foreground/5 hover:text-foreground/60"
                   >
                     <Icon className="size-[17px]" strokeWidth={1.7} />
@@ -97,20 +119,23 @@ export function Navbar() {
 
           {/* Desktop nav links */}
           <div className="hidden items-center gap-1 md:flex">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className={cn(
-                  "rounded-2xl px-4 py-2 text-[14px] font-medium transition-colors",
-                  link.active
-                    ? "text-[#3D4035]"
-                    : "text-[#3D4035]/60 hover:text-[#3D4035]/90"
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const active = isLinkActive(link.href, pathname ?? "");
+              return (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className={cn(
+                    "rounded-2xl px-4 py-2 text-[14px] font-medium transition-colors",
+                    active
+                      ? "text-[#3D4035]"
+                      : "text-[#3D4035]/60 hover:text-[#3D4035]/90",
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
         </div>
 

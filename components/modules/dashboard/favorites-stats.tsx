@@ -13,7 +13,7 @@ export function FavoritesStats() {
       </CardHeader>
 
       <CardContent className="grid grid-cols-2 gap-4 p-0">
-        <div className="flex flex-col justify-between rounded-[28px] bg-[#6C5DD3] p-5">
+        <div className="flex flex-col justify-between rounded-[28px] bg-[#6C5DD3] p-4 sm:p-5">
           <div className="flex items-center gap-2">
             <Heart className="size-4 text-white/80" />
             <p className="text-[13px] font-medium text-white/80">
@@ -24,13 +24,13 @@ export function FavoritesStats() {
             Saved for later
           </p>
           <div className="mt-8">
-            <span className="text-[48px] font-light leading-none tracking-tight text-white">
+            <span className="text-[32px] font-light leading-none tracking-tight text-white lg:text-[48px]">
               9
             </span>
           </div>
         </div>
 
-        <div className="flex flex-col justify-between rounded-[28px] bg-[#94B49F] p-5">
+        <div className="flex flex-col justify-between rounded-[28px] bg-[#94B49F] p-4 sm:p-5">
           <div className="flex items-center gap-2">
             <BarChart3 className="size-4 text-[#1F2128]/80" />
             <p className="text-[13px] font-medium text-[#1F2128]/80">
@@ -42,7 +42,7 @@ export function FavoritesStats() {
           </p>
           <div className="mt-8">
             <div className="flex items-baseline">
-              <span className="text-[48px] font-light leading-none tracking-tight text-[#1F2128]">
+              <span className="text-[32px] font-light leading-none tracking-tight text-[#1F2128] lg:text-[48px]">
                 12
               </span>
             </div>

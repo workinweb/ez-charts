@@ -1,0 +1,25 @@
+import { ScatterChartItem } from "../types";
+
+export const scatterChartData: ScatterChartItem[] = [
+  { id: "a", xValue: 10, yValue: 102.8, name: "Company A" },
+  { id: "b", xValue: 20, yValue: 101.9, name: "Company B" },
+  { id: "c", xValue: 30, yValue: 101.5, name: "Company C" },
+  { id: "d", xValue: 40, yValue: 100.2, name: "Company D" },
+  { id: "e", xValue: 50, yValue: 100.8, name: "Company E" },
+  { id: "f", xValue: 60, yValue: 99.7, name: "Company F" },
+  { id: "g", xValue: 70, yValue: 99.9, name: "Company G" },
+  { id: "h", xValue: 80, yValue: 98.5, name: "Company H" },
+  { id: "i", xValue: 90, yValue: 98.9, name: "Company I" },
+  { id: "j", xValue: 100, yValue: 97.8, name: "Company J" },
+  { id: "k", xValue: 110, yValue: 98.2, name: "Company K" },
+  { id: "l", xValue: 120, yValue: 96.8, name: "Company L" },
+  { id: "m", xValue: 130, yValue: 96.9, name: "Company M" },
+  { id: "n", xValue: 140, yValue: 95.5, name: "Company N" },
+  { id: "o", xValue: 150, yValue: 95.9, name: "Company O" },
+  { id: "p", xValue: 160, yValue: 94.5, name: "Company P" },
+  { id: "q", xValue: 170, yValue: 94.8, name: "Company Q" },
+  { id: "q2", xValue: 170, yValue: 95.8, name: "Company Q2" },
+  { id: "r", xValue: 180, yValue: 93.9, name: "Company R" },
+  { id: "s", xValue: 190, yValue: 94.3, name: "Company S" },
+  { id: "t", xValue: 200, yValue: 93.5, name: "Company T" },
+];
