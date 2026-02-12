@@ -119,24 +119,29 @@ export function ChatSidebarContent() {
     setChartPopoverOpen(false);
   };
 
-  // Auto-scroll to bottom on new messages
+  // Auto-scroll to bottom on new messages and during streaming
+  const lastMessageText = messages.length
+    ? getMessageText(messages[messages.length - 1]!)
+    : "";
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, status]);
+  }, [messages, status, lastMessageText]);
 
   return (
     <div className="flex h-full w-full flex-col bg-[#E9EEF0] text-sidebar-foreground">
       {/* Chat view — kept mounted when hidden to preserve state */}
       <div
-        ref={scrollRef}
         className={cn(
           "flex flex-1 flex-col overflow-hidden",
           chatSidebarView !== "chat" && "hidden",
         )}
       >
-        <div className="flex-1 overflow-y-auto px-4 py-4">
+        <div
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto px-4 py-4"
+        >
           <div className="space-y-5">
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center gap-3 py-12">
