@@ -53,7 +53,7 @@ function IconBtn({ icon: Icon, label, active }: SidebarIcon) {
 
 export function IconSidebar() {
   return (
-    <aside className="flex h-full w-16 pl-3 shrink-0 flex-col items-center gap-3 bg-background py-4 rounded-l-3xl">
+    <aside className="hidden h-full w-16 shrink-0 flex-col items-center gap-3 bg-background py-4 pl-3 rounded-l-3xl md:flex">
       <div className="flex flex-col items-center rounded-2xl bg-white/80 p-1.5 shadow-sm ring-1 ring-black/[0.04]">
         <button
           title="Search"

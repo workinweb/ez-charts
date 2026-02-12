@@ -12,22 +12,22 @@ import { Button } from "@/components/ui/button";
 
 export function AppNavbar() {
   return (
-    <header className="flex h-11 shrink-0 items-center justify-between border-b border-border/40 bg-[#E9EEF0] px-4">
+    <header className="flex h-11 shrink-0 items-center justify-between border-b border-border/40 bg-[#E9EEF0] px-3 sm:px-4">
       {/* Left */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Logo */}
-        <div className="flex items-center gap-1.5 ml-2">
+        <div className="ml-1 flex items-center gap-1.5 sm:ml-2">
           <div className="flex size-5 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-green-600">
             <span className="text-[8px] font-bold text-white">C</span>
           </div>
           <span className="text-[13px] font-semibold text-foreground/80">
             CalyxFlow
           </span>
-          <ChevronDown className="size-3 text-foreground/40" />
+          <ChevronDown className="hidden size-3 text-foreground/40 sm:block" />
         </div>
 
-        {/* Icon buttons */}
-        <div className="flex items-center gap-0.5 ml-1">
+        {/* Icon buttons — hide on small mobile */}
+        <div className="ml-1 hidden items-center gap-0.5 sm:flex">
           <Button
             variant="ghost"
             size="icon-xs"
@@ -45,8 +45,8 @@ export function AppNavbar() {
         </div>
       </div>
 
-      {/* Center — tabs */}
-      <div className="flex items-center gap-1">
+      {/* Center — tabs — hide on small mobile */}
+      <div className="hidden items-center gap-1 sm:flex">
         <span className="rounded-lg bg-foreground/8 px-3 py-1 text-[12px] font-medium text-foreground/70">
           Dashboard
         </span>

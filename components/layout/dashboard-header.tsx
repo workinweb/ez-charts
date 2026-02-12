@@ -5,9 +5,9 @@ import { RefreshCw, Settings } from "lucide-react";
 
 export function DashboardHeader() {
   return (
-    <div className="flex flex-col gap-5 rounded-[40px] bg-white/80 px-10 py-10 shadow-sm ring-1 ring-black/[0.02] sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-4 rounded-[28px] bg-white/80 px-5 py-6 shadow-sm ring-1 ring-black/[0.02] sm:flex-row sm:items-center sm:justify-between sm:gap-5 sm:rounded-[40px] sm:px-10 sm:py-10">
       <div className="space-y-1.5">
-        <h1 className="text-[32px] font-medium tracking-tight text-[#3D4035]">
+        <h1 className="text-[24px] font-medium tracking-tight text-[#3D4035] sm:text-[32px]">
           Dashboard
         </h1>
         <p className="text-[16px] text-[#3D4035]/60">

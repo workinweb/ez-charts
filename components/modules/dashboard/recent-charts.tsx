@@ -89,7 +89,7 @@ export function RecentCharts() {
   }
 
   return (
-    <Card className="col-span-full rounded-[40px] bg-white/80 p-8 shadow-sm ring-1 ring-black/[0.02] md:col-span-6">
+    <Card className="col-span-full rounded-[28px] bg-white/80 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8 md:col-span-6">
       <CardHeader className="p-0 mb-8 flex flex-row items-center justify-between space-y-0">
         <div className="flex items-center gap-4">
           <CardTitle className="text-[20px] font-medium text-[#3D4035]">

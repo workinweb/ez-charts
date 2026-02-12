@@ -111,9 +111,10 @@ function WriteBadge({ label }: { label: string }) {
   );
 }
 
-export function ChatSidebar() {
+/** Inner content reused by both the desktop sidebar and the mobile drawer */
+export function ChatSidebarContent() {
   return (
-    <aside className="flex h-full w-[386px] shrink-0 flex-col bg-[#E9EEF0] text-sidebar-foreground">
+    <div className="flex h-full flex-col bg-[#E9EEF0] text-sidebar-foreground">
       <div className="flex-1 overflow-y-auto px-4 py-4">
         <div className="space-y-5">
           {messages.map((msg) => (
@@ -207,6 +208,15 @@ export function ChatSidebar() {
           </Button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Desktop sidebar — hidden on mobile */
+export function ChatSidebar() {
+  return (
+    <aside className="hidden h-full w-[386px] shrink-0 lg:flex">
+      <ChatSidebarContent />
     </aside>
   );
 }
