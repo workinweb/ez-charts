@@ -6,8 +6,8 @@ import { Navbar } from "@/components/layout/navbar";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
 import { cn } from "@/lib/utils";
 import { useSlidesStore } from "@/stores/slides-store";
-import { CreateSlideDialog } from "@/components/modules/slides/create-slide-dialog";
-import { EditSlideDialog } from "@/components/modules/slides/edit-slide-dialog";
+import { CreateSlideDialog } from "./_components/create-slide-dialog";
+import { EditSlideDialog } from "./_components/edit-slide-dialog";
 import { getChartById } from "@/lib/charts-data";
 import {
   Presentation,
