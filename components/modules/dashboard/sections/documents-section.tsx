@@ -1,14 +1,17 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import {
   FileText,
   FileSpreadsheet,
   FileJson,
   Download,
   Trash2,
+  Plus,
+  Loader2,
 } from "lucide-react";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
+import { Button } from "@/components/ui/button";
 import { useDocumentsStore } from "@/stores/documents-store";
 import { cn } from "@/lib/utils";
 import {
@@ -21,6 +24,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+
+const ACCEPTED_FILE_TYPES =
+  ".csv,.xlsx,.xls,.pdf,.json,.txt,.tsv,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/pdf,application/json,text/plain,text/tab-separated-values";
+
+async function parseFile(file: File): Promise<{
+  fileName: string;
+  mimeType: string;
+  size: number;
+  textContent: string;
+}> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await fetch("/api/parse-file", { method: "POST", body: formData });
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.error || "Failed to parse file");
+  }
+  return res.json();
+}
 
 function getFileIcon(name: string) {
   const ext = name.split(".").pop()?.toLowerCase();
@@ -57,12 +79,39 @@ function downloadDocument(doc: {
 
 export function DocumentsSection() {
   const [search, setSearch] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{
     id: string;
     name: string;
   } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const documents = useDocumentsStore((s) => s.documents);
+  const addDocument = useDocumentsStore((s) => s.addDocument);
   const removeDocument = useDocumentsStore((s) => s.removeDocument);
+
+  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files?.length) return;
+    setUploadError(null);
+    setUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        const { fileName, mimeType, size, textContent } = await parseFile(file);
+        addDocument({
+          name: fileName,
+          size,
+          type: mimeType,
+          content: textContent,
+        });
+      }
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Failed to upload");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  }
 
   const filtered = useMemo(() => {
     if (!search.trim()) return documents;
@@ -75,13 +124,39 @@ export function DocumentsSection() {
 
   return (
     <div className="flex flex-col gap-6">
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept={ACCEPTED_FILE_TYPES}
+        className="hidden"
+        onChange={handleFileSelect}
+      />
       <PageSearchBar
         value={search}
         onChange={setSearch}
         placeholder="Search documents…"
         count={filtered.length}
         countLabel={filtered.length === 1 ? "document" : "documents"}
+        addButton={
+          <Button
+            size="sm"
+            disabled={uploading}
+            onClick={() => fileInputRef.current?.click()}
+            className="gap-2 rounded-xl bg-[#6C5DD3] text-[12px] font-semibold text-white hover:bg-[#5a4dbf] disabled:opacity-50"
+          >
+            {uploading ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <Plus className="size-3.5" />
+            )}
+            Add new
+          </Button>
+        }
       />
+      {uploadError && (
+        <p className="text-[13px] text-red-600">{uploadError}</p>
+      )}
 
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-4 rounded-[28px] bg-white/80 py-24 text-center shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px]">
@@ -93,7 +168,7 @@ export function DocumentsSection() {
           </p>
           <p className="max-w-sm text-[13px] text-[#3D4035]/50">
             {documents.length === 0
-              ? "Attach files in the chat and enable “Save documents on DB” in Chat settings to store them here."
+              ? 'Click "Add new" to upload CSV, Excel, PDF, JSON, or text files.'
               : "Try a different search term."}
           </p>
         </div>

@@ -2,7 +2,15 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Heart, Loader2, BarChart3, Trash2, Copy, Pencil } from "lucide-react";
+import {
+  Heart,
+  Loader2,
+  BarChart3,
+  Trash2,
+  Copy,
+  Pencil,
+  Plus,
+} from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
 import { cn } from "@/lib/utils";
@@ -22,6 +30,7 @@ import {
   usePagination,
   DEFAULT_PAGE_SIZE,
 } from "@/lib/use-pagination";
+import { Button } from "@/components/ui/button";
 
 export default function ChartsPage() {
   const [loading] = useState(false);
@@ -65,6 +74,17 @@ export default function ChartsPage() {
             placeholder="Search charts…"
             count={totalItems}
             countLabel="charts"
+            addButton={
+              <Link href="/edit">
+                <Button
+                  size="sm"
+                  className="gap-2 rounded-xl bg-[#6C5DD3] text-[12px] font-semibold text-white hover:bg-[#5a4dbf]"
+                >
+                  <Plus className="size-3.5" />
+                  Add new
+                </Button>
+              </Link>
+            }
           />
 
           {loading ? (

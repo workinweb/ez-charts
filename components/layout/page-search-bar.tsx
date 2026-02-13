@@ -12,7 +12,7 @@ interface PageSearchBarProps {
   /** Total count to display, e.g. "5 charts" */
   count: number;
   countLabel: string; // e.g. "charts" or "slides"
-  /** Optional "Add new" button (Slides only) */
+  /** Optional "Add new" button */
   addButton?: React.ReactNode;
   className?: string;
 }
