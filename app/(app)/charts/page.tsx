@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Heart, Loader2, BarChart3, Trash2, Copy } from "lucide-react";
+import { Heart, Loader2, BarChart3, Trash2, Copy, Pencil } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
 import { cn } from "@/lib/utils";
@@ -117,6 +117,14 @@ export default function ChartsPage() {
                           {chart.source}
                         </p>
                       </div>
+
+                      <Link
+                        href={`/edit?chart=${chart.id}`}
+                        className="shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors hover:bg-[#6C5DD3]/10 hover:text-[#6C5DD3]"
+                        aria-label="Edit chart"
+                      >
+                        <Pencil className="size-4" />
+                      </Link>
 
                       <button
                         type="button"

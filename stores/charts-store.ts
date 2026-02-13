@@ -45,6 +45,19 @@ interface ChartsState {
   removeChart: (id: string) => void;
   /** Duplicate a chart (creates a new dynamic chart) */
   duplicateChart: (id: string) => string | null;
+  /** Update a chart's editable properties (creates a dynamic copy for static charts) */
+  updateChart: (
+    id: string,
+    patch: Partial<Pick<UserChart, "title" | "data" | "chartType" | "withTooltip" | "withAnimation">>,
+  ) => string;
+  /** Create a new chart from scratch (no AI) */
+  addChart: (input: {
+    title: string;
+    chartType: ChartTypeKey;
+    data: unknown;
+    withTooltip?: boolean;
+    withAnimation?: boolean;
+  }) => string;
 }
 
 let nextId = 1;
@@ -118,6 +131,69 @@ export const useChartsStore = create<ChartsState>((set, get) => ({
       dynamicCharts: [...state.dynamicCharts, duplicate],
     }));
     return newId;
+  },
+
+  updateChart: (id, patch) => {
+    const s = get();
+    const isDynamic = s.dynamicCharts.some((c) => c.id === id);
+    if (isDynamic) {
+      // Update the dynamic chart in-place
+      set((state) => ({
+        dynamicCharts: state.dynamicCharts.map((c) => {
+          if (c.id !== id) return c;
+          const updated = { ...c, ...patch, date: "Just now" };
+          // Re-compute icon if chart type changed
+          if (patch.chartType && patch.chartType !== c.chartType) {
+            Object.assign(updated, chartTypeToIcon(patch.chartType));
+          }
+          return updated;
+        }),
+      }));
+      return id;
+    }
+    // Static chart: create a dynamic copy with the edits applied
+    const chart = getChartById(id, s.dynamicCharts);
+    if (!chart) return id;
+    const newId = `edit-${Date.now()}-${nextId++}`;
+    const edited: UserChart = {
+      ...chart,
+      ...patch,
+      id: newId,
+      date: "Just now",
+      ...(patch.chartType && patch.chartType !== chart.chartType
+        ? chartTypeToIcon(patch.chartType)
+        : {}),
+    };
+    // Soft-delete the static original and add the new dynamic copy
+    set((state) => {
+      const nextRemoved = new Set(state.removedChartIds);
+      nextRemoved.add(id);
+      return {
+        dynamicCharts: [...state.dynamicCharts, edited],
+        removedChartIds: nextRemoved,
+      };
+    });
+    return newId;
+  },
+
+  addChart: ({ title, chartType, data, withTooltip = true, withAnimation = true }) => {
+    const id = `edit-${Date.now()}-${nextId++}`;
+    const chart: UserChart = {
+      id,
+      title,
+      chartType,
+      data,
+      source: "Manual",
+      date: "Just now",
+      favorited: false,
+      withTooltip,
+      withAnimation,
+      ...chartTypeToIcon(chartType),
+    };
+    set((s) => ({
+      dynamicCharts: [...s.dynamicCharts, chart],
+    }));
+    return id;
   },
 }));
 

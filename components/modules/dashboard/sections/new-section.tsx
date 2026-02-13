@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sparkles, Save } from "lucide-react";
+import { Sparkles, Save, Pencil } from "lucide-react";
 import { getChartTypeByName } from "@/components/rosencharts";
 import { useChartsStore } from "@/stores/charts-store";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 function formatChartTime(id: string): string {
   const match = id.match(/^chat-(\d+)-/);
@@ -107,14 +108,27 @@ export function NewSection() {
               <h3 className="text-[15px] font-medium text-foreground">
                 {displayChart.title}
               </h3>
-              <Button
-                size="sm"
-                onClick={() => openSaveDialog(displayChart.id)}
-                className="gap-2 bg-[#6C5DD3] text-white hover:bg-[#5a4dbf]"
-              >
-                <Save className="size-3.5" />
-                Save Chart
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  asChild
+                  className="gap-2 text-[#3D4035]/70 hover:text-[#3D4035]"
+                >
+                  <Link href={`/edit?chart=${displayChart.id}`}>
+                    <Pencil className="size-3.5" />
+                    Edit
+                  </Link>
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => openSaveDialog(displayChart.id)}
+                  className="gap-2 bg-[#6C5DD3] text-white hover:bg-[#5a4dbf]"
+                >
+                  <Save className="size-3.5" />
+                  Save Chart
+                </Button>
+              </div>
             </div>
             <div className="min-h-[220px] overflow-hidden rounded-xl bg-white/60 ring-1 ring-black/[0.03] p-5">
               {getChartTypeByName(
@@ -188,6 +202,17 @@ export function NewSection() {
                         )}
                       </p>
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      asChild
+                      onClick={(e) => e.stopPropagation()}
+                      title="Edit chart"
+                    >
+                      <Link href={`/edit?chart=${chart.id}`}>
+                        <Pencil className="size-3.5" />
+                      </Link>
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon-xs"

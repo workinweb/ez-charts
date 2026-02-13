@@ -74,5 +74,9 @@ export {
   getChartTypeByName,
   chartTypes,
   gradientFromHex,
+  interchangeGroups,
+  getInterchangeableTypes,
+  isChartTypeCompatible,
+  transformChartData,
 } from "./utils/utils";
 export type { ChartTypeKey } from "./utils/utils";

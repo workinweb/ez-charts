@@ -2,7 +2,7 @@
 
 import { useParams, notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Presentation, Copy } from "lucide-react";
+import { ArrowLeft, Presentation, Copy, Pencil } from "lucide-react";
 import { getChartTypeByName } from "@/components/rosencharts";
 import { useChartById, useChartsStore } from "@/stores/charts-store";
 import { Button } from "@/components/ui/button";
@@ -48,6 +48,18 @@ export default function ChartDetailPage() {
             </Button>
 
             <div className="flex-1" />
+
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="gap-2 text-[#3D4035]/70 hover:text-[#3D4035]"
+            >
+              <Link href={`/edit?chart=${id}`}>
+                <Pencil className="size-3.5" />
+                Edit
+              </Link>
+            </Button>
 
             <Button
               variant="ghost"

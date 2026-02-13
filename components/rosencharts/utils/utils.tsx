@@ -156,6 +156,190 @@ export const chartTypes: ReadonlyArray<{
 
 export type ChartTypeKey = (typeof chartTypes)[number]["key"];
 
+// ── Chart interchangeability ──────────────────────────────────────────
+//
+// Defines which chart types can be converted to which, grouped into
+// "interchange groups". Within a group every type can be swapped to any
+// other type — the data is automatically transformed.
+//
+// Data shapes in play:
+//   keyValue  → { key, value, color? }
+//   pieValue  → { name, value, colorFrom?, colorTo?, logo? }
+//   multiBar  → { key, values[], multipleColors?, image? }
+//   lineSeries→ { data: [{ date, value }], color? }
+//   treemap   → { name, subtopics, colorFrom?, colorTo? }
+//   scatter   → { xValue, yValue, name, color? }
+//
+// "keyValue" and "pieValue" are interchangeable with a rename.
+// ──────────────────────────────────────────────────────────────────────
+
+/** A group of chart type keys that can be freely swapped between. */
+export const interchangeGroups: ReadonlyArray<ReadonlyArray<ChartTypeKey>> = [
+  // ── key/value family  ↔  pie/name family ──────────────────────────
+  // Single‑value bar charts, breakdown, benchmark, pie, donut, fillable
+  [
+    "horizontal-bar",
+    "horizontal-bar-gradient",
+    "horizontal-bar-thin",
+    "vertical-bar",
+    "breakdown",
+    "breakdown-thin",
+    "benchmark",
+    "pie",
+    "pie-image",
+    "donut",
+    "half-donut",
+    "fillable",
+    "fillable-donut",
+  ],
+  // ── Multi‑bar (horizontal ↔ vertical) ─────────────────────────────
+  ["horizontal-bar-multi", "vertical-bar-multi"],
+  // ── Line charts ───────────────────────────────────────────────────
+  ["line", "line-multi"],
+  // ── Standalone (no interchange) ───────────────────────────────────
+  // treemap, scatter, horizontal-bar-image each have unique shapes
+  // with no meaningful conversion, so they remain solo.
+];
+
+/** Lookup: chartTypeKey → set of all keys it can be converted to */
+const _interchangeMap = new Map<string, ReadonlyArray<ChartTypeKey>>();
+for (const group of interchangeGroups) {
+  for (const key of group) {
+    _interchangeMap.set(key, group);
+  }
+}
+
+/**
+ * Return every chart type the given type can be converted to
+ * (including itself). Returns a single-element array if no
+ * interchange is possible.
+ */
+export function getInterchangeableTypes(
+  chartType: ChartTypeKey,
+): ReadonlyArray<{ key: string; label: string; category: string; icon: LucideIcon }> {
+  const group = _interchangeMap.get(chartType);
+  if (!group) return chartTypes.filter((ct) => ct.key === chartType);
+  return chartTypes.filter((ct) => group.includes(ct.key));
+}
+
+/** Whether two chart types can be swapped without data loss (same interchange group) */
+export function isChartTypeCompatible(
+  from: ChartTypeKey,
+  to: ChartTypeKey,
+): boolean {
+  if (from === to) return true;
+  const group = _interchangeMap.get(from);
+  return group?.includes(to) ?? false;
+}
+
+// ── helpers for data shape detection ─────────────────────────────────
+
+type KV = { key?: string; value?: number };
+type PV = { name?: string; value?: number };
+
+function isKeyValueShape(item: unknown): item is KV {
+  return (
+    typeof item === "object" &&
+    item !== null &&
+    "key" in item &&
+    "value" in item
+  );
+}
+
+function isPieShape(item: unknown): item is PV {
+  return (
+    typeof item === "object" &&
+    item !== null &&
+    "name" in item &&
+    "value" in item &&
+    !("xValue" in item) // exclude scatter
+  );
+}
+
+/**
+ * Transform chart data when switching between interchangeable types.
+ *
+ * Handles the key↔name rename required when going between
+ * bar/breakdown/benchmark shapes and pie/donut shapes, plus
+ * color field mapping. Returns a deep clone — never mutates.
+ *
+ * Returns `null` if no transformation is needed (same shape) or
+ * the conversion is not supported.
+ */
+export function transformChartData(
+  data: unknown,
+  fromType: ChartTypeKey,
+  toType: ChartTypeKey,
+): unknown {
+  if (fromType === toType) return data;
+
+  const arr = Array.isArray(data) ? data : [];
+  if (arr.length === 0) return data;
+
+  const fromFamily = getShapeFamily(fromType);
+  const toFamily = getShapeFamily(toType);
+
+  // Same family → no transform needed (deep clone for safety)
+  if (fromFamily === toFamily) return JSON.parse(JSON.stringify(data));
+
+  // keyValue → pie (rename key→name, color→colorFrom)
+  if (fromFamily === "keyValue" && toFamily === "pie") {
+    return arr.map((item: Record<string, unknown>) => {
+      const out: Record<string, unknown> = { ...item };
+      if ("key" in out) {
+        out.name = out.key;
+        delete out.key;
+      }
+      if ("color" in out && !("colorFrom" in out)) {
+        out.colorFrom = out.color;
+        delete out.color;
+      }
+      return out;
+    });
+  }
+
+  // pie → keyValue (rename name→key, colorFrom→color)
+  if (fromFamily === "pie" && toFamily === "keyValue") {
+    return arr.map((item: Record<string, unknown>) => {
+      const out: Record<string, unknown> = { ...item };
+      if ("name" in out) {
+        out.key = out.name;
+        delete out.name;
+      }
+      if ("colorFrom" in out && !("color" in out)) {
+        out.color = out.colorFrom;
+        delete out.colorFrom;
+      }
+      // Remove pie‑only fields
+      delete out.colorTo;
+      delete out.logo;
+      return out;
+    });
+  }
+
+  // Fallback: return as-is (deep clone)
+  return JSON.parse(JSON.stringify(data));
+}
+
+type ShapeFamily = "keyValue" | "pie" | "multi" | "line" | "treemap" | "scatter" | "imageBar";
+
+function getShapeFamily(chartType: string): ShapeFamily {
+  if (chartType === "horizontal-bar-image") return "imageBar";
+  if (chartType === "horizontal-bar-multi" || chartType === "vertical-bar-multi") return "multi";
+  if (chartType.includes("line")) return "line";
+  if (
+    chartType.includes("pie") ||
+    chartType.includes("donut") ||
+    chartType.includes("fillable") ||
+    chartType.includes("half")
+  ) return "pie";
+  if (chartType.includes("treemap")) return "treemap";
+  if (chartType.includes("scatter")) return "scatter";
+  // horizontal-bar, horizontal-bar-gradient, horizontal-bar-thin,
+  // vertical-bar, breakdown, breakdown-thin, benchmark
+  return "keyValue";
+}
+
 // ── Render chart by key ───────────────────────────────────────────────
 export const getChartTypeByName = (
   data:
