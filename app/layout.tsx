@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { ConvexClientProvider } from "@/components/providers/convex-client-provider";
+import { getToken } from "@/lib/auth-server";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -12,14 +14,20 @@ export const metadata: Metadata = {
   description: "AI-powered charts from your input or file data",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const token = await getToken();
+
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        <ConvexClientProvider initialToken={token}>
+          {children}
+        </ConvexClientProvider>
+      </body>
     </html>
   );
 }

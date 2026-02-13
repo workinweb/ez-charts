@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:convex": "convex dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "convex:deploy": "convex deploy"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.27",
@@ -14,13 +16,16 @@
     "@arcjet/inspect": "^1.1.0",
     "@arcjet/next": "^1.1.0",
     "@base-ui/react": "^1.1.0",
+    "@convex-dev/better-auth": "^0.10.10",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@types/d3": "^7.4.3",
     "ai": "^6.0.81",
+    "better-auth": "1.4.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "convex": "^1.31.7",
     "d3": "^7.9.0",
     "lucide-react": "^0.563.0",
     "motion": "^12.34.0",
