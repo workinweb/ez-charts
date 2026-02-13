@@ -19,9 +19,9 @@ export function DonutChart({
   className?: string;
   suffix?: string;
 }) {
-  const radius = Math.PI * 120; // Chart base dimensions
+  const radius = 50; // Consistent with PieChart for equal sizing
   const gap = 0.01; // Gap between slices
-  const lightStrokeEffect = 10; // 3d light effect around the slice
+  const lightStrokeEffect = 2; // 3d light effect around the slice (scaled for radius 50)
 
   // Pie layout and arc generator
   const pieLayout = pie<PieChartItem>()
@@ -67,10 +67,13 @@ export function DonutChart({
   ];
 
   return (
-    <>
+    <div
+      className={`relative w-full h-72 min-h-[200px] max-h-[320px] ${className}`}
+    >
       <svg
         viewBox={`-${radius} -${radius} ${radius * 2} ${radius * 2}`}
-        className={`w-full h-full max-w-full max-h-full scale-95 ${className}`}
+        className="h-full w-full max-h-full max-w-full scale-95"
+        preserveAspectRatio="xMidYMid meet"
       >
         {/* Define clip paths and colors for each slice */}
         <defs>
@@ -98,10 +101,10 @@ export function DonutChart({
           const angle = computeAngle(d);
           const centroid = arcLabel.centroid(d);
           if (d.endAngle > Math.PI) {
-            centroid[0] += 10;
-            centroid[1] += 10;
+            centroid[0] += 1;
+            centroid[1] += 1;
           } else {
-            centroid[0] -= 10;
+            centroid[0] -= 1;
             centroid[1] -= 0;
           }
 
@@ -122,7 +125,7 @@ export function DonutChart({
                   <text
                     transform={`translate(${centroid})`}
                     textAnchor="middle"
-                    fontSize={38}
+                    fontSize={5}
                   >
                     <tspan y="-0.4em" fontWeight="600" fill={"#eee"}>
                       {d.data.name}
@@ -157,7 +160,7 @@ export function DonutChart({
                     <text
                       transform={`translate(${centroid})`}
                       textAnchor="middle"
-                      fontSize={38}
+                      fontSize={5}
                     >
                       <tspan y="-0.4em" fontWeight="600" fill={"#eee"}>
                         {d.data.name}
@@ -183,6 +186,6 @@ export function DonutChart({
           );
         })}
       </svg>
-    </>
+    </div>
   );
 }

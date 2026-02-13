@@ -38,8 +38,8 @@ export function FillableDonutChart({
     "#b597ff",
   ];
 
-  const radius = 420; // Chart base dimensions
-  const lightStrokeEffect = 10; // 3d light effect around the slice
+  const radius = 50; // Consistent with PieChart for equal sizing
+  const lightStrokeEffect = 2; // 3d light effect around the slice (scaled for radius 50)
 
   // Modify the pie layout to create a full donut filling clockwise from 12 o'clock
   const pieLayout = pie<PieChartItem>()
@@ -70,11 +70,12 @@ export function FillableDonutChart({
 
   return (
     <div
-      className={`w-full h-full max-w-full max-h-full  scale-95 ${className}`}
+      className={`relative w-full h-72 min-h-[200px] max-h-[320px] ${className}`}
     >
       <svg
         viewBox={`-${radius} -${radius} ${radius * 2} ${radius * 2}`}
-        className={`w-full h-full max-w-full max-h-full  ${className}`}
+        className="h-full w-full max-h-full max-w-full scale-95"
+        preserveAspectRatio="xMidYMid meet"
       >
         <defs>
           {arcs.map((d, i) => (
@@ -133,7 +134,7 @@ export function FillableDonutChart({
         <g transform={`translate(0, 0)`}>
           <text
             textAnchor="middle"
-            fontSize={24}
+            fontSize={3}
             fontWeight="semibold"
             fill="currentColor"
             className="text-zinc-700 dark:text-zinc-100"
@@ -144,7 +145,7 @@ export function FillableDonutChart({
 
           <text
             textAnchor="middle"
-            fontSize={28}
+            fontSize={4}
             fontWeight="bold"
             fill="currentColor"
             className="text-violet-600 dark:text-violet-400"

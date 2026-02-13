@@ -36,8 +36,8 @@ export function FillableChart({
     "#b597ff",
   ];
 
-  const radius = 420; // Chart base dimensions
-  const lightStrokeEffect = 10; // 3d light effect around the slice
+  const radius = 50; // Consistent with PieChart for equal sizing
+  const lightStrokeEffect = 2; // 3d light effect around the slice (scaled for radius 50)
 
   // Update the data order to fill clockwise
 
@@ -69,10 +69,13 @@ export function FillableChart({
   };
 
   return (
-    <div className="relative">
+    <div
+      className={`relative w-full h-72 min-h-[200px] max-h-[320px] overflow-hidden ${className}`}
+    >
       <svg
         viewBox={`-${radius} -${radius} ${radius * 2} ${radius}`}
-        className={` overflow-visible ${className}`}
+        className="h-full w-full max-h-full max-w-full"
+        preserveAspectRatio="xMidYMid meet"
       >
         <defs>
           {arcs.map((d, i) => (
@@ -130,7 +133,7 @@ export function FillableChart({
         <text
           transform={`translate(0, ${-radius / 4})`}
           textAnchor="middle"
-          fontSize={48}
+          fontSize={6}
           fontWeight="bold"
           fill="currentColor"
           className="text-zinc-700 dark:text-zinc-100"
@@ -140,7 +143,7 @@ export function FillableChart({
         <text
           transform={`translate(0, ${-radius / 12})`}
           textAnchor="middle"
-          fontSize={64}
+          fontSize={8}
           fontWeight="bold"
           fill="currentColor"
           className="text-zinc-800 dark:text-zinc-300"

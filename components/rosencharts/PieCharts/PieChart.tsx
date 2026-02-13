@@ -87,10 +87,14 @@ export function PieChart({
   };
 
   return (
-    <svg
-      viewBox={`-${radius} -${radius} ${radius * 2} ${radius * 2}`}
-      className={`w-full h-full max-w-full max-h-full scale-95 ${className}`}
+    <div
+      className={`relative w-full h-72 min-h-[200px] max-h-[320px] ${className}`}
     >
+      <svg
+        viewBox={`-${radius} -${radius} ${radius * 2} ${radius * 2}`}
+        className="h-full w-full max-h-full max-w-full scale-95"
+        preserveAspectRatio="xMidYMid meet"
+      >
       {/* Slices */}
       {arcs.map((d, i) => {
         const midAngle = (d.startAngle + d.endAngle) / 2;
@@ -248,5 +252,6 @@ export function PieChart({
         );
       })}
     </svg>
+    </div>
   );
 }

@@ -51,8 +51,8 @@ export function PieChartImage({
     },
   ];
 
-  // Chart dimensions
-  const radius = Math.PI * 100;
+  // Chart dimensions — consistent with PieChart for equal sizing
+  const radius = 50;
   const gap = 0.02; // Gap between slices
 
   // Pie layout and arc generator
@@ -77,10 +77,14 @@ export function PieChartImage({
   const MIN_ANGLE = 20;
 
   return (
-    <svg
-      viewBox={`-${radius} -${radius} ${radius * 2} ${radius * 2}`}
-      className={`w-full h-full max-w-full max-h-full scale-95 ${className}`}
+    <div
+      className={`relative w-full h-72 min-h-[200px] max-h-[320px] ${className}`}
     >
+      <svg
+        viewBox={`-${radius} -${radius} ${radius * 2} ${radius * 2}`}
+        className="h-full w-full max-h-full max-w-full scale-95"
+        preserveAspectRatio="xMidYMid meet"
+      >
       {/* Slices */}
       {arcs.map((d: PieArcDatum<PieChartItem>, i) => {
         const isHexColor =
@@ -88,7 +92,10 @@ export function PieChartImage({
           /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(d.data.colorFrom);
         const angle = computeAngle(d);
         const [x, y] = arcGenerator.centroid(d);
-        const scale = Math.min(1.2, angle / 45); // Increased base scale and adjusted angle divisor
+        // Image size scales with chart radius and slice portion (angle)
+        const imageSize =
+          radius * 0.4 * Math.min(1.2, Math.max(0.5, angle / 45));
+        const textScale = Math.min(1.2, angle / 45);
 
         if (!withTooltip) {
           return (
@@ -108,18 +115,18 @@ export function PieChartImage({
               {angle >= MIN_ANGLE && d.data.logo && (
                 <g transform={`translate(${x}, ${y})`}>
                   <foreignObject
-                    x={-40 * scale}
-                    y={-40 * scale}
-                    width={80 * scale}
-                    height={80 * scale}
+                    x={-imageSize / 2}
+                    y={-imageSize / 2}
+                    width={imageSize}
+                    height={imageSize}
                   >
-                    <div className="w-full h-full flex items-center justify-center">
+                    <div className="flex h-full w-full items-center justify-center">
                       <Image
                         src={d.data.logo}
                         alt={d.data.name}
-                        width={440}
-                        height={440}
-                        className="w-full h-full object-contain"
+                        width={Math.round(imageSize * 4)}
+                        height={Math.round(imageSize * 4)}
+                        className="h-full w-full object-contain"
                       />
                     </div>
                   </foreignObject>
@@ -128,9 +135,9 @@ export function PieChartImage({
               {angle >= MIN_ANGLE && (
                 <text
                   x={x}
-                  y={y + 50 * scale}
+                  y={y + imageSize / 2 + 3}
                   textAnchor="middle"
-                  fontSize={20 * scale}
+                  fontSize={Math.max(2.5, 4 * textScale)}
                   fill="white"
                   className="select-none font-medium"
                 >
@@ -161,18 +168,18 @@ export function PieChartImage({
                 {angle >= MIN_ANGLE && d.data.logo && (
                   <g transform={`translate(${x}, ${y})`}>
                     <foreignObject
-                      x={-40 * scale}
-                      y={-40 * scale}
-                      width={80 * scale}
-                      height={80 * scale}
+                      x={-imageSize / 2}
+                      y={-imageSize / 2}
+                      width={imageSize}
+                      height={imageSize}
                     >
-                      <div className="w-full h-full flex items-center justify-center">
+                      <div className="flex h-full w-full items-center justify-center">
                         <Image
                           src={d.data.logo}
                           alt={d.data.name}
-                          width={440}
-                          height={440}
-                          className="w-full h-full object-contain"
+                          width={Math.round(imageSize * 4)}
+                          height={Math.round(imageSize * 4)}
+                          className="h-full w-full object-contain"
                         />
                       </div>
                     </foreignObject>
@@ -181,9 +188,9 @@ export function PieChartImage({
                 {angle >= MIN_ANGLE && (
                   <text
                     x={x}
-                    y={y + 50 * scale}
+                    y={y + imageSize / 2 + 3}
                     textAnchor="middle"
-                    fontSize={20 * scale}
+                    fontSize={Math.max(2.5, 4 * textScale)}
                     fill="white"
                     className="select-none font-medium"
                   >
@@ -204,5 +211,6 @@ export function PieChartImage({
         );
       })}
     </svg>
+    </div>
   );
 }

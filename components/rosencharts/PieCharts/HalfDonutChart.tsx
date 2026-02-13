@@ -23,9 +23,9 @@ export function HalfDonutChart({
     return null;
   }
 
-  const radius = 420; // Chart base dimensions
+  const radius = 50; // Consistent with PieChart for equal sizing
   const gap = 0.01; // Gap between slices
-  const lightStrokeEffect = 10; // 3d light effect around the slice
+  const lightStrokeEffect = 2; // 3d light effect around the slice (scaled for radius 50)
 
   // Modify the pie layout to create a half donut
   const pieLayout = pie<PieChartItem>()
@@ -73,10 +73,13 @@ export function HalfDonutChart({
   ];
 
   return (
-    <div className="relative w-full">
+    <div
+      className={`relative w-full h-72 min-h-[200px] max-h-[320px] overflow-hidden ${className}`}
+    >
       <svg
         viewBox={`-${radius} -${radius} ${radius * 2} ${radius}`}
-        className={`overflow-visible ${className}`}
+        className="h-full w-full max-h-full max-w-full"
+        preserveAspectRatio="xMidYMid meet"
       >
         {/* Define clip paths and colors for each slice */}
         <defs>
@@ -104,10 +107,10 @@ export function HalfDonutChart({
           const angle = computeAngle(d);
           const centroid = arcLabel.centroid(d);
           if (d.endAngle > Math.PI) {
-            centroid[0] += 10;
-            centroid[1] += 20;
+            centroid[0] += 1;
+            centroid[1] += 2;
           } else {
-            centroid[0] += 10;
+            centroid[0] += 1;
             centroid[1] -= 0;
           }
 
@@ -127,7 +130,7 @@ export function HalfDonutChart({
                 <text
                   transform={`translate(${centroid})`}
                   textAnchor="middle"
-                  fontSize={38}
+                  fontSize={5}
                 >
                   <tspan y="-0.4em" fontWeight="600" fill={"#eee"}>
                     {d.data.name}
