@@ -37,6 +37,14 @@ interface ChartsState {
   favoritedIds: Set<string>;
   /** Static chart IDs the user has deleted (soft delete) */
   removedChartIds: Set<string>;
+  /** Last edited chart ID — persisted across navigation */
+  lastEditedChartId: string | null;
+  /** Selected chart ID for preview in the AI Builds (new) section */
+  previewChartId: string | null;
+  /** Search query for the charts page */
+  chartsSearch: string;
+  /** Search query for the favorites page */
+  favoritesSearch: string;
   addChartFromTool: (tool: ChartFromTool) => string;
   toggleFavorite: (id: string) => void;
   /** Update a dynamic chart's title (e.g. after Save Chart) */
@@ -58,6 +66,10 @@ interface ChartsState {
     withTooltip?: boolean;
     withAnimation?: boolean;
   }) => string;
+  setLastEditedChartId: (id: string | null) => void;
+  setPreviewChartId: (id: string | null) => void;
+  setChartsSearch: (value: string) => void;
+  setFavoritesSearch: (value: string) => void;
 }
 
 let nextId = 1;
@@ -70,6 +82,10 @@ export const useChartsStore = create<ChartsState>((set, get) => ({
   dynamicCharts: [],
   favoritedIds: initialFavoritedIds,
   removedChartIds: new Set<string>(),
+  lastEditedChartId: null,
+  previewChartId: null,
+  chartsSearch: "",
+  favoritesSearch: "",
 
   addChartFromTool: (tool) => {
     const id = `chat-${Date.now()}-${nextId++}`;
@@ -195,6 +211,11 @@ export const useChartsStore = create<ChartsState>((set, get) => ({
     }));
     return id;
   },
+
+  setLastEditedChartId: (id) => set({ lastEditedChartId: id }),
+  setPreviewChartId: (id) => set({ previewChartId: id }),
+  setChartsSearch: (value) => set({ chartsSearch: value }),
+  setFavoritesSearch: (value) => set({ favoritesSearch: value }),
 }));
 
 /** Merged list: static userCharts + dynamic charts from chat, with favorite state */

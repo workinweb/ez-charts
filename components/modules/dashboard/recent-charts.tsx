@@ -1,13 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  BarChart3,
-  LineChart,
-  PieChart,
-  TrendingUp,
-  Heart,
-} from "lucide-react";
+import { Heart } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -17,77 +11,14 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
-
-interface Chart {
-  id: string;
-  title: string;
-  type: "Bar" | "Line" | "Pie" | "Area";
-  source: string;
-  date: string;
-  icon: React.ElementType;
-  iconColor: string;
-  iconBg: string;
-  favorited: boolean;
-}
-
-const charts: Chart[] = [
-  {
-    id: "1",
-    title: "Sales by Region Q4",
-    type: "Bar",
-    source: "sales_data.csv",
-    date: "Today",
-    icon: BarChart3,
-    iconColor: "text-[#3D4035]",
-    iconBg: "bg-[#94B49F]/30",
-    favorited: true,
-  },
-  {
-    id: "2",
-    title: "Revenue Forecast",
-    type: "Line",
-    source: "From prompt",
-    date: "Yesterday",
-    icon: LineChart,
-    iconColor: "text-[#3D4035]",
-    iconBg: "bg-[#B5B2F2]/30",
-    favorited: false,
-  },
-  {
-    id: "3",
-    title: "Category Breakdown",
-    type: "Pie",
-    source: "expenses.xlsx",
-    date: "Jan 11",
-    icon: PieChart,
-    iconColor: "text-[#3D4035]",
-    iconBg: "bg-[#6CB4EE]/30",
-    favorited: true,
-  },
-  {
-    id: "4",
-    title: "Monthly Trends",
-    type: "Area",
-    source: "From prompt",
-    date: "Jan 09",
-    icon: TrendingUp,
-    iconColor: "text-[#3D4035]",
-    iconBg: "bg-[#6C5DD3]/30",
-    favorited: false,
-  },
-];
+import { useAllCharts, useChartsStore } from "@/stores/charts-store";
 
 export function RecentCharts() {
-  const [items, setItems] = useState(charts);
+  const items = useAllCharts();
+  const toggleFavorite = useChartsStore((s) => s.toggleFavorite);
 
-  function toggleFavorite(id: string) {
-    setItems((prev) =>
-      prev.map((c) =>
-        c.id === id ? { ...c, favorited: !c.favorited } : c
-      )
-    );
-  }
+  // Show the 4 most recent charts (last items first)
+  const recentItems = [...items].reverse().slice(0, 4);
 
   return (
     <Card className="col-span-full rounded-[28px] bg-white/80 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8 md:col-span-6">
@@ -105,7 +36,7 @@ export function RecentCharts() {
 
       <CardContent className="p-0">
         <div className="flex flex-col gap-5">
-          {items.map((chart) => {
+          {recentItems.map((chart) => {
             const Icon = chart.icon;
             return (
               <div

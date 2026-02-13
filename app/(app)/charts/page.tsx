@@ -4,7 +4,6 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import {
   Heart,
-  Loader2,
   BarChart3,
   Trash2,
   Copy,
@@ -33,13 +32,13 @@ import {
 import { Button } from "@/components/ui/button";
 
 export default function ChartsPage() {
-  const [loading] = useState(false);
-  const [search, setSearch] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<{
     id: string;
     title: string;
   } | null>(null);
   const items = useAllCharts();
+  const search = useChartsStore((s) => s.chartsSearch);
+  const setSearch = useChartsStore((s) => s.setChartsSearch);
   const toggleFavorite = useChartsStore((s) => s.toggleFavorite);
   const removeChart = useChartsStore((s) => s.removeChart);
   const duplicateChart = useChartsStore((s) => s.duplicateChart);
@@ -87,14 +86,7 @@ export default function ChartsPage() {
             }
           />
 
-          {loading ? (
-            <div className="flex flex-col items-center justify-center gap-4 py-24">
-              <Loader2 className="size-10 animate-spin text-[#3D4035]/40" />
-              <p className="text-[14px] text-[#3D4035]/60">
-                Loading your charts…
-              </p>
-            </div>
-          ) : filtered.length === 0 ? (
+          {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-4 rounded-[28px] bg-white/80 py-24 text-center shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px]">
               <BarChart3 className="size-12 text-[#3D4035]/20" />
               <p className="text-[15px] font-medium text-[#3D4035]/70">

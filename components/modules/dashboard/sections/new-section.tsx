@@ -43,28 +43,27 @@ function formatChartTime(id: string): string {
 export function NewSection() {
   const dynamicCharts = useChartsStore((s) => s.dynamicCharts);
   const updateChartTitle = useChartsStore((s) => s.updateChartTitle);
+  const previewChartId = useChartsStore((s) => s.previewChartId);
+  const setPreviewChartId = useChartsStore((s) => s.setPreviewChartId);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [chartToSave, setChartToSave] = useState<string | null>(null);
   const [saveName, setSaveName] = useState("");
-  /** Chart shown in preview — null = use latest */
-  const [selectedChartId, setSelectedChartId] = useState<string | null>(null);
 
   const latestChart = dynamicCharts[dynamicCharts.length - 1] ?? null;
   const displayChart =
-    (selectedChartId
-      ? dynamicCharts.find((c) => c.id === selectedChartId)
+    (previewChartId
+      ? dynamicCharts.find((c) => c.id === previewChartId)
       : null) ?? latestChart;
   const historyCharts = [...dynamicCharts].reverse();
 
-  console.log("🚀 ~ NewSection ~ displayChart:", displayChart);
   // When AI creates a new chart, auto-switch to it
   useEffect(() => {
     if (latestChart) {
       setTimeout(() => {
-        setSelectedChartId(latestChart.id);
+        setPreviewChartId(latestChart.id);
       }, 0);
     }
-  }, [latestChart?.id]);
+  }, [latestChart?.id, setPreviewChartId]);
 
   const openSaveDialog = (chartId: string) => {
     const chart = dynamicCharts.find((c) => c.id === chartId);
@@ -176,7 +175,7 @@ export function NewSection() {
                       chart.id === displayChart?.id &&
                         "ring-2 ring-[#6C5DD3]/30",
                     )}
-                    onClick={() => setSelectedChartId(chart.id)}
+                    onClick={() => setPreviewChartId(chart.id)}
                   >
                     <div
                       className={cn(

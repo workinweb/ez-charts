@@ -14,9 +14,15 @@ export interface Slide {
 
 interface SlidesState {
   slides: Slide[];
+  /** Slide currently being edited (opened in EditSlideDialog) */
+  editingSlide: Slide | null;
+  /** Search query for the slides page */
+  slidesSearch: string;
   addSlide: (name: string, chartIds: string[]) => void;
   removeSlide: (id: string) => void;
   updateSlide: (id: string, data: Partial<Pick<Slide, "name" | "chartIds">>) => void;
+  setEditingSlide: (slide: Slide | null) => void;
+  setSlidesSearch: (value: string) => void;
 }
 
 /** Pre-built custom slide example */
@@ -32,6 +38,8 @@ const defaultCustomSlides: Slide[] = [
 
 export const useSlidesStore = create<SlidesState>((set) => ({
   slides: [...defaultCustomSlides],
+  editingSlide: null,
+  slidesSearch: "",
 
   addSlide: (name, chartIds) =>
     set((s) => ({
@@ -58,4 +66,7 @@ export const useSlidesStore = create<SlidesState>((set) => ({
         sl.id === id ? { ...sl, ...data } : sl
       ),
     })),
+
+  setEditingSlide: (slide) => set({ editingSlide: slide }),
+  setSlidesSearch: (value) => set({ slidesSearch: value }),
 }));

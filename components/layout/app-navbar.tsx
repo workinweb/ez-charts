@@ -32,9 +32,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useChartById } from "@/stores/charts-store";
-
-const EDIT_CHART_STORAGE_KEY = "editingChartId";
+import { useChartById, useChartsStore } from "@/stores/charts-store";
 
 const navItems = [
   { label: "Home", href: "/", icon: Home },
@@ -45,24 +43,25 @@ function AppNavbarInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [persistedChartId, setPersistedChartId] = useState<string | null>(null);
   const [createChartConfirmOpen, setCreateChartConfirmOpen] = useState(false);
+
+  // Read last-edited chart ID from the Zustand store
+  const lastEditedChartId = useChartsStore((s) => s.lastEditedChartId);
+  const setLastEditedChartId = useChartsStore((s) => s.setLastEditedChartId);
 
   const chartFromUrl =
     pathname === "/edit" ? searchParams.get("chart") : null;
-  const editingChartId = chartFromUrl ?? persistedChartId;
-  const isEditingChart = pathname === "/edit" && !!chartFromUrl;
-  const editingChart = useChartById(editingChartId ?? undefined);
 
+  // Sync URL → store when the URL has a chart param
   useEffect(() => {
     if (chartFromUrl) {
-      sessionStorage.setItem(EDIT_CHART_STORAGE_KEY, chartFromUrl);
-      setPersistedChartId(chartFromUrl);
-    } else {
-      const stored = sessionStorage.getItem(EDIT_CHART_STORAGE_KEY);
-      setPersistedChartId(stored);
+      setLastEditedChartId(chartFromUrl);
     }
-  }, [chartFromUrl]);
+  }, [chartFromUrl, setLastEditedChartId]);
+
+  const editingChartId = chartFromUrl ?? lastEditedChartId;
+  const isEditingChart = pathname === "/edit" && !!chartFromUrl;
+  const editingChart = useChartById(editingChartId ?? undefined);
 
   const currentLabel =
     pathname === "/edit" && editingChartId

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Navbar } from "@/components/layout/navbar";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
 import { cn } from "@/lib/utils";
-import { useSlidesStore, type Slide } from "@/stores/slides-store";
+import { useSlidesStore } from "@/stores/slides-store";
 import { CreateSlideDialog } from "@/components/modules/slides/create-slide-dialog";
 import { EditSlideDialog } from "@/components/modules/slides/edit-slide-dialog";
 import { getChartById } from "@/lib/charts-data";
@@ -47,13 +47,16 @@ function matchesSlide(
 }
 
 export default function SlidesPage() {
-  const [search, setSearch] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<{
     id: string;
     name: string;
   } | null>(null);
-  const [editSlide, setEditSlide] = useState<Slide | null>(null);
-  const { slides, removeSlide } = useSlidesStore();
+  const slides = useSlidesStore((s) => s.slides);
+  const removeSlide = useSlidesStore((s) => s.removeSlide);
+  const search = useSlidesStore((s) => s.slidesSearch);
+  const setSearch = useSlidesStore((s) => s.setSlidesSearch);
+  const editSlide = useSlidesStore((s) => s.editingSlide);
+  const setEditSlide = useSlidesStore((s) => s.setEditingSlide);
   const customSlides = slides.filter((s) => s.type === "custom");
 
   const filteredCustom = useMemo(() => {

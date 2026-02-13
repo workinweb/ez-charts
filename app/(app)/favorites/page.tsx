@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Heart, Loader2, Trash2, Copy } from "lucide-react";
+import { Heart, Trash2, Copy } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
 import { cn } from "@/lib/utils";
@@ -24,13 +24,13 @@ import {
 } from "@/lib/use-pagination";
 
 export default function FavoritesPage() {
-  const [loading] = useState(false);
-  const [search, setSearch] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<{
     id: string;
     title: string;
   } | null>(null);
   const items = useAllCharts().filter((c) => c.favorited);
+  const search = useChartsStore((s) => s.favoritesSearch);
+  const setSearch = useChartsStore((s) => s.setFavoritesSearch);
   const toggleFavorite = useChartsStore((s) => s.toggleFavorite);
   const removeChart = useChartsStore((s) => s.removeChart);
   const duplicateChart = useChartsStore((s) => s.duplicateChart);
@@ -66,14 +66,7 @@ export default function FavoritesPage() {
             countLabel={totalItems === 1 ? "chart" : "charts"}
           />
 
-          {loading ? (
-            <div className="flex flex-col items-center justify-center gap-4 py-24">
-              <Loader2 className="size-10 animate-spin text-[#3D4035]/40" />
-              <p className="text-[14px] text-[#3D4035]/60">
-                Loading your favorites…
-              </p>
-            </div>
-          ) : totalItems === 0 ? (
+          {totalItems === 0 ? (
             <div className="flex flex-col items-center justify-center gap-4 rounded-[28px] bg-white/80 py-24 text-center shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px]">
               <Heart className="size-12 text-[#3D4035]/20" />
               <p className="text-[15px] font-medium text-[#3D4035]/70">

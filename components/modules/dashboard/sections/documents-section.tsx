@@ -28,22 +28,6 @@ import {
 const ACCEPTED_FILE_TYPES =
   ".csv,.xlsx,.xls,.pdf,.json,.txt,.tsv,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/pdf,application/json,text/plain,text/tab-separated-values";
 
-async function parseFile(file: File): Promise<{
-  fileName: string;
-  mimeType: string;
-  size: number;
-  textContent: string;
-}> {
-  const formData = new FormData();
-  formData.append("file", file);
-  const res = await fetch("/api/parse-file", { method: "POST", body: formData });
-  if (!res.ok) {
-    const data = await res.json();
-    throw new Error(data.error || "Failed to parse file");
-  }
-  return res.json();
-}
-
 function getFileIcon(name: string) {
   const ext = name.split(".").pop()?.toLowerCase();
   if (ext === "csv" || ext === "xlsx" || ext === "xls") return FileSpreadsheet;
@@ -78,40 +62,20 @@ function downloadDocument(doc: {
 }
 
 export function DocumentsSection() {
-  const [search, setSearch] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{
     id: string;
     name: string;
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const documents = useDocumentsStore((s) => s.documents);
-  const addDocument = useDocumentsStore((s) => s.addDocument);
-  const removeDocument = useDocumentsStore((s) => s.removeDocument);
 
-  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
-    if (!files?.length) return;
-    setUploadError(null);
-    setUploading(true);
-    try {
-      for (const file of Array.from(files)) {
-        const { fileName, mimeType, size, textContent } = await parseFile(file);
-        addDocument({
-          name: fileName,
-          size,
-          type: mimeType,
-          content: textContent,
-        });
-      }
-    } catch (err) {
-      setUploadError(err instanceof Error ? err.message : "Failed to upload");
-    } finally {
-      setUploading(false);
-      e.target.value = "";
-    }
-  }
+  // All state from Zustand store
+  const documents = useDocumentsStore((s) => s.documents);
+  const search = useDocumentsStore((s) => s.search);
+  const setSearch = useDocumentsStore((s) => s.setSearch);
+  const uploading = useDocumentsStore((s) => s.uploading);
+  const uploadError = useDocumentsStore((s) => s.uploadError);
+  const uploadFiles = useDocumentsStore((s) => s.uploadFiles);
+  const removeDocument = useDocumentsStore((s) => s.removeDocument);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return documents;
@@ -130,7 +94,12 @@ export function DocumentsSection() {
         multiple
         accept={ACCEPTED_FILE_TYPES}
         className="hidden"
-        onChange={handleFileSelect}
+        onChange={(e) => {
+          if (e.target.files && e.target.files.length > 0) {
+            uploadFiles(e.target.files);
+          }
+          e.target.value = "";
+        }}
       />
       <PageSearchBar
         value={search}
