@@ -43,6 +43,8 @@ interface ChartsState {
   updateChartTitle: (id: string, title: string) => void;
   /** Remove a chart (dynamic: hard delete; static: soft delete) */
   removeChart: (id: string) => void;
+  /** Duplicate a chart (creates a new dynamic chart) */
+  duplicateChart: (id: string) => string | null;
 }
 
 let nextId = 1;
@@ -51,7 +53,7 @@ const initialFavoritedIds = new Set(
   userCharts.filter((c) => c.favorited).map((c) => c.id),
 );
 
-export const useChartsStore = create<ChartsState>((set) => ({
+export const useChartsStore = create<ChartsState>((set, get) => ({
   dynamicCharts: [],
   favoritedIds: initialFavoritedIds,
   removedChartIds: new Set<string>(),
@@ -99,6 +101,24 @@ export const useChartsStore = create<ChartsState>((set) => ({
       nextFav.delete(id);
       return { removedChartIds: next, favoritedIds: nextFav };
     }),
+
+  duplicateChart: (id) => {
+    const s = get();
+    if (s.removedChartIds.has(id)) return null;
+    const chart = getChartById(id, s.dynamicCharts);
+    if (!chart) return null;
+    const newId = `chat-${Date.now()}-${nextId++}`;
+    const duplicate: UserChart = {
+      ...chart,
+      id: newId,
+      title: `${chart.title} (copy)`,
+      date: "Just now",
+    };
+    set((state) => ({
+      dynamicCharts: [...state.dynamicCharts, duplicate],
+    }));
+    return newId;
+  },
 }));
 
 /** Merged list: static userCharts + dynamic charts from chat, with favorite state */

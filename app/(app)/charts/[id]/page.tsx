@@ -2,9 +2,9 @@
 
 import { useParams, notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Presentation } from "lucide-react";
+import { ArrowLeft, Presentation, Copy } from "lucide-react";
 import { getChartTypeByName } from "@/components/rosencharts";
-import { useChartById } from "@/stores/charts-store";
+import { useChartById, useChartsStore } from "@/stores/charts-store";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/navbar";
 
@@ -12,6 +12,7 @@ export default function ChartDetailPage() {
   const params = useParams();
   const id = typeof params.id === "string" ? params.id : params.id?.[0];
   const chart = useChartById(id);
+  const duplicateChart = useChartsStore((s) => s.duplicateChart);
 
   if (!chart) {
     notFound();
@@ -47,6 +48,16 @@ export default function ChartDetailPage() {
             </Button>
 
             <div className="flex-1" />
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => duplicateChart(id!)}
+              className="gap-2 text-[#3D4035]/70 hover:text-[#3D4035]"
+            >
+              <Copy className="size-3.5" />
+              Duplicate
+            </Button>
 
             <Button
               size="sm"

@@ -5,10 +5,17 @@ import Link from "next/link";
 import { Navbar } from "@/components/layout/navbar";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
 import { cn } from "@/lib/utils";
-import { useSlidesStore } from "@/stores/slides-store";
+import { useSlidesStore, type Slide } from "@/stores/slides-store";
 import { CreateSlideDialog } from "@/components/modules/slides/create-slide-dialog";
+import { EditSlideDialog } from "@/components/modules/slides/edit-slide-dialog";
 import { getChartById } from "@/lib/charts-data";
-import { Presentation, Layers, ChevronRight, Trash2 } from "lucide-react";
+import {
+  Presentation,
+  Layers,
+  ChevronRight,
+  Trash2,
+  Pencil,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +26,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { PaginationControls } from "@/components/ui/pagination-controls";
+import {
+  usePagination,
+  DEFAULT_PAGE_SIZE,
+} from "@/lib/use-pagination";
 
 function matchesSlide(
   slide: { name: string; chartIds: string[] },
@@ -40,6 +52,7 @@ export default function SlidesPage() {
     id: string;
     name: string;
   } | null>(null);
+  const [editSlide, setEditSlide] = useState<Slide | null>(null);
   const { slides, removeSlide } = useSlidesStore();
   const customSlides = slides.filter((s) => s.type === "custom");
 
@@ -49,7 +62,13 @@ export default function SlidesPage() {
     return customSlides.filter((s) => matchesSlide(s, q, getChartById));
   }, [customSlides, search]);
 
-  const totalFiltered = filteredCustom.length;
+  const {
+    paginatedItems,
+    page,
+    setPage,
+    totalPages,
+    totalItems,
+  } = usePagination(filteredCustom, DEFAULT_PAGE_SIZE);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-background">
@@ -61,12 +80,12 @@ export default function SlidesPage() {
             value={search}
             onChange={setSearch}
             placeholder="Search slides…"
-            count={totalFiltered}
-            countLabel={totalFiltered === 1 ? "slide" : "slides"}
+            count={totalItems}
+            countLabel={totalItems === 1 ? "slide" : "slides"}
             addButton={<CreateSlideDialog triggerLabel="Add new" />}
           />
 
-          {totalFiltered === 0 ? (
+          {totalItems === 0 ? (
             <div className="flex flex-col items-center justify-center gap-4 rounded-[28px] bg-white/80 py-24 text-center shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px]">
               <Presentation className="size-12 text-[#3D4035]/20" />
               <p className="text-[15px] font-medium text-[#3D4035]/70">
@@ -79,16 +98,14 @@ export default function SlidesPage() {
               </p>
             </div>
           ) : (
-            <>
+            <div className="flex flex-col gap-6">
               {/* Custom slide decks */}
-              {filteredCustom.length > 0 && (
-                <section className="flex flex-col gap-3">
-                  <div className="rounded-[28px] bg-white/80 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
-                    <div className="flex flex-col gap-4">
-                      {filteredCustom.map((slide) => {
+              <section className="flex flex-col gap-3">
+                <div className="rounded-[28px] bg-white/80 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
+                  <div className="flex flex-col gap-4">
+                    {paginatedItems.map((slide) => {
                         const chartCount = slide.chartIds.length;
                         const firstChart = getChartById(slide.chartIds[0]);
-                        const Icon = firstChart?.icon ?? Presentation;
                         const iconBg = firstChart?.iconBg ?? "bg-[#6C5DD3]/20";
                         const iconColor =
                           firstChart?.iconColor ?? "text-[#3D4035]";
@@ -121,6 +138,15 @@ export default function SlidesPage() {
 
                             <button
                               type="button"
+                              onClick={() => setEditSlide(slide)}
+                              className="shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors hover:bg-black/[0.04] hover:text-[#3D4035]/70"
+                              aria-label="Edit slide deck"
+                            >
+                              <Pencil className="size-4" />
+                            </button>
+
+                            <button
+                              type="button"
                               onClick={() =>
                                 setDeleteTarget({
                                   id: slide.id,
@@ -142,15 +168,26 @@ export default function SlidesPage() {
                             </Link>
                           </div>
                         );
-                      })}
-                    </div>
+                    })}
                   </div>
-                </section>
-              )}
-            </>
+                </div>
+              </section>
+
+              <PaginationControls
+                page={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+              />
+            </div>
           )}
         </div>
       </div>
+
+      <EditSlideDialog
+        open={!!editSlide}
+        onOpenChange={(open) => !open && setEditSlide(null)}
+        slide={editSlide}
+      />
 
       <AlertDialog
         open={!!deleteTarget}

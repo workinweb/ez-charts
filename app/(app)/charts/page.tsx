@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Heart, Loader2, BarChart3, Trash2 } from "lucide-react";
+import { Heart, Loader2, BarChart3, Trash2, Copy } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { PaginationControls } from "@/components/ui/pagination-controls";
+import {
+  usePagination,
+  DEFAULT_PAGE_SIZE,
+} from "@/lib/use-pagination";
 
 export default function ChartsPage() {
   const [loading] = useState(false);
@@ -28,6 +33,7 @@ export default function ChartsPage() {
   const items = useAllCharts();
   const toggleFavorite = useChartsStore((s) => s.toggleFavorite);
   const removeChart = useChartsStore((s) => s.removeChart);
+  const duplicateChart = useChartsStore((s) => s.duplicateChart);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return items;
@@ -39,6 +45,14 @@ export default function ChartsPage() {
     );
   }, [items, search]);
 
+  const {
+    paginatedItems,
+    page,
+    setPage,
+    totalPages,
+    totalItems,
+  } = usePagination(filtered, DEFAULT_PAGE_SIZE);
+
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-background">
       <Navbar />
@@ -49,7 +63,7 @@ export default function ChartsPage() {
             value={search}
             onChange={setSearch}
             placeholder="Search charts…"
-            count={filtered.length}
+            count={totalItems}
             countLabel="charts"
           />
 
@@ -73,9 +87,10 @@ export default function ChartsPage() {
               </p>
             </div>
           ) : (
-            <div className="rounded-[28px] bg-white/80 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
-              <div className="flex flex-col gap-5">
-                {filtered.map((chart) => {
+            <div className="flex flex-col gap-6">
+              <div className="rounded-[28px] bg-white/80 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
+                <div className="flex flex-col gap-5">
+                  {paginatedItems.map((chart) => {
                   const Icon = chart.icon;
                   return (
                     <div
@@ -102,6 +117,15 @@ export default function ChartsPage() {
                           {chart.source}
                         </p>
                       </div>
+
+                      <button
+                        type="button"
+                        onClick={() => duplicateChart(chart.id)}
+                        className="shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors hover:bg-black/[0.04] hover:text-[#3D4035]/70"
+                        aria-label="Duplicate chart"
+                      >
+                        <Copy className="size-4" />
+                      </button>
 
                       <button
                         type="button"
@@ -145,7 +169,14 @@ export default function ChartsPage() {
                     </div>
                   );
                 })}
+                </div>
               </div>
+
+              <PaginationControls
+                page={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+              />
             </div>
           )}
         </div>
