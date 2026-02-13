@@ -2,17 +2,32 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Heart, Loader2, BarChart3 } from "lucide-react";
+import { Heart, Loader2, BarChart3, Trash2 } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
 import { cn } from "@/lib/utils";
 import { useAllCharts, useChartsStore } from "@/stores/charts-store";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function ChartsPage() {
   const [loading] = useState(false);
   const [search, setSearch] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
   const items = useAllCharts();
   const toggleFavorite = useChartsStore((s) => s.toggleFavorite);
+  const removeChart = useChartsStore((s) => s.removeChart);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return items;
@@ -63,9 +78,8 @@ export default function ChartsPage() {
                 {filtered.map((chart) => {
                   const Icon = chart.icon;
                   return (
-                    <Link
+                    <div
                       key={chart.id}
-                      href={`/charts/${chart.id}`}
                       className="flex items-center gap-6 rounded-[28px] p-3 transition-colors hover:bg-black/[0.02]"
                     >
                       <div
@@ -91,10 +105,18 @@ export default function ChartsPage() {
 
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          toggleFavorite(chart.id);
-                        }}
+                        onClick={() =>
+                          setDeleteTarget({ id: chart.id, title: chart.title })
+                        }
+                        className="shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors hover:bg-red-50 hover:text-red-500"
+                        aria-label="Delete chart"
+                      >
+                        <Trash2 className="size-4" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => toggleFavorite(chart.id)}
                         className="shrink-0 rounded-full p-2 text-[#3D4035]/40 transition-colors hover:bg-black/[0.04] hover:text-[#3D4035]/70"
                         aria-label={
                           chart.favorited
@@ -109,15 +131,18 @@ export default function ChartsPage() {
                         )}
                       </button>
 
-                      <div className="text-right">
+                      <Link
+                        href={`/charts/${chart.id}`}
+                        className="flex shrink-0 flex-col items-end gap-1 text-right"
+                      >
                         <p className="text-[13px] font-medium text-[#3D4035]/50">
                           {chart.date}
                         </p>
-                        <span className="mt-1 inline-block text-[13px] font-semibold text-[#6C5DD3]">
+                        <span className="text-[13px] font-semibold text-[#6C5DD3] hover:underline">
                           Open →
                         </span>
-                      </div>
-                    </Link>
+                      </Link>
+                    </div>
                   );
                 })}
               </div>
@@ -125,6 +150,32 @@ export default function ChartsPage() {
           )}
         </div>
       </div>
+
+      <AlertDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
+        <AlertDialogContent className="rounded-2xl sm:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete chart?</AlertDialogTitle>
+            <AlertDialogDescription>
+              &ldquo;{deleteTarget?.title}&rdquo; will be permanently removed.
+              This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() =>
+                deleteTarget && removeChart(deleteTarget.id)
+              }
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

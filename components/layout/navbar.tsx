@@ -29,7 +29,7 @@ import { usePathname } from "next/navigation";
 const navLinks = [
   { label: "Dashboard", href: "/" },
   { label: "Favorites", href: "/favorites" },
-  { label: "All Charts", href: "/charts" },
+  { label: "Charts", href: "/charts" },
   { label: "Slides", href: "/slides" },
 ];
 

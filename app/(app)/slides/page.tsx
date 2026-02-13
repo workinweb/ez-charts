@@ -42,7 +42,6 @@ export default function SlidesPage() {
   } | null>(null);
   const { slides, removeSlide } = useSlidesStore();
   const customSlides = slides.filter((s) => s.type === "custom");
-  const autoSlides = slides.filter((s) => s.type === "auto");
 
   const filteredCustom = useMemo(() => {
     if (!search.trim()) return customSlides;
@@ -50,13 +49,7 @@ export default function SlidesPage() {
     return customSlides.filter((s) => matchesSlide(s, q, getChartById));
   }, [customSlides, search]);
 
-  const filteredAuto = useMemo(() => {
-    if (!search.trim()) return autoSlides;
-    const q = search.toLowerCase().trim();
-    return autoSlides.filter((s) => matchesSlide(s, q, getChartById));
-  }, [autoSlides, search]);
-
-  const totalFiltered = filteredCustom.length + filteredAuto.length;
+  const totalFiltered = filteredCustom.length;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-background">
@@ -90,10 +83,6 @@ export default function SlidesPage() {
               {/* Custom slide decks */}
               {filteredCustom.length > 0 && (
                 <section className="flex flex-col gap-3">
-                  <h2 className="flex items-center gap-2 text-[14px] font-semibold text-[#3D4035]/70">
-                    <Layers className="size-4" />
-                    Custom Decks
-                  </h2>
                   <div className="rounded-[28px] bg-white/80 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
                     <div className="flex flex-col gap-4">
                       {filteredCustom.map((slide) => {
@@ -152,58 +141,6 @@ export default function SlidesPage() {
                               <ChevronRight className="size-3.5" />
                             </Link>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </section>
-              )}
-
-              {/* Auto slides (one per chart) */}
-              {filteredAuto.length > 0 && (
-                <section className="flex flex-col gap-3">
-                  <h2 className="flex items-center gap-2 text-[14px] font-semibold text-[#3D4035]/70">
-                    <Presentation className="size-4" />
-                    Individual Charts
-                  </h2>
-                  <div className="rounded-[28px] bg-white/80 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
-                    <div className="flex flex-col gap-4">
-                      {filteredAuto.map((slide) => {
-                        const chart = getChartById(slide.chartIds[0]);
-                        if (!chart) return null;
-                        const Icon = chart.icon;
-                        return (
-                          <Link
-                            key={slide.id}
-                            href={`/present/${slide.id}`}
-                            className="flex items-center gap-6 rounded-[28px] p-3 transition-colors hover:bg-black/[0.02]"
-                          >
-                            <div
-                              className={cn(
-                                "flex size-16 shrink-0 items-center justify-center rounded-[24px]",
-                                chart.iconBg,
-                              )}
-                            >
-                              <Icon
-                                className={cn("size-7", chart.iconColor)}
-                                strokeWidth={2}
-                              />
-                            </div>
-
-                            <div className="min-w-0 flex-1">
-                              <p className="text-[17px] font-medium text-[#3D4035]">
-                                {slide.name}
-                              </p>
-                              <p className="text-[13px] text-[#3D4035]/50">
-                                {chart.source} · {chart.date}
-                              </p>
-                            </div>
-
-                            <span className="flex items-center gap-1 text-[13px] font-semibold text-[#6C5DD3]">
-                              Present
-                              <ChevronRight className="size-3.5" />
-                            </span>
-                          </Link>
                         );
                       })}
                     </div>

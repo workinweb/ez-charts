@@ -1,15 +1,14 @@
 "use client";
 
 import { create } from "zustand";
-import { userCharts } from "@/lib/charts-data";
 
 export interface Slide {
   id: string;
   name: string;
   /** IDs of charts in this slide deck (order matters) */
   chartIds: string[];
-  /** "auto" = one chart = one default slide; "custom" = user-created collection */
-  type: "auto" | "custom";
+  /** "custom" = user-created collection */
+  type: "custom";
   createdAt: string;
 }
 
@@ -18,17 +17,6 @@ interface SlidesState {
   addSlide: (name: string, chartIds: string[]) => void;
   removeSlide: (id: string) => void;
   updateSlide: (id: string, data: Partial<Pick<Slide, "name" | "chartIds">>) => void;
-}
-
-/** Generate auto-slides from every user chart */
-function buildAutoSlides(): Slide[] {
-  return userCharts.map((c) => ({
-    id: `auto-${c.id}`,
-    name: c.title,
-    chartIds: [c.id],
-    type: "auto" as const,
-    createdAt: c.date,
-  }));
 }
 
 /** Pre-built custom slide example */
@@ -43,7 +31,7 @@ const defaultCustomSlides: Slide[] = [
 ];
 
 export const useSlidesStore = create<SlidesState>((set) => ({
-  slides: [...buildAutoSlides(), ...defaultCustomSlides],
+  slides: [...defaultCustomSlides],
 
   addSlide: (name, chartIds) =>
     set((s) => ({

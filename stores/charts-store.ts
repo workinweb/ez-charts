@@ -35,10 +35,14 @@ interface ChartsState {
   dynamicCharts: UserChart[];
   /** Chart IDs the user has favorited */
   favoritedIds: Set<string>;
+  /** Static chart IDs the user has deleted (soft delete) */
+  removedChartIds: Set<string>;
   addChartFromTool: (tool: ChartFromTool) => string;
   toggleFavorite: (id: string) => void;
   /** Update a dynamic chart's title (e.g. after Save Chart) */
   updateChartTitle: (id: string, title: string) => void;
+  /** Remove a chart (dynamic: hard delete; static: soft delete) */
+  removeChart: (id: string) => void;
 }
 
 let nextId = 1;
@@ -50,6 +54,7 @@ const initialFavoritedIds = new Set(
 export const useChartsStore = create<ChartsState>((set) => ({
   dynamicCharts: [],
   favoritedIds: initialFavoritedIds,
+  removedChartIds: new Set<string>(),
 
   addChartFromTool: (tool) => {
     const id = `chat-${Date.now()}-${nextId++}`;
@@ -74,13 +79,36 @@ export const useChartsStore = create<ChartsState>((set) => ({
         c.id === id ? { ...c, title } : c,
       ),
     })),
+
+  removeChart: (id) =>
+    set((s) => {
+      const isDynamic = s.dynamicCharts.some((c) => c.id === id);
+      if (isDynamic) {
+        return {
+          dynamicCharts: s.dynamicCharts.filter((c) => c.id !== id),
+          favoritedIds: (() => {
+            const next = new Set(s.favoritedIds);
+            next.delete(id);
+            return next;
+          })(),
+        };
+      }
+      const next = new Set(s.removedChartIds);
+      next.add(id);
+      const nextFav = new Set(s.favoritedIds);
+      nextFav.delete(id);
+      return { removedChartIds: next, favoritedIds: nextFav };
+    }),
 }));
 
 /** Merged list: static userCharts + dynamic charts from chat, with favorite state */
 export function useAllCharts(): UserChart[] {
   const dynamicCharts = useChartsStore((s) => s.dynamicCharts);
   const favoritedIds = useChartsStore((s) => s.favoritedIds);
-  const all = [...userCharts, ...dynamicCharts];
+  const removedChartIds = useChartsStore((s) => s.removedChartIds);
+  const all = [...userCharts, ...dynamicCharts].filter(
+    (c) => !removedChartIds.has(c.id),
+  );
   return all.map((c) => ({
     ...c,
     favorited: favoritedIds.has(c.id),
@@ -90,5 +118,8 @@ export function useAllCharts(): UserChart[] {
 /** Get a chart by ID (static or dynamic) */
 export function useChartById(id: string | undefined): UserChart | undefined {
   const dynamicCharts = useChartsStore((s) => s.dynamicCharts);
-  return getChartById(id ?? "", dynamicCharts);
+  const removedChartIds = useChartsStore((s) => s.removedChartIds);
+  const chart = getChartById(id ?? "", dynamicCharts);
+  if (!chart || removedChartIds.has(chart.id)) return undefined;
+  return chart;
 }
