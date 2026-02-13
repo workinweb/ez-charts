@@ -60,8 +60,8 @@ export function Navbar() {
   const setActiveSection = useSectionStore((s) => s.setActiveSection);
 
   return (
-    <nav className="flex items-center justify-between px-3 py-3 sm:px-5 sm:py-4">
-      <div className="flex w-full items-center justify-between rounded-[32px] bg-white/80 px-4 py-2.5 shadow-sm ring-1 ring-black/[0.02] sm:px-6 sm:py-3">
+    <nav className="flex items-center justify-between px-3 py-3  sm:px-5 sm:py-4">
+      <div className="flex w-full items-center justify-between rounded-[32px] max-w-[1600px] mx-auto w-full bg-white/80 px-4 py-2.5 shadow-sm ring-1 ring-black/[0.02] sm:px-6 sm:py-3">
         {/* Left: nav links (desktop) / hamburger + tools (mobile) */}
         <div className="flex items-center gap-3 sm:gap-6">
           {/* Mobile tools popover */}

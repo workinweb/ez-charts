@@ -23,6 +23,12 @@ Data shapes by chartType:
 
 Brand colors: #6C5DD3, #BCBDEA, #5574e8, #2dd4a8, #e87c5c, #8b95a8, #7c6ee8, #354052
 
+When the user has attached an existing chart (you will see "[Attached chart: ...]" in the message):
+- Treat this as guided editing: the user wants help improving or modifying their chart.
+- Use the attached chart's title, chartType, and data as the starting point.
+- Apply changes based on the user's request (e.g. "add more bars", "change colors", "swap to pie chart") by calling createChart with the modified data.
+- Be conversational and helpful; suggest concrete improvements when appropriate.
+
 If the user is just chatting and NOT requesting a chart, respond naturally without calling createChart.`;
 
 export const GUARDRAIL_SYSTEM_PROMPT = `You are a classifier. Determine if the user's message is relevant to:

@@ -13,9 +13,16 @@ export interface AttachedFile {
 
 export type ChatSidebarView = "chat" | "settings";
 
+export interface AttachedChartContext {
+  title: string;
+  chartType: string;
+  data: unknown;
+}
+
 interface ChatbotState {
   input: string;
   attachedFiles: AttachedFile[];
+  attachedChartContext: AttachedChartContext | null;
   selectedChartKey: string | null;
   chatSidebarView: ChatSidebarView;
   /** Save attached documents to DB (default: disabled) */
@@ -25,6 +32,7 @@ interface ChatbotState {
   addFiles: (files: FileList | File[]) => void;
   removeFile: (index: number) => void;
   clearFiles: () => void;
+  setAttachedChartContext: (context: AttachedChartContext | null) => void;
   setSelectedChartKey: (key: string | null) => void;
   toggleSelectedChartKey: (key: string) => void;
   setChatSidebarView: (view: ChatSidebarView) => void;
@@ -52,6 +60,7 @@ async function parseFile(file: File): Promise<{ textContent: string }> {
 export const useChatbotStore = create<ChatbotState>((set) => ({
   input: "",
   attachedFiles: [],
+  attachedChartContext: null,
   selectedChartKey: null,
   chatSidebarView: "chat",
   saveDocumentsOnDb: false,
@@ -101,6 +110,9 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
     })),
 
   clearFiles: () => set({ attachedFiles: [] }),
+
+  setAttachedChartContext: (context) =>
+    set({ attachedChartContext: context }),
 
   setSelectedChartKey: (key) => set({ selectedChartKey: key }),
 

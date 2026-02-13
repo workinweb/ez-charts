@@ -22,6 +22,7 @@ import {
   Settings2,
   GripVertical,
   Lock,
+  Sparkles,
 } from "lucide-react";
 import {
   getChartTypeByName,
@@ -31,6 +32,7 @@ import {
 } from "@/components/rosencharts";
 import type { ChartTypeKey } from "@/components/rosencharts";
 import { useAllCharts, useChartsStore } from "@/stores/charts-store";
+import { useChatbotStore } from "@/stores/chatbot-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -183,6 +185,12 @@ function EditChartContent() {
   const allCharts = useAllCharts();
   const updateChart = useChartsStore((s) => s.updateChart);
   const addChart = useChartsStore((s) => s.addChart);
+  const {
+    setAttachedChartContext,
+    setSelectedChartKey,
+    setInput,
+    setChatSidebarView,
+  } = useChatbotStore();
 
   const isCreateMode = !chartId;
 
@@ -302,6 +310,26 @@ function EditChartContent() {
     router,
   ]);
 
+  /* ── Send to AI handler ───────────────────────────────────────────── */
+  const handleSendToAI = useCallback(() => {
+    setAttachedChartContext({
+      title: title || "Untitled Chart",
+      chartType,
+      data: data ?? [],
+    });
+    setSelectedChartKey(chartType);
+    setInput("Help me improve this chart");
+    setChatSidebarView("chat");
+  }, [
+    title,
+    chartType,
+    data,
+    setAttachedChartContext,
+    setSelectedChartKey,
+    setInput,
+    setChatSidebarView,
+  ]);
+
   /* ── Reset handler ───────────────────────────────────────────────── */
   const handleReset = useCallback(() => {
     if (isCreateMode) {
@@ -372,6 +400,17 @@ function EditChartContent() {
                 Reset
               </Button>
             )}
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSendToAI}
+              className="gap-2 text-[#6C5DD3]/80 hover:bg-[#6C5DD3]/10 hover:text-[#6C5DD3]"
+              title="Load this chart into AI chat for guided editing"
+            >
+              <Sparkles className="size-3.5" />
+              Load on Assistant
+            </Button>
 
             <Button
               size="sm"

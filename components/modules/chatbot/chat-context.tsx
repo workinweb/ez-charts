@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useCallback, useEffect, useRef } from "react";
 import { useChat } from "@ai-sdk/react";
+import type { AttachedChartContext } from "@/stores/chatbot-store";
 import { useChatbotStore } from "@/stores/chatbot-store";
 import { useChartsStore } from "@/stores/charts-store";
 
@@ -21,6 +22,8 @@ interface ChatContextValue {
   addFiles: (files: FileList | File[]) => void;
   removeFile: (index: number) => void;
   clearFiles: () => void;
+  attachedChartContext: ReturnType<typeof useChatbotStore.getState>["attachedChartContext"];
+  setAttachedChartContext: (ctx: AttachedChartContext | null) => void;
 }
 
 const ChatContext = createContext<ChatContextValue | null>(null);
@@ -55,6 +58,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     addFiles,
     removeFile,
     clearFiles,
+    attachedChartContext,
+    setAttachedChartContext,
     selectedChartKey,
   } = useChatbotStore();
   const addChartFromTool = useChartsStore((s) => s.addChartFromTool);
@@ -82,34 +87,38 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       e?.preventDefault();
       const trimmed = input.trim();
       const hasFiles = attachedFiles.some((f) => f.parsedContent);
+      const hasChart = !!attachedChartContext;
 
-      if (!trimmed && !hasFiles) return;
+      if (!trimmed && !hasFiles && !hasChart) return;
 
       let messageText = trimmed;
 
+      const contextParts: string[] = [];
       if (hasFiles) {
-        const fileContextParts = attachedFiles
+        const fileParts = attachedFiles
           .filter((f) => f.parsedContent)
           .map((f) => `[Attached file: ${f.name}]\n${f.parsedContent}`);
-
-        if (fileContextParts.length > 0) {
-          const fileContext = fileContextParts.join("\n\n");
-          messageText = messageText
-            ? `${messageText}\n\n---\n${fileContext}`
-            : fileContext;
-        }
+        contextParts.push(...fileParts);
+      }
+      if (hasChart) {
+        const chartCtx = `[Attached chart: ${attachedChartContext.title}]\nChart type: ${attachedChartContext.chartType}\nData:\n${JSON.stringify(attachedChartContext.data, null, 2)}`;
+        contextParts.push(chartCtx);
+      }
+      if (contextParts.length > 0) {
+        const combined = contextParts.join("\n\n");
+        messageText = messageText ? `${messageText}\n\n---\n${combined}` : combined;
       }
 
+      const chartKey = selectedChartKey ?? (hasChart ? attachedChartContext!.chartType : undefined);
       chat.sendMessage(
         { text: messageText },
-        selectedChartKey
-          ? { body: { selectedChartKey } }
-          : undefined,
+        chartKey ? { body: { selectedChartKey: chartKey } } : undefined,
       );
       setInput("");
       clearFiles();
+      setAttachedChartContext(null);
     },
-    [input, chat, attachedFiles, setInput, clearFiles, selectedChartKey],
+    [input, chat, attachedFiles, attachedChartContext, setInput, clearFiles, selectedChartKey, setAttachedChartContext],
   );
 
   const startNewChat = useCallback(() => {
@@ -117,7 +126,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     chat.clearError();
     setInput("");
     clearFiles();
-  }, [chat, setInput, clearFiles]);
+    setAttachedChartContext(null);
+  }, [chat, setInput, clearFiles, setAttachedChartContext]);
 
   return (
     <ChatContext.Provider
@@ -135,6 +145,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         addFiles,
         removeFile,
         clearFiles,
+        attachedChartContext,
+        setAttachedChartContext,
       }}
     >
       {children}

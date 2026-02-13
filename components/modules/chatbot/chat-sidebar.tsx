@@ -135,6 +135,8 @@ export function ChatSidebarContent() {
     attachedFiles,
     addFiles,
     removeFile,
+    attachedChartContext,
+    setAttachedChartContext,
   } = useChatContext();
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -158,6 +160,7 @@ export function ChatSidebarContent() {
     lastMsg?.role === "assistant" &&
     messageHasPendingChartTool(lastMsg);
   const hasParsing = attachedFiles.some((f) => f.parsing);
+  const hasChartContext = !!attachedChartContext;
 
   const [chartPopoverOpen, setChartPopoverOpen] = useState(false);
 
@@ -356,6 +359,26 @@ export function ChatSidebarContent() {
             }}
           />
 
+          {/* Attached chart context chip */}
+          {hasChartContext && attachedChartContext && (
+            <div className="mb-2 flex flex-wrap gap-1.5">
+              <div className="flex items-center gap-1.5 rounded-lg bg-[#BCBDEA]/15 px-2.5 py-1.5 text-[11px] text-sidebar-foreground/70">
+                <BarChart3 className="size-3 shrink-0" />
+                <span className="max-w-[140px] truncate">
+                  Chart: {attachedChartContext.title}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setAttachedChartContext(null)}
+                  className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-sidebar-foreground/10"
+                  title="Remove chart context"
+                >
+                  <X className="size-2.5" />
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Attached file chips */}
           {attachedFiles.length > 0 && (
             <div className="mb-2 flex flex-wrap gap-1.5">
@@ -406,16 +429,19 @@ export function ChatSidebarContent() {
                   e.preventDefault();
                   if (
                     input.trim() ||
-                    attachedFiles.some((f) => f.parsedContent)
+                    attachedFiles.some((f) => f.parsedContent) ||
+                    hasChartContext
                   ) {
                     handleSubmit();
                   }
                 }
               }}
               placeholder={
-                attachedFiles.length > 0
-                  ? "Describe what chart to create from the data…"
-                  : "What would you like to create?"
+                hasChartContext
+                  ? "Ask for help improving this chart…"
+                  : attachedFiles.length > 0
+                    ? "Describe what chart to create from the data…"
+                    : "What would you like to create?"
               }
               rows={2}
               className="rounded-none min-h-[48px] max-h-32 min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-0  text-[13px] leading-relaxed text-sidebar-foreground shadow-none placeholder:text-sidebar-foreground/40 focus-visible:ring-0"
@@ -427,7 +453,9 @@ export function ChatSidebarContent() {
               disabled={
                 isLoading ||
                 hasParsing ||
-                (!input.trim() && !attachedFiles.some((f) => f.parsedContent))
+                (!input.trim() &&
+                  !attachedFiles.some((f) => f.parsedContent) &&
+                  !hasChartContext)
               }
               className="shrink-0 rounded-full bg-[#BCBDEA] text-white hover:bg-[#A098E5] disabled:opacity-50"
             >
