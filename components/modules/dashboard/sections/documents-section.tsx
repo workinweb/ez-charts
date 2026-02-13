@@ -1,10 +1,26 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { FileText, FileSpreadsheet, FileJson, Download } from "lucide-react";
+import {
+  FileText,
+  FileSpreadsheet,
+  FileJson,
+  Download,
+  Trash2,
+} from "lucide-react";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
 import { useDocumentsStore } from "@/stores/documents-store";
 import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 function getFileIcon(name: string) {
   const ext = name.split(".").pop()?.toLowerCase();
@@ -41,7 +57,12 @@ function downloadDocument(doc: {
 
 export function DocumentsSection() {
   const [search, setSearch] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const documents = useDocumentsStore((s) => s.documents);
+  const removeDocument = useDocumentsStore((s) => s.removeDocument);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return documents;
@@ -106,6 +127,17 @@ export function DocumentsSection() {
 
                   <button
                     type="button"
+                    onClick={() =>
+                      setDeleteTarget({ id: doc.id, name: doc.name })
+                    }
+                    className="shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors hover:bg-red-50 hover:text-red-500"
+                    aria-label="Delete document"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={() => downloadDocument(doc)}
                     className="flex shrink-0 items-center gap-2 rounded-xl bg-[#6C5DD3]/15 px-4 py-2.5 text-[13px] font-semibold text-[#6C5DD3] transition-colors hover:bg-[#6C5DD3]/25"
                     aria-label={`Download ${doc.name}`}
@@ -119,6 +151,32 @@ export function DocumentsSection() {
           </div>
         </div>
       )}
+
+      <AlertDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
+        <AlertDialogContent className="rounded-2xl sm:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete document?</AlertDialogTitle>
+            <AlertDialogDescription>
+              &ldquo;{deleteTarget?.name}&rdquo; will be permanently removed.
+              This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() =>
+                deleteTarget && removeDocument(deleteTarget.id)
+              }
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
