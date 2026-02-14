@@ -250,6 +250,7 @@ function EditChartContent() {
         <div className="mx-auto flex w-full max-w-[1600px] min-w-0 flex-col gap-4 sm:gap-5">
           <EditorTopBar
             isCreateMode={isCreateMode}
+            isUnsavedChart={!!selectedId?.startsWith("unsaved-")}
             dirty={dirty}
             saved={saved}
             saving={saving}

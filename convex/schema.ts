@@ -77,8 +77,7 @@ export default defineSchema({
     /** Whether to auto-save documents from chat */
     saveDocumentsOnDb: v.optional(v.boolean()),
     updatedAt: v.number(),
-  })
-    .index("by_user", ["userId"]),
+  }).index("by_user", ["userId"]),
 
   // ── Chat History (optional, for future persistence) ─────────────────────
   // Stores chat conversations so they survive page refresh.
@@ -102,6 +101,28 @@ export default defineSchema({
   })
     .index("by_conversation", ["conversationId"])
     .index("by_conversation_created", ["conversationId", "createdAt"]),
+
+  /** Links Conversation + chart result + feedback. Full conversation in chatMessages. */
+  chatResults: defineTable({
+    conversationId: v.id("chatConversations"),
+    /** useChat message id — to update feedback when user clicks like/dislike */
+    clientMessageId: v.optional(v.string()),
+    userId: v.string(),
+
+    chartType: v.string(),
+    chartTitle: v.string(),
+    chartData: v.any(),
+    feedback: v.union(
+      v.literal("liked"),
+      v.literal("disliked"),
+      v.literal("nofeedback"),
+    ),
+    createdAt: v.number(),
+  })
+    .index("by_conversation", ["conversationId"])
+    .index("by_conversation_message", ["conversationId", "clientMessageId"])
+    .index("by_user", ["userId"])
+    .index("by_created", ["createdAt"]),
 
   // ── Stripe (prepared for future) ────────────────────────────────────────
   // Subscription and payment records. Uncomment when integrating Stripe.

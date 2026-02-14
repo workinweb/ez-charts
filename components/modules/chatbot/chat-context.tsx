@@ -30,9 +30,26 @@ interface ChatContextValue {
 
 const ChatContext = createContext<ChatContextValue | null>(null);
 
-/** Serialize messages for chatConversations/chatMessages (internal prompt improvement). */
-function serializeMessagesForChat(
-  messages: Array<{
+export interface SerializedChatResult {
+  clientMessageId?: string;
+  chartType: string;
+  chartTitle: string;
+  chartData: unknown;
+  feedback: "liked" | "disliked" | "nofeedback";
+}
+
+interface SerializedMessage {
+  role: string;
+  content: string;
+  chartType?: string;
+  chartTitle?: string;
+  chartData?: unknown;
+  feedback?: "liked" | "disliked";
+}
+
+/** Serialize a single message for Convex. Returns message + optional result for assistant+chart. */
+function serializeMessage(
+  msg: {
     id?: string;
     role?: string;
     parts?: Array<{
@@ -41,38 +58,51 @@ function serializeMessagesForChat(
       state?: string;
       output?: unknown;
     }>;
-  }>,
+  },
   feedbackMap: Record<string, "liked" | "disliked">,
-): Array<{ role: string; content: string; chartType?: string; feedback?: "liked" | "disliked" }> {
-  return messages
-    .filter((m) => m.role === "user" || m.role === "assistant")
-    .map((msg) => {
-      let content = "";
-      let chartType: string | undefined;
-      if (msg.parts) {
-        for (const p of msg.parts) {
-          if (p?.type === "text" && p.text) {
-            content += p.text;
-          } else if (
-            p?.type === "tool-createChart" &&
-            p?.state === "output-available" &&
-            p?.output &&
-            typeof p.output === "object" &&
-            "chartType" in p.output
-          ) {
-            chartType = (p.output as { chartType: string }).chartType;
-          }
-        }
+): { message: SerializedMessage; result?: SerializedChatResult } {
+  let content = "";
+  let chartType: string | undefined;
+  let chartTitle: string | undefined;
+  let chartData: unknown;
+  if (msg.parts) {
+    for (const p of msg.parts) {
+      if (p?.type === "text" && p.text) content += p.text;
+      else if (
+        p?.type === "tool-createChart" &&
+        p?.state === "output-available" &&
+        p?.output &&
+        typeof p.output === "object" &&
+        "chartType" in p.output &&
+        "data" in p.output
+      ) {
+        const o = p.output as { chartType: string; title?: string; data: unknown };
+        chartType = o.chartType;
+        chartTitle = o.title ?? "Chart";
+        chartData = o.data;
       }
-      const feedback = msg.id ? feedbackMap[msg.id] : undefined;
-      return {
-        role: msg.role ?? "user",
-        content: content.slice(0, 8000),
-        ...(chartType && { chartType }),
-        ...(feedback && { feedback }),
-      };
-    })
-    .filter((m) => m.content.trim().length > 0);
+    }
+  }
+  const feedback = msg.id ? feedbackMap[msg.id] : undefined;
+  const message: SerializedMessage = {
+    role: msg.role ?? "user",
+    content: content.slice(0, 8000),
+    ...(chartType && { chartType }),
+    ...(chartTitle && { chartTitle }),
+    ...(chartData !== undefined && { chartData }),
+    ...(feedback && { feedback }),
+  };
+  const result: SerializedChatResult | undefined =
+    msg.role === "assistant" && chartType && chartTitle !== undefined
+      ? {
+          clientMessageId: msg.id,
+          chartType,
+          chartTitle,
+          chartData: chartData ?? [],
+          feedback: feedback ?? "nofeedback",
+        }
+      : undefined;
+  return { message, result };
 }
 
 function extractChartFromToolPart(
@@ -98,7 +128,8 @@ function extractChartFromToolPart(
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const chat = useChat();
-  const saveConversationMutation = useMutation(api.chat.saveEndedConversation);
+  const createConversationMutation = useMutation(api.chat.createConversation);
+  const addMessageMutation = useMutation(api.chat.addMessage);
   const {
     input,
     setInput,
@@ -110,10 +141,75 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setAttachedChartContext,
     selectedChartKey,
     chartFeedbackMap,
-    clearChartFeedback,
+    conversationId,
+    setConversationId,
+    clearConversation,
   } = useChatbotStore();
   const addChartFromTool = useChartsStore((s) => s.addChartFromTool);
   const processedToolCalls = useRef<Set<string>>(new Set());
+  const syncedMessageIds = useRef<Set<string>>(new Set());
+  const syncInProgress = useRef(false);
+
+  // Sync messages to Convex incrementally (create conversation at start, add each message)
+  useEffect(() => {
+    const { messages, status } = chat;
+    if (messages.length === 0) {
+      syncedMessageIds.current.clear();
+      return;
+    }
+    const lastMsg = messages[messages.length - 1];
+    const isStreaming = status === "streaming" || status === "submitted";
+    const lastIncomplete =
+      lastMsg?.role === "assistant" && isStreaming;
+
+    const toSync: (typeof messages)[number][] = [];
+    for (const msg of messages) {
+      if (msg.role === "user" || msg.role === "assistant") {
+        const isLast = msg === lastMsg;
+        if (isLast && lastIncomplete) break;
+        if (msg.id && !syncedMessageIds.current.has(msg.id)) {
+          toSync.push(msg);
+        }
+      }
+    }
+    if (toSync.length === 0) return;
+    if (syncInProgress.current) return;
+    syncInProgress.current = true;
+
+    let convId = conversationId;
+    (async () => {
+      try {
+        for (const msg of toSync) {
+          const { message, result } = serializeMessage(msg, chartFeedbackMap);
+          if (message.content.trim().length === 0) continue;
+          if (!convId) {
+            const id = await createConversationMutation({});
+            if (!id) return;
+            convId = id as string;
+            setConversationId(convId);
+          }
+          await addMessageMutation({
+            conversationId: convId as import("@/convex/_generated/dataModel").Id<"chatConversations">,
+            message,
+            result: result ?? undefined,
+          });
+          if (msg.id) syncedMessageIds.current.add(msg.id);
+        }
+      } finally {
+        syncInProgress.current = false;
+      }
+    })().catch(() => {
+      syncInProgress.current = false;
+    });
+  }, [
+    chat.messages,
+    chat.status,
+    conversationId,
+    chartFeedbackMap,
+    createConversationMutation,
+    addMessageMutation,
+    setConversationId,
+  ]);
 
   // Extract createChart tool results and add to charts store
   useEffect(() => {
@@ -172,22 +268,14 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   );
 
   const startNewChat = useCallback(() => {
-    const current = chat.messages;
-    if (current.length > 0) {
-      const messages = serializeMessagesForChat(current, chartFeedbackMap);
-      if (messages.length > 0) {
-        saveConversationMutation({ messages }).catch(() => {
-          /* fire-and-forget */
-        });
-      }
-    }
     chat.setMessages([]);
     chat.clearError();
-    clearChartFeedback();
+    clearConversation();
     setInput("");
     clearFiles();
     setAttachedChartContext(null);
-  }, [chat, saveConversationMutation, chartFeedbackMap, clearChartFeedback, setInput, clearFiles, setAttachedChartContext]);
+    syncedMessageIds.current.clear();
+  }, [chat, clearConversation, setInput, clearFiles, setAttachedChartContext]);
 
   return (
     <ChatContext.Provider

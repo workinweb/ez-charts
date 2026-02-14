@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 
 interface EditorTopBarProps {
   isCreateMode: boolean;
+  /** Chart from AI chat (unsaved-*) — can save without edits */
+  isUnsavedChart?: boolean;
   dirty: boolean;
   saved: boolean;
   saving?: boolean;
@@ -17,6 +19,7 @@ interface EditorTopBarProps {
 
 export function EditorTopBar({
   isCreateMode,
+  isUnsavedChart = false,
   dirty,
   saved,
   saving = false,
@@ -64,19 +67,29 @@ export function EditorTopBar({
 
       <Button
         size="sm"
-        disabled={(!dirty && !isCreateMode) || saving}
+        disabled={(!dirty && !isCreateMode && !isUnsavedChart) || saving}
         onClick={onSave}
         className={cn(
           "gap-2 rounded-xl text-[12px] font-semibold transition-all",
           dirty
             ? "bg-[#6C5DD3] text-white hover:bg-[#5a4dbf]"
-            : saved
+            :           saved
               ? "bg-emerald-500/10 text-emerald-600"
-              : "bg-[#3D4035]/10 text-[#3D4035]/40",
+              : isUnsavedChart
+                ? "bg-[#6C5DD3] text-white hover:bg-[#5a4dbf]"
+                : "bg-[#3D4035]/10 text-[#3D4035]/40",
         )}
       >
         <Save className="size-3.5" />
-        {saving ? "Saving…" : saved ? "Saved" : isCreateMode ? "Create chart" : "Save changes"}
+        {saving
+          ? "Saving…"
+          : saved
+            ? "Saved"
+            : isCreateMode
+              ? "Create chart"
+              : isUnsavedChart
+                ? "Save chart"
+                : "Save changes"}
       </Button>
     </div>
   );

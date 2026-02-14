@@ -26,6 +26,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Check } from "lucide-react";
 
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { useChatbotStore } from "@/stores/chatbot-store";
 import { useSectionStore } from "@/stores/section-store";
 import { useChatContext } from "./chat-context";
@@ -152,6 +154,10 @@ export function ChatSidebarContent() {
   const router = useRouter();
   const chartFeedbackMap = useChatbotStore((s) => s.chartFeedbackMap);
   const setChartFeedbackStore = useChatbotStore((s) => s.setChartFeedback);
+  const conversationId = useChatbotStore((s) => s.conversationId);
+  const updateChartResultFeedback = useMutation(
+    api.chat.updateChartResultFeedback,
+  );
 
   const isLoading = status === "submitted" || status === "streaming";
   const lastMsg = messages[messages.length - 1];
@@ -193,6 +199,13 @@ export function ChatSidebarContent() {
     const feedback = value === "up" ? "liked" : "disliked";
     const next = storedFeedback === feedback ? null : feedback;
     setChartFeedbackStore(lastMsg.id, next);
+    if (conversationId) {
+      updateChartResultFeedback({
+        conversationId: conversationId as import("@/convex/_generated/dataModel").Id<"chatConversations">,
+        clientMessageId: lastMsg.id,
+        feedback: next ?? "nofeedback",
+      }).catch(() => {});
+    }
   };
 
   return (

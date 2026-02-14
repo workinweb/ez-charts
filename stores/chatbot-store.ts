@@ -29,10 +29,14 @@ interface ChatbotState {
   saveDocumentsOnDb: boolean;
   /** Chart feedback by message id (Conversation+Message+Result) */
   chartFeedbackMap: Record<string, "liked" | "disliked">;
+  /** Convex conversation id; null = new conversation */
+  conversationId: string | null;
 
   setInput: (value: string) => void;
+  setConversationId: (id: string | null) => void;
   setChartFeedback: (messageId: string, value: "liked" | "disliked" | null) => void;
   clearChartFeedback: () => void;
+  clearConversation: () => void;
   addFiles: (files: FileList | File[]) => void;
   removeFile: (index: number) => void;
   clearFiles: () => void;
@@ -69,8 +73,11 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
   chatSidebarView: "chat",
   saveDocumentsOnDb: false,
   chartFeedbackMap: {},
+  conversationId: null,
 
   setInput: (value) => set({ input: value }),
+
+  setConversationId: (id) => set({ conversationId: id }),
 
   setChartFeedback: (messageId, value) =>
     set((s) => {
@@ -81,6 +88,9 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
     }),
 
   clearChartFeedback: () => set({ chartFeedbackMap: {} }),
+
+  clearConversation: () =>
+    set({ conversationId: null, chartFeedbackMap: {} }),
 
   addFiles: (files) => {
     const newFiles = Array.from(files).map((file) => ({
