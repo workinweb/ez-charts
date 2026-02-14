@@ -10,11 +10,12 @@ export const list = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return [];
     const userId = identity.subject;
-    return ctx.db
+    const all = await ctx.db
       .query("slides")
       .withIndex("by_user_created", (q) => q.eq("userId", userId))
       .order("desc")
       .collect();
+    return all.filter((s) => s.isVisible !== false);
   },
 });
 
@@ -26,6 +27,7 @@ export const get = query({
     if (!identity) return null;
     const slide = await ctx.db.get(args.id);
     if (!slide || slide.userId !== identity.subject) return null;
+    if (slide.isVisible === false) return null;
     return slide;
   },
 });
@@ -46,6 +48,7 @@ export const create = mutation({
       userId: identity.subject,
       name: args.name,
       chartIds: args.chartIds,
+      isVisible: true,
       createdAt: now,
       updatedAt: now,
     });
@@ -73,7 +76,7 @@ export const update = mutation({
   },
 });
 
-/** Delete a slide deck. */
+/** Soft-delete a slide deck (sets isVisible: false; data retained, never returned to user). */
 export const remove = mutation({
   args: { id: v.id("slides") },
   handler: async (ctx, args) => {
@@ -83,6 +86,9 @@ export const remove = mutation({
     if (!slide || slide.userId !== identity.subject) {
       throw new Error("Slide deck not found");
     }
-    await ctx.db.delete(args.id);
+    await ctx.db.patch(args.id, {
+      isVisible: false,
+      updatedAt: Date.now(),
+    });
   },
 });

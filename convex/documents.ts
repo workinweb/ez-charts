@@ -10,11 +10,12 @@ export const list = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return [];
     const userId = identity.subject;
-    return ctx.db
+    const all = await ctx.db
       .query("documents")
       .withIndex("by_user_created", (q) => q.eq("userId", userId))
       .order("desc")
       .collect();
+    return all.filter((d) => d.isVisible !== false);
   },
 });
 
@@ -26,6 +27,7 @@ export const get = query({
     if (!identity) return null;
     const doc = await ctx.db.get(args.id);
     if (!doc || doc.userId !== identity.subject) return null;
+    if (doc.isVisible === false) return null;
     return doc;
   },
 });
@@ -52,13 +54,14 @@ export const create = mutation({
       mimeType: args.mimeType,
       content: args.content,
       storageId: args.storageId,
+      isVisible: true,
       createdAt: now,
       updatedAt: now,
     });
   },
 });
 
-/** Delete a document. */
+/** Soft-delete a document (sets isVisible: false; data retained, never returned to user). */
 export const remove = mutation({
   args: { id: v.id("documents") },
   handler: async (ctx, args) => {
@@ -68,11 +71,10 @@ export const remove = mutation({
     if (!doc || doc.userId !== identity.subject) {
       throw new Error("Document not found");
     }
-    // Also delete the stored file if it exists
-    if (doc.storageId) {
-      await ctx.storage.delete(doc.storageId);
-    }
-    await ctx.db.delete(args.id);
+    await ctx.db.patch(args.id, {
+      isVisible: false,
+      updatedAt: Date.now(),
+    });
   },
 });
 

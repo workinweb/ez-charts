@@ -60,6 +60,8 @@ export const useChartsStore = create<ChartsState>((set) => ({
   removeUnsavedChart: (id) =>
     set((s) => ({
       unsavedCharts: s.unsavedCharts.filter((c) => c.id !== id),
+      previewChartId: s.previewChartId === id ? null : s.previewChartId,
+      lastEditedChartId: s.lastEditedChartId === id ? null : s.lastEditedChartId,
     })),
 
   setLastEditedChartId: (id) => set({ lastEditedChartId: id }),

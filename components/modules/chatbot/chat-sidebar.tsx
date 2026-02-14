@@ -150,6 +150,8 @@ export function ChatSidebarContent() {
   } = useChatbotStore();
   const setActiveSection = useSectionStore((s) => s.setActiveSection);
   const router = useRouter();
+  const chartFeedbackMap = useChatbotStore((s) => s.chartFeedbackMap);
+  const setChartFeedbackStore = useChatbotStore((s) => s.setChartFeedback);
 
   const isLoading = status === "submitted" || status === "streaming";
   const lastMsg = messages[messages.length - 1];
@@ -165,10 +167,6 @@ export function ChatSidebarContent() {
   const hasChartContext = !!attachedChartContext;
 
   const [chartPopoverOpen, setChartPopoverOpen] = useState(false);
-  const [chartFeedback, setChartFeedback] = useState<{
-    messageId: string;
-    value: "up" | "down";
-  } | null>(null);
 
   const toggleChartSelection = (key: ChartTypeKey) => {
     toggleSelectedChartKey(key);
@@ -185,10 +183,17 @@ export function ChatSidebarContent() {
     }
   }, [messages, status, lastMessageText]);
 
+  const storedFeedback =
+    lastMsgHasChart && lastMsg?.id ? chartFeedbackMap[lastMsg.id] : undefined;
   const currentFeedback =
-    lastMsgHasChart && lastMsg?.id && chartFeedback?.messageId === lastMsg.id
-      ? chartFeedback.value
-      : null;
+    storedFeedback === "liked" ? "up" : storedFeedback === "disliked" ? "down" : null;
+
+  const handleChartFeedback = (value: "up" | "down") => {
+    if (!lastMsg?.id || !lastMsgHasChart) return;
+    const feedback = value === "up" ? "liked" : "disliked";
+    const next = storedFeedback === feedback ? null : feedback;
+    setChartFeedbackStore(lastMsg.id, next);
+  };
 
   return (
     <div className="flex h-full w-full flex-col bg-[#E9EEF0] text-sidebar-foreground">
@@ -300,15 +305,7 @@ export function ChatSidebarContent() {
                   </span>
                   <button
                     type="button"
-                    onClick={() =>
-                      setChartFeedback(
-                        currentFeedback === "up"
-                          ? null
-                          : lastMsg?.id
-                            ? { messageId: lastMsg.id, value: "up" }
-                            : null,
-                      )
-                    }
+                    onClick={() => handleChartFeedback("up")}
                     className={cn(
                       "rounded-md p-1.5 transition-colors",
                       currentFeedback === "up"
@@ -321,15 +318,7 @@ export function ChatSidebarContent() {
                   </button>
                   <button
                     type="button"
-                    onClick={() =>
-                      setChartFeedback(
-                        currentFeedback === "down"
-                          ? null
-                          : lastMsg?.id
-                            ? { messageId: lastMsg.id, value: "down" }
-                            : null,
-                      )
-                    }
+                    onClick={() => handleChartFeedback("down")}
                     className={cn(
                       "rounded-md p-1.5 transition-colors",
                       currentFeedback === "down"

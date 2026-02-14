@@ -18,9 +18,13 @@ export default defineSchema({
     /** Serialized chart data (flexible shape per chart type) */
     data: v.any(),
     source: v.string(),
+    /** Deprecated: feedback moved to chatMessages metadata (Conversation+Message+Result) */
+    feedback: v.optional(v.union(v.literal("liked"), v.literal("disliked"))),
     favorited: v.boolean(),
     withTooltip: v.boolean(),
     withAnimation: v.boolean(),
+    /** Soft delete: false when user removes; never returned to user */
+    isVisible: v.optional(v.boolean()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -34,6 +38,8 @@ export default defineSchema({
     name: v.string(),
     /** Ordered array of chart IDs in this deck */
     chartIds: v.array(v.string()),
+    /** Soft delete: false when user removes; never returned to user */
+    isVisible: v.optional(v.boolean()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -53,6 +59,8 @@ export default defineSchema({
     content: v.string(),
     /** Optional Convex file storage ID for the original file */
     storageId: v.optional(v.id("_storage")),
+    /** Soft delete: false when user removes; never returned to user */
+    isVisible: v.optional(v.boolean()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

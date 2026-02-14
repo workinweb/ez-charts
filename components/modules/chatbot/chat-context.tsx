@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useCallback, useEffect, useRef } from "react";
 import { useChat } from "@ai-sdk/react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import type { AttachedChartContext } from "@/stores/chatbot-store";
 import { useChatbotStore } from "@/stores/chatbot-store";
 import { useChartsStore } from "@/stores/charts-store";
@@ -28,6 +30,51 @@ interface ChatContextValue {
 
 const ChatContext = createContext<ChatContextValue | null>(null);
 
+/** Serialize messages for chatConversations/chatMessages (internal prompt improvement). */
+function serializeMessagesForChat(
+  messages: Array<{
+    id?: string;
+    role?: string;
+    parts?: Array<{
+      type?: string;
+      text?: string;
+      state?: string;
+      output?: unknown;
+    }>;
+  }>,
+  feedbackMap: Record<string, "liked" | "disliked">,
+): Array<{ role: string; content: string; chartType?: string; feedback?: "liked" | "disliked" }> {
+  return messages
+    .filter((m) => m.role === "user" || m.role === "assistant")
+    .map((msg) => {
+      let content = "";
+      let chartType: string | undefined;
+      if (msg.parts) {
+        for (const p of msg.parts) {
+          if (p?.type === "text" && p.text) {
+            content += p.text;
+          } else if (
+            p?.type === "tool-createChart" &&
+            p?.state === "output-available" &&
+            p?.output &&
+            typeof p.output === "object" &&
+            "chartType" in p.output
+          ) {
+            chartType = (p.output as { chartType: string }).chartType;
+          }
+        }
+      }
+      const feedback = msg.id ? feedbackMap[msg.id] : undefined;
+      return {
+        role: msg.role ?? "user",
+        content: content.slice(0, 8000),
+        ...(chartType && { chartType }),
+        ...(feedback && { feedback }),
+      };
+    })
+    .filter((m) => m.content.trim().length > 0);
+}
+
 function extractChartFromToolPart(
   part: { type?: string; state?: string; output?: unknown },
 ): { chartType: string; title: string; data: unknown } | null {
@@ -51,6 +98,7 @@ function extractChartFromToolPart(
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const chat = useChat();
+  const saveConversationMutation = useMutation(api.chat.saveEndedConversation);
   const {
     input,
     setInput,
@@ -61,6 +109,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     attachedChartContext,
     setAttachedChartContext,
     selectedChartKey,
+    chartFeedbackMap,
+    clearChartFeedback,
   } = useChatbotStore();
   const addChartFromTool = useChartsStore((s) => s.addChartFromTool);
   const processedToolCalls = useRef<Set<string>>(new Set());
@@ -122,12 +172,22 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   );
 
   const startNewChat = useCallback(() => {
+    const current = chat.messages;
+    if (current.length > 0) {
+      const messages = serializeMessagesForChat(current, chartFeedbackMap);
+      if (messages.length > 0) {
+        saveConversationMutation({ messages }).catch(() => {
+          /* fire-and-forget */
+        });
+      }
+    }
     chat.setMessages([]);
     chat.clearError();
+    clearChartFeedback();
     setInput("");
     clearFiles();
     setAttachedChartContext(null);
-  }, [chat, setInput, clearFiles, setAttachedChartContext]);
+  }, [chat, saveConversationMutation, chartFeedbackMap, clearChartFeedback, setInput, clearFiles, setAttachedChartContext]);
 
   return (
     <ChatContext.Provider

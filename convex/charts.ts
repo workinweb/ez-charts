@@ -11,11 +11,12 @@ export const list = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return [];
     const userId = identity.subject;
-    return ctx.db
+    const all = await ctx.db
       .query("charts")
       .withIndex("by_user_created", (q) => q.eq("userId", userId))
       .order("desc")
       .collect();
+    return all.filter((c) => c.isVisible !== false);
   },
 });
 
@@ -30,11 +31,15 @@ export const listPaginated = query({
       return { page: [], isDone: true, continueCursor: "" };
     }
     const userId = identity.subject;
-    return ctx.db
+    const result = await ctx.db
       .query("charts")
       .withIndex("by_user_created", (q) => q.eq("userId", userId))
       .order("desc")
       .paginate(args.paginationOpts);
+    return {
+      ...result,
+      page: result.page.filter((c) => c.isVisible !== false),
+    };
   },
 });
 
@@ -46,6 +51,7 @@ export const get = query({
     if (!identity) return null;
     const chart = await ctx.db.get(args.id);
     if (!chart || chart.userId !== identity.subject) return null;
+    if (chart.isVisible === false) return null;
     return chart;
   },
 });
@@ -61,7 +67,7 @@ export const listFavorites = query({
       .query("charts")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
-    return all.filter((c) => c.favorited);
+    return all.filter((c) => c.favorited && c.isVisible !== false);
   },
 });
 
@@ -91,6 +97,7 @@ export const create = mutation({
       favorited: args.favorited ?? false,
       withTooltip: args.withTooltip ?? true,
       withAnimation: args.withAnimation ?? true,
+      isVisible: true,
       createdAt: now,
       updatedAt: now,
     });
@@ -163,13 +170,14 @@ export const duplicate = mutation({
       favorited: false,
       withTooltip: chart.withTooltip,
       withAnimation: chart.withAnimation,
+      isVisible: true,
       createdAt: now,
       updatedAt: now,
     });
   },
 });
 
-/** Delete a chart permanently. */
+/** Soft-delete a chart (sets isVisible: false; data retained, never returned to user). */
 export const remove = mutation({
   args: { id: v.id("charts") },
   handler: async (ctx, args) => {
@@ -179,6 +187,6 @@ export const remove = mutation({
     if (!chart || chart.userId !== identity.subject) {
       throw new Error("Chart not found");
     }
-    await ctx.db.delete(args.id);
+    await ctx.db.patch(args.id, { isVisible: false, updatedAt: Date.now() });
   },
 });

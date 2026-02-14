@@ -27,8 +27,12 @@ interface ChatbotState {
   chatSidebarView: ChatSidebarView;
   /** Save attached documents to DB (default: disabled) */
   saveDocumentsOnDb: boolean;
+  /** Chart feedback by message id (Conversation+Message+Result) */
+  chartFeedbackMap: Record<string, "liked" | "disliked">;
 
   setInput: (value: string) => void;
+  setChartFeedback: (messageId: string, value: "liked" | "disliked" | null) => void;
+  clearChartFeedback: () => void;
   addFiles: (files: FileList | File[]) => void;
   removeFile: (index: number) => void;
   clearFiles: () => void;
@@ -64,8 +68,19 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
   selectedChartKey: null,
   chatSidebarView: "chat",
   saveDocumentsOnDb: false,
+  chartFeedbackMap: {},
 
   setInput: (value) => set({ input: value }),
+
+  setChartFeedback: (messageId, value) =>
+    set((s) => {
+      const next = { ...s.chartFeedbackMap };
+      if (value) next[messageId] = value;
+      else delete next[messageId];
+      return { chartFeedbackMap: next };
+    }),
+
+  clearChartFeedback: () => set({ chartFeedbackMap: {} }),
 
   addFiles: (files) => {
     const newFiles = Array.from(files).map((file) => ({
