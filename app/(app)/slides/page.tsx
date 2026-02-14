@@ -27,10 +27,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { PaginationControls } from "@/components/ui/pagination-controls";
-import {
-  usePagination,
-  DEFAULT_PAGE_SIZE,
-} from "@/lib/use-pagination";
+import { usePagination, DEFAULT_PAGE_SIZE } from "@/hooks/use-pagination";
 
 function matchesSlide(
   slide: { name: string; chartIds: string[] },
@@ -65,13 +62,8 @@ export default function SlidesPage() {
     return customSlides.filter((s) => matchesSlide(s, q, getChartById));
   }, [customSlides, search]);
 
-  const {
-    paginatedItems,
-    page,
-    setPage,
-    totalPages,
-    totalItems,
-  } = usePagination(filteredCustom, DEFAULT_PAGE_SIZE);
+  const { paginatedItems, page, setPage, totalPages, totalItems } =
+    usePagination(filteredCustom, DEFAULT_PAGE_SIZE);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-background">
@@ -107,70 +99,70 @@ export default function SlidesPage() {
                 <div className="rounded-[28px] bg-white/80 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
                   <div className="flex flex-col gap-4">
                     {paginatedItems.map((slide) => {
-                        const chartCount = slide.chartIds.length;
-                        const firstChart = getChartById(slide.chartIds[0]);
-                        const iconBg = firstChart?.iconBg ?? "bg-[#6C5DD3]/20";
-                        const iconColor =
-                          firstChart?.iconColor ?? "text-[#3D4035]";
-                        return (
+                      const chartCount = slide.chartIds.length;
+                      const firstChart = getChartById(slide.chartIds[0]);
+                      const iconBg = firstChart?.iconBg ?? "bg-[#6C5DD3]/20";
+                      const iconColor =
+                        firstChart?.iconColor ?? "text-[#3D4035]";
+                      return (
+                        <div
+                          key={slide.id}
+                          className="flex items-center gap-6 rounded-[28px] p-3 transition-colors hover:bg-black/[0.02]"
+                        >
                           <div
-                            key={slide.id}
-                            className="flex items-center gap-6 rounded-[28px] p-3 transition-colors hover:bg-black/[0.02]"
+                            className={cn(
+                              "flex size-16 shrink-0 items-center justify-center rounded-[24px]",
+                              iconBg,
+                            )}
                           >
-                            <div
-                              className={cn(
-                                "flex size-16 shrink-0 items-center justify-center rounded-[24px]",
-                                iconBg,
-                              )}
-                            >
-                              <Layers
-                                className={cn("size-7", iconColor)}
-                                strokeWidth={2}
-                              />
-                            </div>
-
-                            <div className="min-w-0 flex-1">
-                              <p className="text-[17px] font-medium text-[#3D4035]">
-                                {slide.name}
-                              </p>
-                              <p className="text-[13px] text-[#3D4035]/50">
-                                {chartCount} chart{chartCount !== 1 ? "s" : ""}{" "}
-                                · {slide.createdAt}
-                              </p>
-                            </div>
-
-                            <button
-                              type="button"
-                              onClick={() => setEditSlide(slide)}
-                              className="shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors hover:bg-black/[0.04] hover:text-[#3D4035]/70"
-                              aria-label="Edit slide deck"
-                            >
-                              <Pencil className="size-4" />
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setDeleteTarget({
-                                  id: slide.id,
-                                  name: slide.name,
-                                })
-                              }
-                              className="shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors hover:bg-red-50 hover:text-red-500"
-                              aria-label="Delete slide deck"
-                            >
-                              <Trash2 className="size-4" />
-                            </button>
-
-                            <Link
-                              href={`/present/${slide.id}`}
-                              className="flex shrink-0 items-center gap-1 text-[13px] font-semibold text-[#6C5DD3] hover:underline"
-                            >
-                              Present
-                              <ChevronRight className="size-3.5" />
-                            </Link>
+                            <Layers
+                              className={cn("size-7", iconColor)}
+                              strokeWidth={2}
+                            />
                           </div>
-                        );
+
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[17px] font-medium text-[#3D4035]">
+                              {slide.name}
+                            </p>
+                            <p className="text-[13px] text-[#3D4035]/50">
+                              {chartCount} chart{chartCount !== 1 ? "s" : ""} ·{" "}
+                              {slide.createdAt}
+                            </p>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => setEditSlide(slide)}
+                            className="shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors hover:bg-black/[0.04] hover:text-[#3D4035]/70"
+                            aria-label="Edit slide deck"
+                          >
+                            <Pencil className="size-4" />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setDeleteTarget({
+                                id: slide.id,
+                                name: slide.name,
+                              })
+                            }
+                            className="shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors hover:bg-red-50 hover:text-red-500"
+                            aria-label="Delete slide deck"
+                          >
+                            <Trash2 className="size-4" />
+                          </button>
+
+                          <Link
+                            href={`/present/${slide.id}`}
+                            className="flex shrink-0 items-center gap-1 text-[13px] font-semibold text-[#6C5DD3] hover:underline"
+                          >
+                            Present
+                            <ChevronRight className="size-3.5" />
+                          </Link>
+                        </div>
+                      );
                     })}
                   </div>
                 </div>

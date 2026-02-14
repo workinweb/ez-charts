@@ -7,10 +7,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
 import { useAllCharts, useChartsStore } from "@/stores/charts-store";
 import { PaginationControls } from "@/components/ui/pagination-controls";
-import {
-  usePagination,
-  DEFAULT_PAGE_SIZE,
-} from "@/lib/use-pagination";
+import { usePagination, DEFAULT_PAGE_SIZE } from "@/hooks/use-pagination";
 import { ChartRow } from "../charts/_components/chart-row";
 import { DeleteChartDialog } from "../charts/_components/delete-chart-dialog";
 
@@ -35,13 +32,8 @@ export default function FavoritesPage() {
     );
   }, [items, search]);
 
-  const {
-    paginatedItems,
-    page,
-    setPage,
-    totalPages,
-    totalItems,
-  } = usePagination(filtered, DEFAULT_PAGE_SIZE);
+  const { paginatedItems, page, setPage, totalPages, totalItems } =
+    usePagination(filtered, DEFAULT_PAGE_SIZE);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-background">

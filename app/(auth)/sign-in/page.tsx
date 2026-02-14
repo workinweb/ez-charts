@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/(auth)/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, BarChart3 } from "lucide-react";
@@ -151,11 +151,7 @@ export default function SignInPage() {
             disabled={loading || googleLoading}
             className="mt-2 w-full rounded-xl bg-[#6C5DD3] text-[14px] font-semibold text-white hover:bg-[#5a4dbf] disabled:opacity-50"
           >
-            {loading ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              "Sign in"
-            )}
+            {loading ? <Loader2 className="size-4 animate-spin" /> : "Sign in"}
           </Button>
         </form>
 

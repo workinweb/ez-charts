@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import { slidesFixture } from "@/fixtures/slides";
 
 export interface Slide {
   id: string;
@@ -25,19 +26,8 @@ interface SlidesState {
   setSlidesSearch: (value: string) => void;
 }
 
-/** Pre-built custom slide example */
-const defaultCustomSlides: Slide[] = [
-  {
-    id: "custom-1",
-    name: "Q4 Overview",
-    chartIds: ["1", "3", "5"],
-    type: "custom",
-    createdAt: "Jan 10",
-  },
-];
-
 export const useSlidesStore = create<SlidesState>((set) => ({
-  slides: [...defaultCustomSlides],
+  slides: [...slidesFixture],
   editingSlide: null,
   slidesSearch: "",
 

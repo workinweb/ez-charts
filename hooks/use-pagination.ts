@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState, useCallback, useEffect } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 export const DEFAULT_PAGE_SIZE = 10;
 export const PAGE_SIZE_OPTIONS = [10, 25, 50] as const;
 
 export function usePagination<T>(
   items: T[],
-  pageSize: number = DEFAULT_PAGE_SIZE
+  pageSize: number = DEFAULT_PAGE_SIZE,
 ) {
   const [page, setPage] = useState(1);
 
@@ -17,19 +17,14 @@ export function usePagination<T>(
   const endIndex = Math.min(startIndex + pageSize, totalItems);
   const paginatedItems = useMemo(
     () => items.slice(startIndex, endIndex),
-    [items, startIndex, endIndex]
+    [items, startIndex, endIndex],
   );
-
-  // Reset to page 1 when items or pageSize changes (e.g. search filter)
-  useEffect(() => {
-    setPage(1);
-  }, [items, pageSize]);
 
   const goToPage = useCallback(
     (p: number) => {
       setPage((prev) => Math.max(1, Math.min(p, totalPages)));
     },
-    [totalPages]
+    [totalPages],
   );
 
   const canPreviousPage = page > 1;

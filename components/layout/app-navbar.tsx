@@ -1,27 +1,5 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import {
-  ChevronDown,
-  MoreHorizontal,
-  Share,
-  Bookmark,
-  Home,
-  LayoutGrid,
-  Pencil,
-  Plus,
-} from "lucide-react";
-import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,7 +10,29 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { authClient } from "@/lib/(auth)/auth-client";
 import { useChartById, useChartsStore } from "@/stores/charts-store";
+import {
+  Bookmark,
+  ChevronDown,
+  Home,
+  LayoutGrid,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Share,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
 const navItems = [
   { label: "Home", href: "/", icon: Home },
@@ -43,14 +43,17 @@ function AppNavbarInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  const { data: session, isPending, error } = authClient.useSession();
+  console.log("🚀 ~ AppNavbarInner ~ session:", session);
+
   const [createChartConfirmOpen, setCreateChartConfirmOpen] = useState(false);
 
   // Read last-edited chart ID from the Zustand store
   const lastEditedChartId = useChartsStore((s) => s.lastEditedChartId);
   const setLastEditedChartId = useChartsStore((s) => s.setLastEditedChartId);
 
-  const chartFromUrl =
-    pathname === "/edit" ? searchParams.get("chart") : null;
+  const chartFromUrl = pathname === "/edit" ? searchParams.get("chart") : null;
 
   // Sync URL → store when the URL has a chart param
   useEffect(() => {
@@ -68,11 +71,11 @@ function AppNavbarInner() {
       ? `Editing: ${editingChart?.title ?? "Chart"}`
       : pathname === "/edit"
         ? "Create chart"
-        : navItems.find(
+        : (navItems.find(
             (n) =>
               n.href === pathname ||
               (n.href !== "/" && pathname?.startsWith(n.href)),
-          )?.label ?? "Home page";
+          )?.label ?? "Home page");
 
   return (
     <header className="flex h-11 shrink-0 items-center justify-between border-b border-border/40 bg-[#E9EEF0] px-3 sm:px-4">
@@ -81,10 +84,12 @@ function AppNavbarInner() {
         {/* Logo */}
         <div className="ml-1 flex items-center gap-1.5 sm:ml-2">
           <div className="flex size-5 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-green-600">
-            <span className="text-[8px] font-bold text-white">AZ</span>
+            <span className="text-[8px] font-bold text-white">
+              {session?.user?.name?.charAt(0).toUpperCase()}
+            </span>
           </div>
           <span className="text-[13px] font-semibold text-foreground/80">
-            Charts
+            {session?.user?.name}
           </span>
           <ChevronDown className="hidden size-3 text-foreground/40 sm:block" />
         </div>

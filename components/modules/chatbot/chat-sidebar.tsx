@@ -17,6 +17,8 @@ import {
   Plus,
   Send,
   Settings,
+  ThumbsDown,
+  ThumbsUp,
   X,
 } from "lucide-react";
 import Image from "next/image";
@@ -163,6 +165,10 @@ export function ChatSidebarContent() {
   const hasChartContext = !!attachedChartContext;
 
   const [chartPopoverOpen, setChartPopoverOpen] = useState(false);
+  const [chartFeedback, setChartFeedback] = useState<{
+    messageId: string;
+    value: "up" | "down";
+  } | null>(null);
 
   const toggleChartSelection = (key: ChartTypeKey) => {
     toggleSelectedChartKey(key);
@@ -178,6 +184,11 @@ export function ChatSidebarContent() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, status, lastMessageText]);
+
+  const currentFeedback =
+    lastMsgHasChart && lastMsg?.id && chartFeedback?.messageId === lastMsg.id
+      ? chartFeedback.value
+      : null;
 
   return (
     <div className="flex h-full w-full flex-col bg-[#E9EEF0] text-sidebar-foreground">
@@ -283,6 +294,53 @@ export function ChatSidebarContent() {
                     See it
                   </button>
                 </p>
+                <div className="mt-2 flex items-center gap-1">
+                  <span className="mr-1 text-[11px] text-sidebar-foreground/50">
+                    Rate our response
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setChartFeedback(
+                        currentFeedback === "up"
+                          ? null
+                          : lastMsg?.id
+                            ? { messageId: lastMsg.id, value: "up" }
+                            : null,
+                      )
+                    }
+                    className={cn(
+                      "rounded-md p-1.5 transition-colors",
+                      currentFeedback === "up"
+                        ? "bg-[#6C5DD3]/20 text-[#6C5DD3]"
+                        : "text-sidebar-foreground/50 hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground/70",
+                    )}
+                    title="Good response"
+                  >
+                    <ThumbsUp className="size-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setChartFeedback(
+                        currentFeedback === "down"
+                          ? null
+                          : lastMsg?.id
+                            ? { messageId: lastMsg.id, value: "down" }
+                            : null,
+                      )
+                    }
+                    className={cn(
+                      "rounded-md p-1.5 transition-colors",
+                      currentFeedback === "down"
+                        ? "bg-red-500/20 text-red-600"
+                        : "text-sidebar-foreground/50 hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground/70",
+                    )}
+                    title="Not what I wanted"
+                  >
+                    <ThumbsDown className="size-3.5" />
+                  </button>
+                </div>
               </div>
             )}
 

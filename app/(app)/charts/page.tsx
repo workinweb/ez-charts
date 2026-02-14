@@ -7,10 +7,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
 import { useAllCharts, useChartsStore } from "@/stores/charts-store";
 import { PaginationControls } from "@/components/ui/pagination-controls";
-import {
-  usePagination,
-  DEFAULT_PAGE_SIZE,
-} from "@/lib/use-pagination";
+import { usePagination, DEFAULT_PAGE_SIZE } from "@/hooks/use-pagination";
 import { Button } from "@/components/ui/button";
 import { ChartRow } from "./_components/chart-row";
 import { DeleteChartDialog } from "./_components/delete-chart-dialog";
@@ -32,18 +29,12 @@ export default function ChartsPage() {
     const q = search.toLowerCase().trim();
     return items.filter(
       (c) =>
-        c.title.toLowerCase().includes(q) ||
-        c.source.toLowerCase().includes(q)
+        c.title.toLowerCase().includes(q) || c.source.toLowerCase().includes(q),
     );
   }, [items, search]);
 
-  const {
-    paginatedItems,
-    page,
-    setPage,
-    totalPages,
-    totalItems,
-  } = usePagination(filtered, DEFAULT_PAGE_SIZE);
+  const { paginatedItems, page, setPage, totalPages, totalItems } =
+    usePagination(filtered, DEFAULT_PAGE_SIZE);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-background">
