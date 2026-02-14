@@ -5,36 +5,52 @@ import Link from "next/link";
 import { BarChart3, Plus } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
-import { useAllCharts, useChartsStore } from "@/stores/charts-store";
+import { useChartsPaginated, useChartsMutations } from "@/hooks/use-charts";
+import { useChartsStore } from "@/stores/charts-store";
 import { PaginationControls } from "@/components/ui/pagination-controls";
-import { usePagination, DEFAULT_PAGE_SIZE } from "@/hooks/use-pagination";
-import { Button } from "@/components/ui/button";
 import { ChartRow } from "./_components/chart-row";
 import { DeleteChartDialog } from "./_components/delete-chart-dialog";
+import { ChartListSkeleton } from "@/components/skeletons/chart-row-skeleton";
+import { DEFAULT_PAGE_SIZE } from "@/hooks/use-pagination";
+import { Button } from "@/components/ui/button";
 
 export default function ChartsPage() {
   const [deleteTarget, setDeleteTarget] = useState<{
     id: string;
     title: string;
   } | null>(null);
-  const items = useAllCharts();
+  const { charts, results, status, loadMore, isLoading } = useChartsPaginated();
   const search = useChartsStore((s) => s.chartsSearch);
   const setSearch = useChartsStore((s) => s.setChartsSearch);
-  const toggleFavorite = useChartsStore((s) => s.toggleFavorite);
-  const removeChart = useChartsStore((s) => s.removeChart);
-  const duplicateChart = useChartsStore((s) => s.duplicateChart);
+  const mutations = useChartsMutations();
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return items;
+    if (!search.trim()) return charts;
     const q = search.toLowerCase().trim();
-    return items.filter(
+    return charts.filter(
       (c) =>
-        c.title.toLowerCase().includes(q) || c.source.toLowerCase().includes(q),
+        c.title.toLowerCase().includes(q) || c.source.toLowerCase().includes(q)
     );
-  }, [items, search]);
+  }, [charts, search]);
 
-  const { paginatedItems, page, setPage, totalPages, totalItems } =
-    usePagination(filtered, DEFAULT_PAGE_SIZE);
+  // Client-side pagination for search (Convex returns all loaded pages)
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / DEFAULT_PAGE_SIZE));
+  const startIdx = (page - 1) * DEFAULT_PAGE_SIZE;
+  const paginatedItems = filtered.slice(startIdx, startIdx + DEFAULT_PAGE_SIZE);
+
+  const handleRemove = async (id: string) => {
+    await mutations.remove(id as any);
+    setDeleteTarget(null);
+  };
+
+  const handleToggleFavorite = async (id: string) => {
+    await mutations.toggleFavorite(id as any);
+  };
+
+  const handleDuplicate = async (id: string) => {
+    await mutations.duplicate(id as any);
+  };
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-background">
@@ -46,7 +62,7 @@ export default function ChartsPage() {
             value={search}
             onChange={setSearch}
             placeholder="Search charts…"
-            count={totalItems}
+            count={filtered.length}
             countLabel="charts"
             addButton={
               <Link href="/edit">
@@ -61,7 +77,11 @@ export default function ChartsPage() {
             }
           />
 
-          {filtered.length === 0 ? (
+          {isLoading && results.length === 0 ? (
+            <div className="rounded-[28px] bg-white/80 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
+              <ChartListSkeleton count={6} />
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-4 rounded-[28px] bg-white/80 py-24 text-center shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px]">
               <BarChart3 className="size-12 text-[#3D4035]/20" />
               <p className="text-[15px] font-medium text-[#3D4035]/70">
@@ -82,12 +102,25 @@ export default function ChartsPage() {
                       key={chart.id}
                       chart={chart}
                       showEdit
-                      onDuplicate={duplicateChart}
+                      onDuplicate={handleDuplicate}
                       onDelete={setDeleteTarget}
-                      onToggleFavorite={toggleFavorite}
+                      onToggleFavorite={handleToggleFavorite}
                     />
                   ))}
                 </div>
+                {(status === "CanLoadMore" || status === "LoadingMore") &&
+                  filtered.length === charts.length && (
+                    <div className="mt-4 flex justify-center">
+                      <button
+                        type="button"
+                        onClick={() => loadMore(DEFAULT_PAGE_SIZE)}
+                        disabled={status === "LoadingMore"}
+                        className="rounded-xl border border-border/60 px-4 py-2 text-[13px] font-medium text-[#3D4035]/70 hover:bg-black/[0.02] disabled:opacity-50"
+                      >
+                        {status === "LoadingMore" ? "Loading…" : "Load more"}
+                    </button>
+                  </div>
+                )}
               </div>
 
               <PaginationControls
@@ -103,10 +136,7 @@ export default function ChartsPage() {
       <DeleteChartDialog
         target={deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        onConfirm={(id) => {
-          removeChart(id);
-          setDeleteTarget(null);
-        }}
+        onConfirm={handleRemove}
       />
     </div>
   );

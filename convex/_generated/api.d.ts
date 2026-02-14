@@ -10,6 +10,7 @@
 
 import type * as auth from "../auth.js";
 import type * as betterAuth_auth from "../betterAuth/auth.js";
+import type * as betterAuth_sendEmail from "../betterAuth/sendEmail.js";
 import type * as charts from "../charts.js";
 import type * as documents from "../documents.js";
 import type * as http from "../http.js";
@@ -25,6 +26,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   "betterAuth/auth": typeof betterAuth_auth;
+  "betterAuth/sendEmail": typeof betterAuth_sendEmail;
   charts: typeof charts;
   documents: typeof documents;
   http: typeof http;

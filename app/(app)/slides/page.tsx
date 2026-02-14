@@ -9,6 +9,7 @@ import { useSlidesStore } from "@/stores/slides-store";
 import { CreateSlideDialog } from "./_components/create-slide-dialog";
 import { EditSlideDialog } from "./_components/edit-slide-dialog";
 import { getChartById } from "@/lib/charts-data";
+import { useChartsList } from "@/hooks/use-charts";
 import {
   Presentation,
   Layers,
@@ -32,7 +33,7 @@ import { usePagination, DEFAULT_PAGE_SIZE } from "@/hooks/use-pagination";
 function matchesSlide(
   slide: { name: string; chartIds: string[] },
   q: string,
-  getChartByIdFn: typeof getChartById,
+  getChartByIdFn: (id: string) => { title: string; source: string } | undefined,
 ): boolean {
   if (slide.name.toLowerCase().includes(q)) return true;
   const chart = getChartByIdFn(slide.chartIds[0]);
@@ -48,6 +49,7 @@ export default function SlidesPage() {
     id: string;
     name: string;
   } | null>(null);
+  const charts = useChartsList();
   const slides = useSlidesStore((s) => s.slides);
   const removeSlide = useSlidesStore((s) => s.removeSlide);
   const search = useSlidesStore((s) => s.slidesSearch);
@@ -59,8 +61,10 @@ export default function SlidesPage() {
   const filteredCustom = useMemo(() => {
     if (!search.trim()) return customSlides;
     const q = search.toLowerCase().trim();
-    return customSlides.filter((s) => matchesSlide(s, q, getChartById));
-  }, [customSlides, search]);
+    return customSlides.filter((s) =>
+      matchesSlide(s, q, (id) => getChartById(id, charts))
+    );
+  }, [customSlides, search, charts]);
 
   const { paginatedItems, page, setPage, totalPages, totalItems } =
     usePagination(filteredCustom, DEFAULT_PAGE_SIZE);
@@ -100,7 +104,7 @@ export default function SlidesPage() {
                   <div className="flex flex-col gap-4">
                     {paginatedItems.map((slide) => {
                       const chartCount = slide.chartIds.length;
-                      const firstChart = getChartById(slide.chartIds[0]);
+                      const firstChart = getChartById(slide.chartIds[0], charts);
                       const iconBg = firstChart?.iconBg ?? "bg-[#6C5DD3]/20";
                       const iconColor =
                         firstChart?.iconColor ?? "text-[#3D4035]";

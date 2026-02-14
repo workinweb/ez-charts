@@ -11,14 +11,14 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useAllCharts, useChartsStore } from "@/stores/charts-store";
+import { useChartsList, useChartsMutations } from "@/hooks/use-charts";
 
 export function RecentCharts() {
-  const items = useAllCharts();
-  const toggleFavorite = useChartsStore((s) => s.toggleFavorite);
+  const items = useChartsList();
+  const mutations = useChartsMutations();
 
-  // Show the 4 most recent charts (last items first)
-  const recentItems = [...items].reverse().slice(0, 4);
+  // Show the 4 most recent charts (Convex returns newest first)
+  const recentItems = items.slice(0, 4);
 
   return (
     <Card className="col-span-full rounded-[28px] bg-white/80 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8 md:col-span-6">
@@ -64,7 +64,7 @@ export function RecentCharts() {
 
                 <button
                   type="button"
-                  onClick={() => toggleFavorite(chart.id)}
+                  onClick={() => mutations.toggleFavorite(chart.id as any)}
                   className="shrink-0 rounded-full p-2 text-[#3D4035]/40 transition-colors hover:bg-black/[0.04] hover:text-[#3D4035]/70"
                   aria-label={chart.favorited ? "Remove from favorites" : "Add to favorites"}
                 >

@@ -5,7 +5,7 @@ import { components } from "../_generated/api";
 import type { DataModel } from "../_generated/dataModel";
 import { betterAuth } from "better-auth/minimal";
 import authConfig from "../auth.config";
-import { sendEmail } from "./send-email";
+import { sendEmail } from "./sendEmail";
 
 // ─── Better Auth Component Client ───────────────────────────────────────────
 // This client has methods needed for integrating Convex with Better Auth,

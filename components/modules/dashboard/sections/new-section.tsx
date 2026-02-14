@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Sparkles, Save, Pencil } from "lucide-react";
 import { getChartTypeByName } from "@/components/rosencharts";
 import { useChartsStore } from "@/stores/charts-store";
+import { useChartsMutations } from "@/hooks/use-charts";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,7 +20,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 function formatChartTime(id: string): string {
-  const match = id.match(/^chat-(\d+)-/);
+  const match = id.match(/^unsaved-(\d+)-/);
   if (!match) return "";
   const ts = parseInt(match[1], 10);
   const d = new Date(ts);
@@ -41,20 +43,23 @@ function formatChartTime(id: string): string {
 }
 
 export function NewSection() {
-  const dynamicCharts = useChartsStore((s) => s.dynamicCharts);
-  const updateChartTitle = useChartsStore((s) => s.updateChartTitle);
+  const router = useRouter();
+  const unsavedCharts = useChartsStore((s) => s.unsavedCharts);
+  const removeUnsavedChart = useChartsStore((s) => s.removeUnsavedChart);
   const previewChartId = useChartsStore((s) => s.previewChartId);
   const setPreviewChartId = useChartsStore((s) => s.setPreviewChartId);
+  const mutations = useChartsMutations();
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [chartToSave, setChartToSave] = useState<string | null>(null);
   const [saveName, setSaveName] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const latestChart = dynamicCharts[dynamicCharts.length - 1] ?? null;
+  const latestChart = unsavedCharts[unsavedCharts.length - 1] ?? null;
   const displayChart =
     (previewChartId
-      ? dynamicCharts.find((c) => c.id === previewChartId)
+      ? unsavedCharts.find((c) => c.id === previewChartId)
       : null) ?? latestChart;
-  const historyCharts = [...dynamicCharts].reverse();
+  const historyCharts = [...unsavedCharts].reverse();
 
   // When AI creates a new chart, auto-switch to it
   useEffect(() => {
@@ -66,18 +71,33 @@ export function NewSection() {
   }, [latestChart?.id, setPreviewChartId]);
 
   const openSaveDialog = (chartId: string) => {
-    const chart = dynamicCharts.find((c) => c.id === chartId);
+    const chart = unsavedCharts.find((c) => c.id === chartId);
     setChartToSave(chartId);
     setSaveName(chart?.title ?? "");
     setSaveDialogOpen(true);
   };
 
-  const handleSave = () => {
-    if (chartToSave && saveName.trim()) {
-      updateChartTitle(chartToSave, saveName.trim());
+  const handleSave = async () => {
+    if (!chartToSave || !saveName.trim()) return;
+    const chart = unsavedCharts.find((c) => c.id === chartToSave);
+    if (!chart) return;
+    setSaving(true);
+    try {
+      const newId = await mutations.create({
+        title: saveName.trim(),
+        chartType: chart.chartType,
+        data: chart.data,
+        source: chart.source ?? "From chat",
+        withTooltip: chart.withTooltip,
+        withAnimation: chart.withAnimation,
+      });
+      removeUnsavedChart(chartToSave);
       setSaveDialogOpen(false);
       setChartToSave(null);
       setSaveName("");
+      router.push(`/charts/${newId}`);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -254,10 +274,10 @@ export function NewSection() {
             </Button>
             <Button
               onClick={handleSave}
-              disabled={!saveName.trim()}
+              disabled={!saveName.trim() || saving}
               className="bg-[#6C5DD3] text-white hover:bg-[#5a4dbf]"
             >
-              Save
+              {saving ? "Saving…" : "Save"}
             </Button>
           </DialogFooter>
         </DialogContent>

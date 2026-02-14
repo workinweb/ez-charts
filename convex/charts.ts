@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { paginationOptsValidator } from "convex/server";
 
 // ─── Queries ────────────────────────────────────────────────────────────────
 
@@ -15,6 +16,25 @@ export const list = query({
       .withIndex("by_user_created", (q) => q.eq("userId", userId))
       .order("desc")
       .collect();
+  },
+});
+
+/** Paginated list of charts for the authenticated user. */
+export const listPaginated = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return { page: [], isDone: true, continueCursor: "" };
+    }
+    const userId = identity.subject;
+    return ctx.db
+      .query("charts")
+      .withIndex("by_user_created", (q) => q.eq("userId", userId))
+      .order("desc")
+      .paginate(args.paginationOpts);
   },
 });
 

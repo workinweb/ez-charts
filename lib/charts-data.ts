@@ -63,11 +63,10 @@ export const userCharts: UserChart[] = userChartsFixture.map((c) => ({
   ...chartTypeToIcon(c.chartType),
 }));
 
+/** Look up a chart by ID from a list (e.g. from useChartsList). */
 export function getChartById(
   id: string,
-  dynamicCharts?: UserChart[],
+  charts: UserChart[],
 ): UserChart | undefined {
-  const fromDynamic = dynamicCharts?.find((c) => c.id === id);
-  if (fromDynamic) return fromDynamic;
-  return userCharts.find((c) => c.id === id);
+  return charts.find((c) => c.id === id);
 }

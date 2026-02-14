@@ -12,9 +12,11 @@ import { Badge } from "@/components/ui/badge";
 import { Layers, ChevronRight } from "lucide-react";
 import { useSlidesStore } from "@/stores/slides-store";
 import { getChartById } from "@/lib/charts-data";
+import { useChartsList } from "@/hooks/use-charts";
 import { cn } from "@/lib/utils";
 
 export function RecentSlideDecks() {
+  const charts = useChartsList();
   const slides = useSlidesStore((s) => s.slides);
   const customDecks = slides.filter((s) => s.type === "custom").slice(0, 4);
 
@@ -64,7 +66,7 @@ export function RecentSlideDecks() {
         <div className="flex flex-col gap-4">
           {customDecks.map((slide) => {
             const chartCount = slide.chartIds.length;
-            const firstChart = getChartById(slide.chartIds[0]);
+            const firstChart = getChartById(slide.chartIds[0], charts);
             const iconBg = firstChart?.iconBg ?? "bg-[#6C5DD3]/20";
             return (
               <Link

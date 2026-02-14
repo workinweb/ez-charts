@@ -8,9 +8,10 @@ interface EditorTopBarProps {
   isCreateMode: boolean;
   dirty: boolean;
   saved: boolean;
+  saving?: boolean;
   onBack: () => void;
   onReset: () => void;
-  onSave: () => void;
+  onSave: () => void | Promise<void>;
   onSendToAI: () => void;
 }
 
@@ -18,6 +19,7 @@ export function EditorTopBar({
   isCreateMode,
   dirty,
   saved,
+  saving = false,
   onBack,
   onReset,
   onSave,
@@ -62,7 +64,7 @@ export function EditorTopBar({
 
       <Button
         size="sm"
-        disabled={!dirty && !isCreateMode}
+        disabled={(!dirty && !isCreateMode) || saving}
         onClick={onSave}
         className={cn(
           "gap-2 rounded-xl text-[12px] font-semibold transition-all",
@@ -74,7 +76,7 @@ export function EditorTopBar({
         )}
       >
         <Save className="size-3.5" />
-        {saved ? "Saved" : isCreateMode ? "Create chart" : "Save changes"}
+        {saving ? "Saving…" : saved ? "Saved" : isCreateMode ? "Create chart" : "Save changes"}
       </Button>
     </div>
   );

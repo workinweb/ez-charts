@@ -32,7 +32,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { GripVertical, Plus, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAllCharts } from "@/stores/charts-store";
+import { useChartsList } from "@/hooks/use-charts";
 import { useSlidesStore } from "@/stores/slides-store";
 
 interface CreateSlideDialogProps {
@@ -119,7 +119,7 @@ export function CreateSlideDialog({
   const [chartIds, setChartIds] = useState<string[]>([]);
   const [addChartSearch, setAddChartSearch] = useState("");
   const addSlide = useSlidesStore((s) => s.addSlide);
-  const allCharts = useAllCharts();
+  const allCharts = useChartsList();
 
   const chartMap = useMemo(
     () => new Map(allCharts.map((c) => [c.id, c])),

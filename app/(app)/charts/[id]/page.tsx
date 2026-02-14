@@ -4,18 +4,27 @@ import { useParams, notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Presentation, Copy, Pencil } from "lucide-react";
 import { getChartTypeByName } from "@/components/rosencharts";
-import { useChartById, useChartsStore } from "@/stores/charts-store";
+import type { Id } from "@/convex/_generated/dataModel";
+import { useChartByIdWithStatus, useChartsMutations } from "@/hooks/use-charts";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/navbar";
 
 export default function ChartDetailPage() {
   const params = useParams();
   const id = typeof params.id === "string" ? params.id : params.id?.[0];
-  const chart = useChartById(id);
-  const duplicateChart = useChartsStore((s) => s.duplicateChart);
+  const { chart, isLoading, isNotFound } = useChartByIdWithStatus(id);
+  const mutations = useChartsMutations();
 
-  if (!chart) {
-    notFound();
+  if (isNotFound) notFound();
+  if (isLoading || !chart) {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-background">
+        <Navbar />
+        <div className="flex min-h-0 flex-1 items-center justify-center">
+          <div className="size-8 animate-spin rounded-full border-2 border-[#6C5DD3]/20 border-t-[#6C5DD3]" />
+        </div>
+      </div>
+    );
   }
 
   const chartEl = getChartTypeByName(
@@ -64,7 +73,7 @@ export default function ChartDetailPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => duplicateChart(id!)}
+              onClick={() => mutations.duplicate(id as Id<"charts">)}
               className="gap-2 text-[#3D4035]/70 hover:text-[#3D4035]"
             >
               <Copy className="size-3.5" />

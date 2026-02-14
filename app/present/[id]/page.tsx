@@ -11,7 +11,7 @@ import {
   Minimize2,
 } from "lucide-react";
 import { getChartTypeByName } from "@/components/rosencharts";
-import { useChartById } from "@/stores/charts-store";
+import { useChartById } from "@/hooks/use-charts";
 import { useSlidesStore } from "@/stores/slides-store";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -20,7 +20,20 @@ export default function SlideViewPage() {
   const params = useParams();
   const id = typeof params.id === "string" ? params.id : params.id?.[0];
   const slides = useSlidesStore((s) => s.slides);
-  const slide = slides.find((s) => s.id === id);
+
+  // Support "auto-{chartId}" for single-chart presentation
+  const isAutoPresent = id?.startsWith("auto-");
+  const chartIdForAuto = isAutoPresent ? id!.replace(/^auto-/, "") : null;
+  const slideFromStore = slides.find((s) => s.id === id);
+  const slide = isAutoPresent && chartIdForAuto
+    ? {
+        id: id!,
+        name: "Chart",
+        chartIds: [chartIdForAuto],
+        type: "custom" as const,
+        createdAt: "",
+      }
+    : slideFromStore;
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -76,7 +89,7 @@ export default function SlideViewPage() {
     };
   }, [goNext, goPrev]);
 
-  if (!slide) {
+  if (!slide || !id) {
     notFound();
   }
 

@@ -19,7 +19,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/(auth)/auth-client";
-import { useChartById, useChartsStore } from "@/stores/charts-store";
+import { useChartById } from "@/hooks/use-charts";
+import { useChartsStore } from "@/stores/charts-store";
 import {
   Bookmark,
   ChevronDown,

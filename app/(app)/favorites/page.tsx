@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Heart } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
-import { useAllCharts, useChartsStore } from "@/stores/charts-store";
+import { useChartsStore } from "@/stores/charts-store";
+import { useChartsFavorites, useChartsMutations } from "@/hooks/use-charts";
 import { PaginationControls } from "@/components/ui/pagination-controls";
 import { usePagination, DEFAULT_PAGE_SIZE } from "@/hooks/use-pagination";
 import { ChartRow } from "../charts/_components/chart-row";
@@ -16,12 +17,10 @@ export default function FavoritesPage() {
     id: string;
     title: string;
   } | null>(null);
-  const items = useAllCharts().filter((c) => c.favorited);
+  const items = useChartsFavorites();
   const search = useChartsStore((s) => s.favoritesSearch);
   const setSearch = useChartsStore((s) => s.setFavoritesSearch);
-  const toggleFavorite = useChartsStore((s) => s.toggleFavorite);
-  const removeChart = useChartsStore((s) => s.removeChart);
-  const duplicateChart = useChartsStore((s) => s.duplicateChart);
+  const mutations = useChartsMutations();
 
   const filtered = useMemo(() => {
     if (!search.trim()) return items;
@@ -83,9 +82,9 @@ export default function FavoritesPage() {
                       key={chart.id}
                       chart={chart}
                       showEdit={false}
-                      onDuplicate={duplicateChart}
+                      onDuplicate={(id) => mutations.duplicate(id as any)}
                       onDelete={setDeleteTarget}
-                      onToggleFavorite={toggleFavorite}
+                      onToggleFavorite={(id) => mutations.toggleFavorite(id as any)}
                     />
                   ))}
                 </div>
@@ -104,8 +103,8 @@ export default function FavoritesPage() {
       <DeleteChartDialog
         target={deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        onConfirm={(id) => {
-          removeChart(id);
+        onConfirm={async (id) => {
+          await mutations.remove(id as any);
           setDeleteTarget(null);
         }}
       />

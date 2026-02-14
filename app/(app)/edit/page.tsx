@@ -4,7 +4,8 @@ import { Suspense, useState, useMemo, useCallback, useEffect, useRef } from "rea
 import { useRouter, useSearchParams } from "next/navigation";
 import { getChartTypeByName } from "@/components/rosencharts";
 import type { ChartTypeKey } from "@/components/rosencharts";
-import { useAllCharts, useChartsStore } from "@/stores/charts-store";
+import { useChartByIdWithStatus, useChartsMutations } from "@/hooks/use-charts";
+import { useChartsStore } from "@/stores/charts-store";
 import { useChatbotStore } from "@/stores/chatbot-store";
 import { Navbar } from "@/components/layout/navbar";
 import {
@@ -42,9 +43,8 @@ function EditChartContent() {
   const searchParams = useSearchParams();
   const chartId = searchParams.get("chart");
 
-  const allCharts = useAllCharts();
-  const updateChart = useChartsStore((s) => s.updateChart);
-  const addChart = useChartsStore((s) => s.addChart);
+  const mutations = useChartsMutations();
+  const removeUnsavedChart = useChartsStore((s) => s.removeUnsavedChart);
   const {
     setAttachedChartContext,
     setSelectedChartKey,
@@ -56,9 +56,7 @@ function EditChartContent() {
 
   /* ── Chart selection ─────────────────────────────────────────────── */
   const [selectedId, setSelectedId] = useState<string | null>(chartId);
-  const sourceChart = selectedId
-    ? (allCharts.find((c) => c.id === selectedId) ?? null)
-    : null;
+  const { chart: sourceChart, isLoading: chartLoading, isNotFound: chartMissing } = useChartByIdWithStatus(selectedId ?? undefined);
 
   useEffect(() => {
     if (chartId && chartId !== selectedId) {
@@ -122,35 +120,56 @@ function EditChartContent() {
   }, [data, chartType, withTooltip, withAnimation]);
 
   /* ── Save handler ────────────────────────────────────────────────── */
-  const handleSave = useCallback(() => {
-    if (isCreateMode) {
-      const newId = addChart({
-        title: title || "Untitled Chart",
-        chartType: chartType as ChartTypeKey,
-        data,
-        withTooltip,
-        withAnimation,
-      });
-      setDirty(false);
-      setSaved(true);
-      setSelectedId(newId);
-      prevChartIdRef.current = newId;
-      router.replace(`/edit?chart=${newId}`);
-      return;
-    }
-    if (!selectedId) return;
-    const newId = updateChart(selectedId, {
-      title,
-      chartType: chartType as ChartTypeKey,
-      data,
-      withTooltip,
-      withAnimation,
-    });
-    setDirty(false);
-    setSaved(true);
-    if (newId !== selectedId) {
-      setSelectedId(newId);
-      router.replace(`/edit?chart=${newId}`);
+  const [saving, setSaving] = useState(false);
+  const handleSave = useCallback(async () => {
+    setSaving(true);
+    try {
+      if (isCreateMode) {
+        const newId = await mutations.create({
+          title: title || "Untitled Chart",
+          chartType,
+          data,
+          source: "Manual",
+          withTooltip,
+          withAnimation,
+        });
+        setDirty(false);
+        setSaved(true);
+        setSelectedId(newId);
+        prevChartIdRef.current = newId;
+        router.replace(`/edit?chart=${newId}`);
+        return;
+      }
+      if (!selectedId) return;
+      const isUnsaved = selectedId.startsWith("unsaved-");
+      if (isUnsaved) {
+        const newId = await mutations.create({
+          title: title || "Untitled Chart",
+          chartType,
+          data,
+          source: "From chat",
+          withTooltip,
+          withAnimation,
+        });
+        removeUnsavedChart(selectedId);
+        setDirty(false);
+        setSaved(true);
+        setSelectedId(newId);
+        prevChartIdRef.current = newId;
+        router.replace(`/edit?chart=${newId}`);
+      } else {
+        await mutations.update(selectedId as any, {
+          title,
+          chartType,
+          data,
+          withTooltip,
+          withAnimation,
+        });
+        setDirty(false);
+        setSaved(true);
+      }
+    } finally {
+      setSaving(false);
     }
   }, [
     isCreateMode,
@@ -160,8 +179,8 @@ function EditChartContent() {
     data,
     withTooltip,
     withAnimation,
-    addChart,
-    updateChart,
+    mutations,
+    removeUnsavedChart,
     router,
   ]);
 
@@ -202,15 +221,22 @@ function EditChartContent() {
   /* ── Editor shape ────────────────────────────────────────────────── */
   const editorShape = chartType ? getEditorShape(chartType) : null;
 
-  /* No chart and not create mode → redirect */
+  /* No chart and not create mode → redirect when chart not found */
   useEffect(() => {
-    if (!isCreateMode && (!selectedId || !sourceChart)) {
-      router.replace("/charts");
-    }
-  }, [isCreateMode, selectedId, sourceChart, router]);
+    if (!isCreateMode && chartMissing) router.replace("/charts");
+  }, [isCreateMode, chartMissing, router]);
 
-  if (!isCreateMode && (!selectedId || !sourceChart)) {
-    return null;
+  if (!isCreateMode && !selectedId) return null;
+  if (!isCreateMode && chartMissing) return null;
+  if (!isCreateMode && chartLoading) {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-background">
+        <Navbar />
+        <div className="flex min-h-0 flex-1 items-center justify-center">
+          <div className="size-8 animate-spin rounded-full border-2 border-[#6C5DD3]/20 border-t-[#6C5DD3]" />
+        </div>
+      </div>
+    );
   }
 
   /* ═══════════════════════════════════════════════════════════════════
@@ -226,6 +252,7 @@ function EditChartContent() {
             isCreateMode={isCreateMode}
             dirty={dirty}
             saved={saved}
+            saving={saving}
             onBack={() => router.replace("/charts")}
             onReset={handleReset}
             onSave={handleSave}
