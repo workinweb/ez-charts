@@ -10,15 +10,15 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Layers, ChevronRight } from "lucide-react";
-import { useSlidesStore } from "@/stores/slides-store";
+import { useSlidesList } from "@/hooks/use-slides";
 import { getChartById } from "@/lib/charts-data";
 import { useChartsList } from "@/hooks/use-charts";
 import { cn } from "@/lib/utils";
 
 export function RecentSlideDecks() {
   const charts = useChartsList();
-  const slides = useSlidesStore((s) => s.slides);
-  const customDecks = slides.filter((s) => s.type === "custom").slice(0, 4);
+  const slides = useSlidesList();
+  const customDecks = slides.slice(0, 4);
 
   if (customDecks.length === 0) {
     return (

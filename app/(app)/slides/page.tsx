@@ -5,7 +5,9 @@ import Link from "next/link";
 import { Navbar } from "@/components/layout/navbar";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
 import { cn } from "@/lib/utils";
+import type { Id } from "@/convex/_generated/dataModel";
 import { useSlidesStore } from "@/stores/slides-store";
+import { useSlidesList, useSlidesMutations } from "@/hooks/use-slides";
 import { CreateSlideDialog } from "./_components/create-slide-dialog";
 import { EditSlideDialog } from "./_components/edit-slide-dialog";
 import { getChartById } from "@/lib/charts-data";
@@ -50,13 +52,13 @@ export default function SlidesPage() {
     name: string;
   } | null>(null);
   const charts = useChartsList();
-  const slides = useSlidesStore((s) => s.slides);
-  const removeSlide = useSlidesStore((s) => s.removeSlide);
+  const slides = useSlidesList();
+  const mutations = useSlidesMutations();
   const search = useSlidesStore((s) => s.slidesSearch);
   const setSearch = useSlidesStore((s) => s.setSlidesSearch);
   const editSlide = useSlidesStore((s) => s.editingSlide);
   const setEditSlide = useSlidesStore((s) => s.setEditingSlide);
-  const customSlides = slides.filter((s) => s.type === "custom");
+  const customSlides = slides;
 
   const filteredCustom = useMemo(() => {
     if (!search.trim()) return customSlides;
@@ -203,7 +205,12 @@ export default function SlidesPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => deleteTarget && removeSlide(deleteTarget.id)}
+              onClick={async () => {
+                if (deleteTarget) {
+                  await mutations.remove(deleteTarget.id as Id<"slides">);
+                  setDeleteTarget(null);
+                }
+              }}
               className="bg-red-600 text-white hover:bg-red-700"
             >
               Delete

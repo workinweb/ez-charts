@@ -33,7 +33,7 @@ import { Input } from "@/components/ui/input";
 import { GripVertical, Plus, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useChartsList } from "@/hooks/use-charts";
-import { useSlidesStore } from "@/stores/slides-store";
+import { useSlidesMutations } from "@/hooks/use-slides";
 
 interface CreateSlideDialogProps {
   triggerLabel?: string;
@@ -118,7 +118,7 @@ export function CreateSlideDialog({
   const [name, setName] = useState("");
   const [chartIds, setChartIds] = useState<string[]>([]);
   const [addChartSearch, setAddChartSearch] = useState("");
-  const addSlide = useSlidesStore((s) => s.addSlide);
+  const mutations = useSlidesMutations();
   const allCharts = useChartsList();
 
   const chartMap = useMemo(
@@ -164,9 +164,9 @@ export function CreateSlideDialog({
     setChartIds((prev) => prev.filter((x) => x !== id));
   }
 
-  function handleCreate() {
+  async function handleCreate() {
     if (!name.trim() || chartIds.length === 0) return;
-    addSlide(name.trim(), chartIds);
+    await mutations.create({ name: name.trim(), chartIds });
     setName("");
     setChartIds([]);
     setAddChartSearch("");

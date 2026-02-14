@@ -12,19 +12,20 @@ import {
 } from "lucide-react";
 import { getChartTypeByName } from "@/components/rosencharts";
 import { useChartById } from "@/hooks/use-charts";
-import { useSlidesStore } from "@/stores/slides-store";
+import { useSlideById, useSlideByIdWithStatus } from "@/hooks/use-slides";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export default function SlideViewPage() {
   const params = useParams();
   const id = typeof params.id === "string" ? params.id : params.id?.[0];
-  const slides = useSlidesStore((s) => s.slides);
 
   // Support "auto-{chartId}" for single-chart presentation
   const isAutoPresent = id?.startsWith("auto-");
   const chartIdForAuto = isAutoPresent ? id!.replace(/^auto-/, "") : null;
-  const slideFromStore = slides.find((s) => s.id === id);
+  const { slide: slideFromConvex, isLoading, isNotFound } = useSlideByIdWithStatus(
+    isAutoPresent ? undefined : id
+  );
   const slide = isAutoPresent && chartIdForAuto
     ? {
         id: id!,
@@ -33,7 +34,7 @@ export default function SlideViewPage() {
         type: "custom" as const,
         createdAt: "",
       }
-    : slideFromStore;
+    : slideFromConvex;
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -89,9 +90,16 @@ export default function SlideViewPage() {
     };
   }, [goNext, goPrev]);
 
-  if (!slide || !id) {
-    notFound();
+  if (!id) notFound();
+  if (!isAutoPresent && isNotFound) notFound();
+  if (!isAutoPresent && isLoading) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-[#F5F7F8]">
+        <div className="size-8 animate-spin rounded-full border-2 border-[#6C5DD3]/20 border-t-[#6C5DD3]" />
+      </div>
+    );
   }
+  if (!slide) notFound();
 
   const chartEl = currentChart
     ? getChartTypeByName(

@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Presentation, Layers, Zap } from "lucide-react";
-import { useSlidesStore } from "@/stores/slides-store";
+import { useChartsList } from "@/hooks/use-charts";
+import { useSlidesList } from "@/hooks/use-slides";
 
 export function SlidesOverview() {
-  const slides = useSlidesStore((s) => s.slides);
-  const customCount = slides.filter((s) => s.type === "custom").length;
-  const totalCount = slides.length;
+  const charts = useChartsList();
+  const slideDecks = useSlidesList();
+  const totalCount = charts.length; // Charts you can present
+  const customCount = slideDecks.length; // Multi-chart decks
 
   return (
     <Card className="col-span-full rounded-[32px] bg-[#354052] text-white ring-0 lg:col-span-5 p-6">

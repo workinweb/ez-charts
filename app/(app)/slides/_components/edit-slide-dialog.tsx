@@ -32,7 +32,9 @@ import { Input } from "@/components/ui/input";
 import { GripVertical, Plus, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useChartsList } from "@/hooks/use-charts";
-import { useSlidesStore, type Slide } from "@/stores/slides-store";
+import type { Id } from "@/convex/_generated/dataModel";
+import { useSlidesMutations } from "@/hooks/use-slides";
+import type { Slide } from "@/lib/slide-utils";
 
 interface EditSlideDialogProps {
   open: boolean;
@@ -120,7 +122,7 @@ export function EditSlideDialog({
   const [name, setName] = useState("");
   const [chartIds, setChartIds] = useState<string[]>([]);
   const [addChartSearch, setAddChartSearch] = useState("");
-  const updateSlide = useSlidesStore((s) => s.updateSlide);
+  const mutations = useSlidesMutations();
   const allCharts = useChartsList();
 
   const chartMap = useMemo(
@@ -176,9 +178,12 @@ export function EditSlideDialog({
     setChartIds((prev) => prev.filter((x) => x !== id));
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!slide || !name.trim() || chartIds.length === 0) return;
-    updateSlide(slide.id, { name: name.trim(), chartIds });
+    await mutations.update(slide.id as Id<"slides">, {
+      name: name.trim(),
+      chartIds,
+    });
     onOpenChange(false);
   }
 
