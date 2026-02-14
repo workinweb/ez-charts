@@ -1,13 +1,22 @@
 "use client";
 
-import { User } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
-import { authClient } from "@/lib/(auth)/auth-client";
+import { UserSettingsSkeleton } from "@/components/skeletons/user-settings-skeleton";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { api } from "@/convex/_generated/api";
+import { authClient } from "@/lib/(auth)/auth-client";
+import { cn } from "@/lib/utils";
+import { useChatbotStore } from "@/stores/chatbot-store";
 import {
-  DndContext,
+  DASHBOARD_CARD_IDS,
+  DASHBOARD_CARD_LABELS,
+  useDashboardSettingsStore,
+  type DashboardCardId,
+} from "@/stores/dashboard-settings-store";
+import {
   closestCenter,
+  DndContext,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -22,15 +31,34 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, RotateCcw } from "lucide-react";
-import { cn } from "@/lib/utils";
-import {
-  useDashboardSettingsStore,
-  DASHBOARD_CARD_IDS,
-  DASHBOARD_CARD_LABELS,
-  type DashboardCardId,
-} from "@/stores/dashboard-settings-store";
-import { useChatbotStore } from "@/stores/chatbot-store";
+import { useMutation, useQuery } from "convex/react";
+import { Check, GripVertical, Loader2, RotateCcw, User } from "lucide-react";
+import { useState } from "react";
+
+function ResendVerificationButton({ email }: { email: string }) {
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        setLoading(true);
+        setSent(false);
+        await authClient.sendVerificationEmail({ email, callbackURL: "/user" });
+        setSent(true);
+        setLoading(false);
+      }}
+      disabled={loading}
+      className="mt-2 text-[12px] font-medium text-[#6C5DD3] hover:underline disabled:opacity-50"
+    >
+      {loading
+        ? "Sending…"
+        : sent
+          ? "Verification email sent"
+          : "Resend verification email"}
+    </button>
+  );
+}
 
 function SortableCardRow({ id }: { id: DashboardCardId }) {
   const {
@@ -112,11 +140,25 @@ function StaticCardRow({ id }: { id: DashboardCardId }) {
 
 export default function UserPage() {
   const { data: session } = authClient.useSession();
+  const settingsReady = useDashboardSettingsStore((s) => s.settingsReady);
   const cardOrder = useDashboardSettingsStore((s) => s.cardOrder);
   const setCardOrder = useDashboardSettingsStore((s) => s.setCardOrder);
   const resetToDefault = useDashboardSettingsStore((s) => s.resetToDefault);
   const saveDocumentsOnDb = useChatbotStore((s) => s.saveDocumentsOnDb);
   const setSaveDocumentsOnDb = useChatbotStore((s) => s.setSaveDocumentsOnDb);
+
+  const savedSettings = useQuery(api.userSettings.get);
+  const upsertSettings = useMutation(api.userSettings.upsert);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const dbCardOrder = savedSettings?.dashboardCardOrder ?? null;
+  const dbSaveDocuments = savedSettings?.saveDocumentsOnDb ?? false;
+  const hasUnsavedChanges =
+    savedSettings !== undefined &&
+    (JSON.stringify(dbCardOrder ?? DASHBOARD_CARD_IDS) !==
+      JSON.stringify(cardOrder) ||
+      dbSaveDocuments !== saveDocumentsOnDb);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -158,87 +200,133 @@ export default function UserPage() {
                 <p className="text-[14px] text-[#3D4035]/60">
                   {session?.user?.email ?? "—"}
                 </p>
+                {session?.user?.email &&
+                  !(session?.user as { emailVerified?: boolean })
+                    ?.emailVerified && (
+                    <ResendVerificationButton email={session.user.email} />
+                  )}
               </div>
               <User className="size-5 text-[#3D4035]/30" />
             </div>
           </section>
 
           {/* Dashboard cards */}
-          <section className="rounded-[28px] bg-white/80 p-6 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
-            <div className="mb-6 flex items-center justify-between">
-              <div>
-                <h2 className="text-[18px] font-semibold text-[#3D4035]">
-                  Dashboard cards
-                </h2>
-                <p className="mt-1 text-[13px] text-[#3D4035]/50">
-                  Choose which cards appear on your dashboard and drag to
-                  reorder.
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={resetToDefault}
-                className="gap-2 rounded-xl text-[13px] text-[#3D4035]/60 hover:text-[#3D4035]"
-              >
-                <RotateCcw className="size-3.5" />
-                Reset
-              </Button>
-            </div>
-
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={cardOrder}
-                strategy={verticalListSortingStrategy}
-              >
-                <div className="flex flex-col gap-3">
-                  {cardOrder.map((id) => (
-                    <SortableCardRow key={id} id={id} />
-                  ))}
-                  {hiddenIds.map((id) => (
-                    <StaticCardRow key={id} id={id} />
-                  ))}
+          {!settingsReady ? (
+            <UserSettingsSkeleton />
+          ) : (
+            <>
+              <section className="rounded-[28px] bg-white/80 p-6 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
+                <div className="mb-6 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-[18px] font-semibold text-[#3D4035]">
+                      Dashboard cards
+                    </h2>
+                    <p className="mt-1 text-[13px] text-[#3D4035]/50">
+                      Choose which cards appear on your dashboard and drag to
+                      reorder.
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={resetToDefault}
+                    className="gap-2 rounded-xl text-[13px] text-[#3D4035]/60 hover:text-[#3D4035]"
+                  >
+                    <RotateCcw className="size-3.5" />
+                    Reset
+                  </Button>
                 </div>
-              </SortableContext>
-            </DndContext>
-          </section>
 
-          {/* Chat preferences */}
-          <section className="rounded-[28px] bg-white/80 p-6 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
-            <h2 className="text-[18px] font-semibold text-[#3D4035]">
-              Chat preferences
-            </h2>
-            <p className="mt-1 mb-6 text-[13px] text-[#3D4035]/50">
-              Control how the AI assistant handles your data.
-            </p>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={cardOrder}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="flex flex-col gap-3">
+                      {cardOrder.map((id) => (
+                        <SortableCardRow key={id} id={id} />
+                      ))}
+                      {hiddenIds.map((id) => (
+                        <StaticCardRow key={id} id={id} />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              </section>
 
-            <label
-              htmlFor="save-docs"
-              className={cn(
-                "flex cursor-pointer items-center gap-4 rounded-2xl border border-border/40 bg-white/80 px-4 py-3.5 transition-colors hover:border-border/60",
-              )}
-            >
-              <Checkbox
-                id="save-docs"
-                checked={saveDocumentsOnDb}
-                onCheckedChange={(v) => setSaveDocumentsOnDb(!!v)}
-                className="rounded-md"
-              />
-              <div className="flex-1">
-                <p className="text-[15px] font-medium text-[#3D4035]">
-                  Save documents on DB
+              {/* Chat preferences */}
+              <section className="rounded-[28px] bg-white/80 p-6 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
+                <h2 className="text-[18px] font-semibold text-[#3D4035]">
+                  Chat preferences
+                </h2>
+                <p className="mt-1 mb-6 text-[13px] text-[#3D4035]/50">
+                  Control how the AI assistant handles your data.
                 </p>
-                <p className="text-[13px] text-[#3D4035]/50">
-                  When enabled, attached files from chat will be saved to your
-                  account.
-                </p>
-              </div>
-            </label>
-          </section>
+
+                <label
+                  htmlFor="save-docs"
+                  className={cn(
+                    "flex cursor-pointer items-center gap-4 rounded-2xl border border-border/40 bg-white/80 px-4 py-3.5 transition-colors hover:border-border/60",
+                  )}
+                >
+                  <Checkbox
+                    id="save-docs"
+                    checked={saveDocumentsOnDb}
+                    onCheckedChange={(v) => setSaveDocumentsOnDb(!!v)}
+                    className="rounded-md"
+                  />
+                  <div className="flex-1">
+                    <p className="text-[15px] font-medium text-[#3D4035]">
+                      Save documents on DB
+                    </p>
+                    <p className="text-[13px] text-[#3D4035]/50">
+                      When enabled, attached files from chat will be saved to
+                      your account.
+                    </p>
+                  </div>
+                </label>
+
+                {hasUnsavedChanges && (
+                  <div className="mt-6 flex items-center gap-3">
+                    <Button
+                      onClick={async () => {
+                        setSaving(true);
+                        setSaved(false);
+                        try {
+                          await upsertSettings({
+                            dashboardCardOrder: cardOrder,
+                            saveDocumentsOnDb,
+                          });
+                          setSaved(true);
+                          setTimeout(() => setSaved(false), 2000);
+                        } catch {
+                          // Error handling - could add toast
+                        } finally {
+                          setSaving(false);
+                        }
+                      }}
+                      disabled={saving}
+                      className="gap-2 rounded-xl bg-[#6C5DD3] px-4 py-2 text-[14px] font-semibold text-white hover:bg-[#5a4dbf] disabled:opacity-50"
+                    >
+                      {saving ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : saved ? (
+                        <Check className="size-4" />
+                      ) : null}
+                      {saving ? "Saving…" : saved ? "Saved" : "Save changes"}
+                    </Button>
+                    <p className="text-[13px] text-[#3D4035]/50">
+                      Your preferences are saved locally until you click Save.
+                    </p>
+                  </div>
+                )}
+              </section>
+            </>
+          )}
         </div>
       </div>
     </div>

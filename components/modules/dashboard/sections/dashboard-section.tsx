@@ -10,6 +10,7 @@ import {
   DataSourcesBreakdown,
   RecentSlideDecks,
 } from "@/components/modules/dashboard";
+import { DashboardSectionSkeleton } from "@/components/modules/dashboard/dashboard-section-skeleton";
 import {
   useDashboardSettingsStore,
   DASHBOARD_CARD_SPAN,
@@ -35,6 +36,11 @@ const SPAN_CLASS: Record<number, string> = {
 
 export function DashboardSection() {
   const cardOrder = useDashboardSettingsStore((s) => s.cardOrder);
+  const settingsReady = useDashboardSettingsStore((s) => s.settingsReady);
+
+  if (!settingsReady) {
+    return <DashboardSectionSkeleton />;
+  }
 
   return (
     <>

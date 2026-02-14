@@ -16,6 +16,22 @@ export default function SignInPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [resendSent, setResendSent] = useState(false);
+
+  async function handleResendVerification() {
+    setResendSent(false);
+    const result = await authClient.sendVerificationEmail({
+      email,
+      callbackURL: "/",
+    });
+    if (result.error) {
+      setError(result.error.message ?? "Failed to send verification email.");
+      return;
+    }
+    setResendSent(true);
+    setNeedsVerification(false);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -23,10 +39,16 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
-      const result = await authClient.signIn.email({
-        email,
-        password,
-      });
+      const result = await authClient.signIn.email(
+        { email, password },
+        {
+          onError: (ctx) => {
+            if (ctx.error.status === 403 && ctx.error.message?.toLowerCase().includes("verif")) {
+              setNeedsVerification(true);
+            }
+          },
+        }
+      );
 
       if (result.error) {
         setError(result.error.message ?? "Sign in failed. Please try again.");
@@ -121,12 +143,20 @@ export default function SignInPage() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="password"
-              className="text-[13px] font-medium text-[#3D4035]/70"
-            >
-              Password
-            </label>
+            <div className="flex items-center justify-between">
+              <label
+                htmlFor="password"
+                className="text-[13px] font-medium text-[#3D4035]/70"
+              >
+                Password
+              </label>
+              <Link
+                href="/forgot-password"
+                className="text-[12px] font-medium text-[#6C5DD3] hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <Input
               id="password"
               type="password"
@@ -144,6 +174,20 @@ export default function SignInPage() {
             <p className="rounded-lg bg-red-50 px-3 py-2 text-[13px] text-red-600">
               {error}
             </p>
+          )}
+
+          {needsVerification && (
+            <div className="rounded-lg bg-amber-50 px-3 py-2 text-[13px] text-amber-800">
+              Please verify your email to sign in.{" "}
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                className="font-semibold underline hover:no-underline"
+              >
+                Resend verification email
+              </button>
+              {resendSent && " — Check your inbox."}
+            </div>
           )}
 
           <Button

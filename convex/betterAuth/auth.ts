@@ -5,6 +5,7 @@ import { components } from "../_generated/api";
 import type { DataModel } from "../_generated/dataModel";
 import { betterAuth } from "better-auth/minimal";
 import authConfig from "../auth.config";
+import { sendEmail } from "./send-email";
 
 // ─── Better Auth Component Client ───────────────────────────────────────────
 // This client has methods needed for integrating Convex with Better Auth,
@@ -18,9 +19,27 @@ export const createAuth = (ctx: GenericCtx<DataModel>) => {
     appName: "Charts AI",
     baseURL: process.env.SITE_URL,
     database: authComponent.adapter(ctx),
+    emailVerification: {
+      sendVerificationEmail: async ({ user, url }) => {
+        void sendEmail({
+          to: user.email,
+          subject: "Verify your email – Charts AI",
+          text: `Click the link below to verify your email:\n\n${url}\n\nIf you didn't sign up, you can ignore this email.`,
+        });
+      },
+      sendOnSignUp: true,
+      autoSignInAfterVerification: true,
+    },
     emailAndPassword: {
       enabled: true,
-      requireEmailVerification: false, // Flip to true when you add email service
+      requireEmailVerification: false, // Set true to block login until verified
+      sendResetPassword: async ({ user, url }) => {
+        void sendEmail({
+          to: user.email,
+          subject: "Reset your password – Charts AI",
+          text: `Click the link below to reset your password:\n\n${url}\n\nIf you didn't request this, you can ignore this email. The link expires in 1 hour.`,
+        });
+      },
     },
     socialProviders: {
       google: {

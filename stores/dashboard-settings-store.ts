@@ -43,6 +43,9 @@ export const DASHBOARD_CARD_SPAN: Record<DashboardCardId, number> = {
 };
 
 interface DashboardSettingsState {
+  /** True after settings have been hydrated from server (client-only) */
+  settingsReady: boolean;
+  setSettingsReady: (ready: boolean) => void;
   /** Ordered list of card IDs. Only these are shown; order determines layout. */
   cardOrder: DashboardCardId[];
   /** Set a new order (e.g. after drag-end) */
@@ -63,6 +66,8 @@ const DEFAULT_ORDER: DashboardCardId[] = [...DASHBOARD_CARD_IDS];
 
 export const useDashboardSettingsStore = create<DashboardSettingsState>(
   (set, get) => ({
+    settingsReady: false,
+    setSettingsReady: (ready) => set({ settingsReady: ready }),
     cardOrder: DEFAULT_ORDER,
 
     setCardOrder: (order) => set({ cardOrder: order }),
