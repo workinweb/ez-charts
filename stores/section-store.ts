@@ -10,8 +10,7 @@ export type SectionKey =
   | "links"
   | "saved"
   | "adjustments"
-  | "new"
-  | "settings";
+  | "new";
 
 interface SectionState {
   activeSection: SectionKey;

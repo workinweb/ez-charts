@@ -6,4 +6,3 @@ export { LinksSection } from "./links-section";
 export { SavedSection } from "./saved-section";
 export { AdjustmentsSection } from "./adjustments-section";
 export { NewSection } from "./new-section";
-export { SettingsSection } from "./settings-section";

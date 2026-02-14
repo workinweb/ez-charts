@@ -13,7 +13,6 @@ import {
   SavedSection,
   AdjustmentsSection,
   NewSection,
-  SettingsSection,
 } from "@/components/modules/dashboard/sections";
 
 const SECTION_MAP: Record<SectionKey, React.ComponentType> = {
@@ -25,7 +24,6 @@ const SECTION_MAP: Record<SectionKey, React.ComponentType> = {
   saved: SavedSection,
   adjustments: AdjustmentsSection,
   new: NewSection,
-  settings: SettingsSection,
 };
 
 export function DashboardContent() {

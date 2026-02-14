@@ -9,7 +9,6 @@ import {
   Bookmark,
   SlidersHorizontal,
   Sparkles,
-  Settings,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -34,7 +33,6 @@ const mainIcons: SidebarIcon[] = [
 
 const bottomIcons: SidebarIcon[] = [
   { icon: Sparkles, label: "AI Builds", sectionKey: "new" },
-  { icon: Settings, label: "Settings", sectionKey: "settings" },
 ];
 
 function IconBtn({

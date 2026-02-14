@@ -25,10 +25,12 @@ import {
   ChevronDown,
   Home,
   LayoutGrid,
+  LogOut,
   MoreHorizontal,
   Pencil,
   Plus,
   Share,
+  User,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -44,8 +46,7 @@ function AppNavbarInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const { data: session, isPending, error } = authClient.useSession();
-  console.log("🚀 ~ AppNavbarInner ~ session:", session);
+  const { data: session } = authClient.useSession();
 
   const [createChartConfirmOpen, setCreateChartConfirmOpen] = useState(false);
 
@@ -81,18 +82,46 @@ function AppNavbarInner() {
     <header className="flex h-11 shrink-0 items-center justify-between border-b border-border/40 bg-[#E9EEF0] px-3 sm:px-4">
       {/* Left */}
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* Logo */}
-        <div className="ml-1 flex items-center gap-1.5 sm:ml-2">
-          <div className="flex size-5 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-green-600">
-            <span className="text-[8px] font-bold text-white">
-              {session?.user?.name?.charAt(0).toUpperCase()}
-            </span>
-          </div>
-          <span className="text-[13px] font-semibold text-foreground/80">
-            {session?.user?.name}
-          </span>
-          <ChevronDown className="hidden size-3 text-foreground/40 sm:block" />
-        </div>
+        {/* User menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="ml-1 flex items-center gap-1.5 rounded-lg px-1.5 py-1 transition-colors hover:bg-foreground/5 sm:ml-2">
+              <div className="flex size-5 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-green-600">
+                <span className="text-[8px] font-bold text-white">
+                  {session?.user?.name?.charAt(0).toUpperCase() ?? "?"}
+                </span>
+              </div>
+              <span className="text-[13px] font-semibold text-foreground/80">
+                {session?.user?.name ?? "User"}
+              </span>
+              <ChevronDown className="hidden size-3 text-foreground/40 sm:block" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="start"
+            className="min-w-[180px] rounded-xl border-0 bg-white p-1 shadow-xl"
+          >
+            <DropdownMenuItem asChild>
+              <Link
+                href="/user"
+                className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-foreground/80 hover:bg-foreground/5 hover:text-foreground focus:bg-foreground/5"
+              >
+                <User className="size-3.5 text-foreground/50" />
+                Account
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="my-1" />
+            <DropdownMenuItem
+              onSelect={async () => {
+                await authClient.signOut();
+              }}
+              className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-red-600 hover:bg-red-50 hover:text-red-700 focus:bg-red-50"
+            >
+              <LogOut className="size-3.5" />
+              Log out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Icon buttons — hide on small mobile */}
         <div className="ml-1 hidden items-center gap-0.5 sm:flex">

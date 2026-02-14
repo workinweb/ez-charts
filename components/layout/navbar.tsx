@@ -18,7 +18,6 @@ import {
   Link2,
   Menu,
   Search,
-  Settings,
   SlidersHorizontal,
   Sparkles,
   Users,
@@ -47,7 +46,6 @@ const toolIcons: {
   { icon: Bookmark, label: "Saved", sectionKey: "saved" },
   { icon: SlidersHorizontal, label: "Adjustments", sectionKey: "adjustments" },
   { icon: Sparkles, label: "AI Builds", sectionKey: "new" },
-  { icon: Settings, label: "Settings", sectionKey: "settings" },
 ];
 
 function isLinkActive(href: string, pathname: string): boolean {
