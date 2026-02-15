@@ -10,8 +10,9 @@ import {
   Maximize2,
   Minimize2,
 } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { renderChart } from "@/lib/chart-render";
-import { useChartById } from "@/hooks/use-charts";
+import { useChartByIdWithStatus } from "@/hooks/use-charts";
 import { useSlideById, useSlideByIdWithStatus } from "@/hooks/use-slides";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -41,7 +42,11 @@ export default function SlideViewPage() {
 
   const totalSlides = slide?.chartIds.length ?? 0;
   const currentChartId = slide?.chartIds[currentIndex];
-  const currentChart = useChartById(currentChartId ?? undefined);
+  const {
+    chart: currentChart,
+    isLoading: chartLoading,
+    isNotFound: chartNotFound,
+  } = useChartByIdWithStatus(currentChartId ?? undefined);
 
   const goNext = useCallback(() => {
     setCurrentIndex((i) => Math.min(i + 1, totalSlides - 1));
@@ -196,7 +201,35 @@ export default function SlideViewPage() {
               </div>
             )}
             <div className="rounded-[28px] bg-white/90 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
-              <div className="min-h-[360px] w-full">{chartEl}</div>
+              <div className="min-h-[360px] w-full">
+                {chartLoading ? (
+                  <div className="flex h-[360px] w-full flex-col items-center justify-center gap-3">
+                    <div className="size-8 animate-spin rounded-full border-2 border-[#6C5DD3]/20 border-t-[#6C5DD3]" />
+                    <p className="text-[14px] text-[#3D4035]/60">Loading chart…</p>
+                  </div>
+                ) : !currentChart ? (
+                  <div className="flex h-[360px] w-full flex-col items-center justify-center gap-3 text-center">
+                    <div className="flex size-14 items-center justify-center rounded-full bg-[#e87c5c]/10">
+                      <AlertCircle className="size-7 text-[#e87c5c]" />
+                    </div>
+                    <h3 className="text-[16px] font-semibold text-[#3D4035]">
+                      Chart unavailable
+                    </h3>
+                    <p className="max-w-sm text-[14px] text-[#3D4035]/60">
+                      This chart could not be retrieved. It may have been deleted
+                      or no longer exists.
+                    </p>
+                    <Button variant="ghost" size="sm" asChild className="mt-2">
+                      <Link href="/slides" className="gap-2">
+                        <ArrowLeft className="size-4" />
+                        Back to slides
+                      </Link>
+                    </Button>
+                  </div>
+                ) : (
+                  chartEl
+                )}
+              </div>
             </div>
           </div>
         </div>
