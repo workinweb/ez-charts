@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useParams, notFound } from "next/navigation";
 import Link from "next/link";
+import { toPng } from "html-to-image";
 import {
   ArrowLeft,
   ChevronLeft,
   ChevronRight,
+  Download,
   Maximize2,
   Minimize2,
 } from "lucide-react";
@@ -39,6 +41,8 @@ export default function SlideViewPage() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const chartCardRef = useRef<HTMLDivElement>(null);
 
   const totalSlides = slide?.chartIds.length ?? 0;
   const currentChartId = slide?.chartIds[currentIndex];
@@ -55,6 +59,28 @@ export default function SlideViewPage() {
   const goPrev = useCallback(() => {
     setCurrentIndex((i) => Math.max(i - 1, 0));
   }, []);
+
+  const exportChartAsImage = useCallback(async () => {
+    const el = chartCardRef.current;
+    if (!el || !currentChart) return;
+    setExporting(true);
+    try {
+      const filename = `${currentChart.title.replace(/[^a-z0-9]/gi, "_").slice(0, 50)}.png`;
+      const dataUrl = await toPng(el, {
+        backgroundColor: "#ffffff",
+        pixelRatio: 2,
+        cacheBust: true,
+      });
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = filename;
+      link.click();
+    } catch (err) {
+      console.error("Export failed:", err);
+    } finally {
+      setExporting(false);
+    }
+  }, [currentChart]);
 
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
@@ -151,6 +177,22 @@ export default function SlideViewPage() {
               {currentIndex + 1} / {totalSlides}
             </span>
           )}
+          {currentChart && (
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={exportChartAsImage}
+              disabled={exporting}
+              title="Export chart as image"
+              className="rounded-xl text-[#3D4035]/40 hover:text-[#3D4035]"
+            >
+              {exporting ? (
+                <div className="size-4 animate-spin rounded-full border-2 border-[#3D4035]/20 border-t-[#3D4035]" />
+              ) : (
+                <Download className="size-4" />
+              )}
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon-xs"
@@ -190,18 +232,19 @@ export default function SlideViewPage() {
         {/* Scrollable chart area — matches /charts/[id] flow layout */}
         <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-12 sm:py-8">
           <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-5">
-            {currentChart && (
-              <div className="text-center">
-                <h2 className="text-xl font-semibold text-[#3D4035] sm:text-2xl">
-                  {currentChart.title}
-                </h2>
-                <p className="mt-1 text-[13px] text-[#3D4035]/50">
-                  {currentChart.source} · {currentChart.date}
-                </p>
-              </div>
-            )}
-            <div className="rounded-[28px] bg-white/90 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
-              <div className="min-h-[360px] w-full">
+            <div ref={chartCardRef} className="flex flex-col gap-5">
+              {currentChart && (
+                <div className="text-center">
+                  <h2 className="text-xl font-semibold text-[#3D4035] sm:text-2xl">
+                    {currentChart.title}
+                  </h2>
+                  <p className="mt-1 text-[13px] text-[#3D4035]/50">
+                    {currentChart.source} · {currentChart.date}
+                  </p>
+                </div>
+              )}
+              <div className="rounded-[28px] bg-white/90 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
+                <div className="min-h-[360px] w-full">
                 {chartLoading ? (
                   <div className="flex h-[360px] w-full flex-col items-center justify-center gap-3">
                     <div className="size-8 animate-spin rounded-full border-2 border-[#6C5DD3]/20 border-t-[#6C5DD3]" />
@@ -229,6 +272,7 @@ export default function SlideViewPage() {
                 ) : (
                   chartEl
                 )}
+                </div>
               </div>
             </div>
           </div>
