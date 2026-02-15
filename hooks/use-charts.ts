@@ -75,9 +75,14 @@ export function useChartByIdWithStatus(id: string | undefined): {
 }
 
 /** Favorited charts list from Convex. */
-export function useChartsFavorites() {
+export function useChartsFavorites(): {
+  items: ReturnType<typeof convexChartToUserChart>[];
+  isLoading: boolean;
+} {
   const list = useQuery(api.charts.listFavorites);
-  return list?.map(convexChartToUserChart) ?? [];
+  const items = list?.map(convexChartToUserChart) ?? [];
+  const isLoading = list === undefined;
+  return { items, isLoading };
 }
 
 /** Chart mutations: create, update, remove, toggleFavorite, duplicate. */

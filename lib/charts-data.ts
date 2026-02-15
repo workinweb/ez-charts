@@ -8,7 +8,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { ChartTypeKey } from "@/components/rosencharts";
-import { userChartsFixture } from "@/fixtures/user-charts";
 
 export interface UserChart {
   id: string;
@@ -57,11 +56,6 @@ export function chartTypeToIcon(chartType: ChartTypeKey): {
   }
   return { icon: TrendingUp, iconColor: style, iconBg: "bg-[#6C5DD3]/30" };
 }
-
-export const userCharts: UserChart[] = userChartsFixture.map((c) => ({
-  ...c,
-  ...chartTypeToIcon(c.chartType),
-}));
 
 /** Look up a chart by ID from a list (e.g. from useChartsList). */
 export function getChartById(

@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 
 export function RecentSlideDecks() {
   const charts = useChartsList();
-  const slides = useSlidesList();
+  const { slides } = useSlidesList();
   const customDecks = slides.slice(0, 4);
 
   if (customDecks.length === 0) {

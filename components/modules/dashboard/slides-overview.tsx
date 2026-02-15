@@ -8,7 +8,7 @@ import { useSlidesList } from "@/hooks/use-slides";
 
 export function SlidesOverview() {
   const charts = useChartsList();
-  const slideDecks = useSlidesList();
+  const { slides: slideDecks } = useSlidesList();
   const totalCount = charts.length; // Charts you can present
   const customCount = slideDecks.length; // Multi-chart decks
 

@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { PaginationControls } from "@/components/ui/pagination-controls";
 import { usePagination, DEFAULT_PAGE_SIZE } from "@/hooks/use-pagination";
+import { SlideListSkeleton } from "@/components/skeletons/slide-row-skeleton";
 
 function matchesSlide(
   slide: { name: string; chartIds: string[] },
@@ -52,7 +53,7 @@ export default function SlidesPage() {
     name: string;
   } | null>(null);
   const charts = useChartsList();
-  const slides = useSlidesList();
+  const { slides, isLoading: slidesLoading } = useSlidesList();
   const mutations = useSlidesMutations();
   const search = useSlidesStore((s) => s.slidesSearch);
   const setSearch = useSlidesStore((s) => s.setSlidesSearch);
@@ -86,7 +87,11 @@ export default function SlidesPage() {
             addButton={<CreateSlideDialog triggerLabel="Add new" />}
           />
 
-          {totalItems === 0 ? (
+          {slidesLoading && slides.length === 0 ? (
+            <div className="rounded-[28px] bg-white/80 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
+              <SlideListSkeleton count={6} />
+            </div>
+          ) : totalItems === 0 ? (
             <div className="flex flex-col items-center justify-center gap-4 rounded-[28px] bg-white/80 py-24 text-center shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px]">
               <Presentation className="size-12 text-[#3D4035]/20" />
               <p className="text-[15px] font-medium text-[#3D4035]/70">

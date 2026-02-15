@@ -87,7 +87,7 @@ function AppNavbarInner() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="ml-1 flex items-center gap-1.5 rounded-lg px-1.5 py-1 transition-colors hover:bg-foreground/5 sm:ml-2">
-              <div className="flex size-5 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-green-600">
+              <div className="flex size-5 items-center justify-center rounded-full bg-gradient-to-br from-[#BCBDEA] to-[#6C5DD3]">
                 <span className="text-[8px] font-bold text-white">
                   {session?.user?.name?.charAt(0).toUpperCase() ?? "?"}
                 </span>

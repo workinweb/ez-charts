@@ -11,13 +11,14 @@ import { PaginationControls } from "@/components/ui/pagination-controls";
 import { usePagination, DEFAULT_PAGE_SIZE } from "@/hooks/use-pagination";
 import { ChartRow } from "../charts/_components/chart-row";
 import { DeleteChartDialog } from "../charts/_components/delete-chart-dialog";
+import { ChartListSkeleton } from "@/components/skeletons/chart-row-skeleton";
 
 export default function FavoritesPage() {
   const [deleteTarget, setDeleteTarget] = useState<{
     id: string;
     title: string;
   } | null>(null);
-  const items = useChartsFavorites();
+  const { items, isLoading } = useChartsFavorites();
   const search = useChartsStore((s) => s.favoritesSearch);
   const setSearch = useChartsStore((s) => s.setFavoritesSearch);
   const mutations = useChartsMutations();
@@ -48,7 +49,11 @@ export default function FavoritesPage() {
             countLabel={totalItems === 1 ? "chart" : "charts"}
           />
 
-          {totalItems === 0 ? (
+          {isLoading && items.length === 0 ? (
+            <div className="rounded-[28px] bg-white/80 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
+              <ChartListSkeleton count={6} />
+            </div>
+          ) : totalItems === 0 ? (
             <div className="flex flex-col items-center justify-center gap-4 rounded-[28px] bg-white/80 py-24 text-center shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px]">
               <Heart className="size-12 text-[#3D4035]/20" />
               <p className="text-[15px] font-medium text-[#3D4035]/70">

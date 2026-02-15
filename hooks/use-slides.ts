@@ -7,9 +7,11 @@ import { convexSlideToSlide } from "@/lib/slide-utils";
 import type { Slide } from "@/lib/slide-utils";
 
 /** List all slide decks for the current user from Convex. */
-export function useSlidesList(): Slide[] {
+export function useSlidesList(): { slides: Slide[]; isLoading: boolean } {
   const list = useQuery(api.slides.list);
-  return list?.map(convexSlideToSlide) ?? [];
+  const slides = list?.map(convexSlideToSlide) ?? [];
+  const isLoading = list === undefined;
+  return { slides, isLoading };
 }
 
 /** Single slide by ID from Convex. */
