@@ -16,6 +16,22 @@ export const list = query({
       .withIndex("by_user_created", (q) => q.eq("userId", userId))
       .order("desc")
       .collect();
+    return all.filter((s) => s.isVisible !== false && s.blockedByTier !== true);
+  },
+});
+
+/** List all slides for plan selection modal (includes blockedByTier items). */
+export const listForPlanSelection = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return [];
+    const userId = identity.subject;
+    const all = await ctx.db
+      .query("slides")
+      .withIndex("by_user_created", (q) => q.eq("userId", userId))
+      .order("desc")
+      .collect();
     return all.filter((s) => s.isVisible !== false);
   },
 });
@@ -28,7 +44,7 @@ export const get = query({
     if (!identity) return null;
     const slide = await ctx.db.get(args.id);
     if (!slide || slide.userId !== identity.subject) return null;
-    if (slide.isVisible === false) return null;
+    if (slide.isVisible === false || slide.blockedByTier === true) return null;
     return slide;
   },
 });
@@ -57,7 +73,7 @@ export const create = mutation({
         .query("slides")
         .withIndex("by_user", (q) => q.eq("userId", userId))
         .collect();
-      const visible = existing.filter((s) => s.isVisible !== false);
+      const visible = existing.filter((s) => s.isVisible !== false && s.blockedByTier !== true);
       if (visible.length >= maxSlides) {
         throw new Error(
           `Slide deck limit reached (${maxSlides} for ${tier} plan). Upgrade to save more.`,

@@ -15,7 +15,9 @@ import type * as charts from "../charts.js";
 import type * as chat from "../chat.js";
 import type * as documents from "../documents.js";
 import type * as http from "../http.js";
+import type * as planLimits from "../planLimits.js";
 import type * as slides from "../slides.js";
+import type * as tierLimits from "../tierLimits.js";
 import type * as userSettings from "../userSettings.js";
 
 import type {
@@ -32,7 +34,9 @@ declare const fullApi: ApiFromModules<{
   chat: typeof chat;
   documents: typeof documents;
   http: typeof http;
+  planLimits: typeof planLimits;
   slides: typeof slides;
+  tierLimits: typeof tierLimits;
   userSettings: typeof userSettings;
 }>;
 

@@ -16,6 +16,22 @@ export const list = query({
       .withIndex("by_user_created", (q) => q.eq("userId", userId))
       .order("desc")
       .collect();
+    return all.filter((d) => d.isVisible !== false && d.blockedByTier !== true);
+  },
+});
+
+/** List all documents for plan selection modal (includes blockedByTier items). */
+export const listForPlanSelection = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return [];
+    const userId = identity.subject;
+    const all = await ctx.db
+      .query("documents")
+      .withIndex("by_user_created", (q) => q.eq("userId", userId))
+      .order("desc")
+      .collect();
     return all.filter((d) => d.isVisible !== false);
   },
 });
@@ -41,7 +57,7 @@ export const getDownloadUrl = query({
     if (!identity) return null;
     const doc = await ctx.db.get(args.id);
     if (!doc || doc.userId !== identity.subject) return null;
-    if (doc.isVisible === false) return null;
+    if (doc.isVisible === false || doc.blockedByTier === true) return null;
     if (!doc.storageId) return null;
     return ctx.storage.getUrl(doc.storageId);
   },
@@ -79,7 +95,7 @@ export const create = mutation({
         .query("documents")
         .withIndex("by_user", (q) => q.eq("userId", userId))
         .collect();
-      const visible = existing.filter((d) => d.isVisible !== false);
+      const visible = existing.filter((d) => d.isVisible !== false && d.blockedByTier !== true);
       if (visible.length >= maxDocuments) {
         throw new Error(
           `Document limit reached (${maxDocuments} for ${tier} plan). Upgrade to save more.`,

@@ -17,6 +17,22 @@ export const list = query({
       .withIndex("by_user_created", (q) => q.eq("userId", userId))
       .order("desc")
       .collect();
+    return all.filter((c) => c.isVisible !== false && c.blockedByTier !== true);
+  },
+});
+
+/** List all charts for plan selection modal (includes blockedByTier items). */
+export const listForPlanSelection = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return [];
+    const userId = identity.subject;
+    const all = await ctx.db
+      .query("charts")
+      .withIndex("by_user_created", (q) => q.eq("userId", userId))
+      .order("desc")
+      .collect();
     return all.filter((c) => c.isVisible !== false);
   },
 });
@@ -39,7 +55,7 @@ export const listPaginated = query({
       .paginate(args.paginationOpts);
     return {
       ...result,
-      page: result.page.filter((c) => c.isVisible !== false),
+      page: result.page.filter((c) => c.isVisible !== false && c.blockedByTier !== true),
     };
   },
 });
@@ -52,7 +68,7 @@ export const get = query({
     if (!identity) return null;
     const chart = await ctx.db.get(args.id);
     if (!chart || chart.userId !== identity.subject) return null;
-    if (chart.isVisible === false) return null;
+    if (chart.isVisible === false || chart.blockedByTier === true) return null;
     return chart;
   },
 });
@@ -68,7 +84,7 @@ export const listFavorites = query({
       .query("charts")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
-    return all.filter((c) => c.favorited && c.isVisible !== false);
+    return all.filter((c) => c.favorited && c.isVisible !== false && c.blockedByTier !== true);
   },
 });
 
@@ -92,7 +108,7 @@ export const dashboardStats = query({
       .query("charts")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
-    const charts = all.filter((c) => c.isVisible !== false);
+    const charts = all.filter((c) => c.isVisible !== false && c.blockedByTier !== true);
 
     const now = Date.now();
     const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
@@ -195,7 +211,7 @@ export const create = mutation({
         .query("charts")
         .withIndex("by_user", (q) => q.eq("userId", userId))
         .collect();
-      const visible = existing.filter((c) => c.isVisible !== false);
+      const visible = existing.filter((c) => c.isVisible !== false && c.blockedByTier !== true);
       if (visible.length >= maxCharts) {
         throw new Error(
           `Chart limit reached (${maxCharts} for ${tier} plan). Upgrade to save more charts.`,
@@ -290,7 +306,7 @@ export const duplicate = mutation({
         .query("charts")
         .withIndex("by_user", (q) => q.eq("userId", userId))
         .collect();
-      const visible = existing.filter((c) => c.isVisible !== false);
+      const visible = existing.filter((c) => c.isVisible !== false && c.blockedByTier !== true);
       if (visible.length >= maxCharts) {
         throw new Error(
           `Chart limit reached (${maxCharts} for ${tier} plan). Upgrade to save more charts.`,

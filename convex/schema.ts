@@ -27,6 +27,8 @@ export default defineSchema({
     withAnimation: v.boolean(),
     /** Soft delete: false when user removes; never returned to user */
     isVisible: v.optional(v.boolean()),
+    /** Blocked by plan tier limit — not shown in lists; separate from isVisible (removal) */
+    blockedByTier: v.optional(v.boolean()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -42,6 +44,8 @@ export default defineSchema({
     chartIds: v.array(v.string()),
     /** Soft delete: false when user removes; never returned to user */
     isVisible: v.optional(v.boolean()),
+    /** Blocked by plan tier limit — not shown in lists; separate from isVisible (removal) */
+    blockedByTier: v.optional(v.boolean()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -63,6 +67,8 @@ export default defineSchema({
     storageId: v.optional(v.id("_storage")),
     /** Soft delete: false when user removes; never returned to user */
     isVisible: v.optional(v.boolean()),
+    /** Blocked by plan tier limit — not shown in lists; separate from isVisible (removal) */
+    blockedByTier: v.optional(v.boolean()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import {
   useDocumentsList,
   useDocumentsMutations,
@@ -111,8 +112,11 @@ function DocumentRow({
   const Icon = getFileIcon(doc.name);
   const canDownload = !!downloadUrl || !doc.storageId;
 
+  const controlButtonClass =
+    "shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors";
+
   return (
-    <div className="flex items-center gap-6 rounded-[28px] p-3 transition-colors hover:bg-black/[0.02]">
+    <div className="flex flex-wrap items-center gap-3 rounded-[28px] p-3 transition-colors hover:bg-black/[0.02] sm:gap-6">
       <div
         className={cn(
           "flex size-16 shrink-0 items-center justify-center rounded-[24px]",
@@ -122,44 +126,79 @@ function DocumentRow({
         <Icon className="size-7 text-[#3D4035]" strokeWidth={2} />
       </div>
 
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 basis-32">
         <p className="text-[17px] font-medium text-[#3D4035]">{doc.name}</p>
         <p className="text-[13px] text-[#3D4035]/50">
           {formatSize(doc.size)} · {formatCreatedAt(doc.createdAt)}
         </p>
       </div>
 
-      <button
-        type="button"
-        onClick={() => onDelete(doc.id, doc.name)}
-        className="shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors hover:bg-red-50 hover:text-red-500"
-        aria-label={`Delete ${doc.name}`}
-        title={`Delete ${doc.name}`}
-      >
-        <Trash2 className="size-4" />
-      </button>
+      <div className="flex shrink-0 flex-col items-end gap-2">
+        <div className="flex items-center gap-0.5 sm:gap-1 min-[1441px]:gap-2">
+          <button
+            type="button"
+            onClick={() => onDelete(doc.id, doc.name)}
+            className={cn(
+              controlButtonClass,
+              "hover:bg-red-50 hover:text-red-500",
+            )}
+            aria-label={`Delete ${doc.name}`}
+            title={`Delete ${doc.name}`}
+          >
+            <Trash2 className="size-4" />
+          </button>
 
-      <button
-        type="button"
-        onClick={() => onLoadToChat(doc)}
-        className="flex shrink-0 items-center gap-2 rounded-xl bg-[#94B49F]/20 px-4 py-2.5 text-[13px] font-semibold text-[#3D4035] transition-colors hover:bg-[#94B49F]/30"
-        aria-label={`Load ${doc.name} to chat`}
-        title={`Load ${doc.name} to chat`}
-      >
-        <MessageSquare className="size-4" />
-        Load to chat
-      </button>
-      <button
-        type="button"
-        onClick={handleDownload}
-        disabled={!canDownload}
-        className="flex shrink-0 items-center gap-2 rounded-xl bg-[#6C5DD3]/15 px-4 py-2.5 text-[13px] font-semibold text-[#6C5DD3] transition-colors hover:bg-[#6C5DD3]/25 disabled:opacity-50"
-        aria-label={`Download ${doc.name}`}
-        title={`Download ${doc.name}`}
-      >
-        <Download className="size-4" />
-        Download
-      </button>
+          <div className="hidden min-[1441px]:flex min-[1441px]:items-center min-[1441px]:gap-2">
+            <button
+              type="button"
+              onClick={() => onLoadToChat(doc)}
+              className="flex items-center gap-2 rounded-xl bg-[#94B49F]/20 px-4 py-2.5 text-[13px] font-semibold text-[#3D4035] transition-colors hover:bg-[#94B49F]/30"
+              aria-label={`Load ${doc.name} to chat`}
+              title={`Load ${doc.name} to chat`}
+            >
+              <MessageSquare className="size-4" />
+              Load to chat
+            </button>
+            <button
+              type="button"
+              onClick={handleDownload}
+              disabled={!canDownload}
+              className="flex items-center gap-2 rounded-xl bg-[#6C5DD3]/15 px-4 py-2.5 text-[13px] font-semibold text-[#6C5DD3] transition-colors hover:bg-[#6C5DD3]/25 disabled:opacity-50"
+              aria-label={`Download ${doc.name}`}
+              title={`Download ${doc.name}`}
+            >
+              <Download className="size-4" />
+              Download
+            </button>
+          </div>
+
+          <div className="flex items-center gap-0.5 min-[1441px]:hidden">
+            <IconButton
+              label={`Load ${doc.name} to chat`}
+              icon={<MessageSquare className="size-4" />}
+              onClick={() => onLoadToChat(doc)}
+              variant="ghost"
+              size="icon-sm"
+              className={cn(
+                "rounded-full border-0 bg-transparent",
+                "hover:bg-[#94B49F]/20 hover:text-[#3D4035]",
+              )}
+            />
+            <IconButton
+              label={`Download ${doc.name}`}
+              icon={<Download className="size-4" />}
+              onClick={handleDownload}
+              disabled={!canDownload}
+              variant="ghost"
+              size="icon-sm"
+              className={cn(
+                "rounded-full border-0 bg-transparent",
+                "hover:bg-[#6C5DD3]/15 hover:text-[#6C5DD3] disabled:opacity-50",
+              )}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -178,20 +217,15 @@ export function DocumentsSection() {
   const planTier = (settings?.planTier ?? "free") as "free" | "pro" | "max";
   const canUploadDocuments = TIER_LIMITS[planTier].maxDocuments > 0;
 
-  const {
-    uploadFiles,
-    removeDocument,
-    uploading,
-    uploadError,
-  } = useDocumentsMutations();
+  const { uploadFiles, removeDocument, uploading, uploadError } =
+    useDocumentsMutations();
 
   const filtered = useMemo(() => {
     if (!search.trim()) return documents;
     const q = search.toLowerCase().trim();
     return documents.filter(
       (d) =>
-        d.name.toLowerCase().includes(q) ||
-        d.content.toLowerCase().includes(q),
+        d.name.toLowerCase().includes(q) || d.content.toLowerCase().includes(q),
     );
   }, [documents, search]);
 
@@ -245,9 +279,7 @@ export function DocumentsSection() {
           )
         }
       />
-      {uploadError && (
-        <p className="text-[13px] text-red-600">{uploadError}</p>
-      )}
+      {uploadError && <p className="text-[13px] text-red-600">{uploadError}</p>}
 
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-4 rounded-[28px] bg-white/80 py-24 text-center shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px]">
@@ -267,7 +299,7 @@ export function DocumentsSection() {
         </div>
       ) : (
         <div className="rounded-[28px] bg-white/80 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
             {filtered.map((doc) => (
               <DocumentRow
                 key={doc.id}

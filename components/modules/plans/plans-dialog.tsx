@@ -10,9 +10,11 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
 import { authClient } from "@/lib/(auth)/auth-client";
-import { TIER_DOC, type PlanTier } from "@/lib/tier-limits";
+import { TIER_DOC, TIER_LIMITS, type PlanTier } from "@/lib/tier-limits";
 import { cn } from "@/lib/utils";
 import { ArrowRight, Coins, Zap } from "lucide-react";
+import { useState } from "react";
+import { DowngradeLimitModal } from "./downgrade-limit-modal";
 
 export type { PlanTier };
 
@@ -35,17 +37,59 @@ interface PlansDialogProps {
 export function PlansDialog({ open, onOpenChange }: PlansDialogProps) {
   const { data: session } = authClient.useSession();
   const settings = useQuery(api.userSettings.get, session?.user ? {} : "skip");
+  const charts = useQuery(api.charts.list, session?.user ? {} : "skip");
+  const slides = useQuery(api.slides.list, session?.user ? {} : "skip");
+  const documents = useQuery(api.documents.list, session?.user ? {} : "skip");
+  const hasBlockedItems = useQuery(api.planLimits.hasBlockedItems, session?.user ? {} : "skip");
   const upsertPlan = useMutation(api.userSettings.upsert);
+  const [downgradeModal, setDowngradeModal] = useState<{
+    open: boolean;
+    targetTier: PlanTier;
+    targetLabel: string;
+  }>({ open: false, targetTier: "free", targetLabel: "Free" });
 
   const currentTier = (settings?.planTier ?? "free") as PlanTier;
 
+  const chartCount = charts?.length ?? 0;
+  const slideCount = slides?.length ?? 0;
+  const docCount = documents?.length ?? 0;
+
+  function hasOverflowForTier(tier: PlanTier) {
+    const lim = TIER_LIMITS[tier];
+    return (
+      chartCount > lim.maxCharts ||
+      slideCount > lim.maxSlides ||
+      docCount > lim.maxDocuments
+    );
+  }
+
   async function handleSelectPlan(tier: PlanTier) {
     if (tier === currentTier) return;
-    try {
-      await upsertPlan({ planTier: tier });
-      onOpenChange(false);
-    } catch {
-      // Error handling - could add toast
+    const isDowngrade =
+      (tier === "free" && currentTier !== "free") ||
+      (tier === "pro" && currentTier === "max");
+    const isUpgrade =
+      (tier === "pro" && currentTier === "free") ||
+      (tier === "max" && currentTier !== "max");
+
+    const needsSelectionModal =
+      (isDowngrade && hasOverflowForTier(tier)) ||
+      (isUpgrade && hasBlockedItems === true);
+
+    if (needsSelectionModal) {
+      const plan = PLANS.find((p) => p.tier === tier);
+      setDowngradeModal({
+        open: true,
+        targetTier: tier,
+        targetLabel: plan?.label ?? tier,
+      });
+    } else {
+      try {
+        await upsertPlan({ planTier: tier });
+        onOpenChange(false);
+      } catch {
+        // Error handling - could add toast
+      }
     }
   }
 
@@ -185,6 +229,16 @@ export function PlansDialog({ open, onOpenChange }: PlansDialogProps) {
           })}
         </div>
       </DialogContent>
+
+      <DowngradeLimitModal
+        open={downgradeModal.open}
+        onOpenChange={(o) =>
+          setDowngradeModal((p) => ({ ...p, open: o }))
+        }
+        targetTier={downgradeModal.targetTier}
+        targetTierLabel={downgradeModal.targetLabel}
+        onSuccess={() => onOpenChange(false)}
+      />
     </Dialog>
   );
 }
