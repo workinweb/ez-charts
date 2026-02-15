@@ -62,6 +62,8 @@ export default function ChartDetailPage() {
               variant="ghost"
               size="sm"
               asChild
+              aria-label="Edit chart"
+              title="Edit chart"
               className="gap-2 text-[#3D4035]/70 hover:text-[#3D4035]"
             >
               <Link href={`/edit?chart=${id}`}>
@@ -74,6 +76,8 @@ export default function ChartDetailPage() {
               variant="ghost"
               size="sm"
               onClick={() => mutations.duplicate(id as Id<"charts">)}
+              aria-label="Duplicate chart"
+              title="Duplicate chart"
               className="gap-2 text-[#3D4035]/70 hover:text-[#3D4035]"
             >
               <Copy className="size-3.5" />
@@ -83,6 +87,8 @@ export default function ChartDetailPage() {
             <Button
               size="sm"
               asChild
+              aria-label="Present chart"
+              title="Present chart"
               className="gap-2 rounded-xl bg-[#6C5DD3] text-[12px] font-semibold text-white hover:bg-[#5a4dbf]"
             >
               <Link href={`/present/auto-${id}`}>

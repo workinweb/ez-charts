@@ -62,6 +62,7 @@ export function ChartRow({
                 "hover:bg-[#6C5DD3]/10 hover:text-[#6C5DD3]",
               )}
               aria-label="Edit chart"
+              title="Edit chart"
             >
               <Pencil className="size-4" />
             </Link>
@@ -73,6 +74,7 @@ export function ChartRow({
               onClick={() => onDuplicate(chart.id)}
               className={cn(controlButtonClass, "hover:bg-black/[0.04] hover:text-[#3D4035]/70")}
               aria-label="Duplicate chart"
+              title="Duplicate chart"
             >
               <Copy className="size-4" />
             </button>
@@ -87,6 +89,7 @@ export function ChartRow({
                 "hover:bg-red-50 hover:text-red-500",
               )}
               aria-label="Delete chart"
+              title="Delete chart"
             >
               <Trash2 className="size-4" />
             </button>
@@ -101,6 +104,9 @@ export function ChartRow({
                 "text-[#3D4035]/40 hover:bg-black/[0.04] hover:text-[#3D4035]/70",
               )}
               aria-label={
+                chart.favorited ? "Remove from favorites" : "Add to favorites"
+              }
+              title={
                 chart.favorited ? "Remove from favorites" : "Add to favorites"
               }
             >

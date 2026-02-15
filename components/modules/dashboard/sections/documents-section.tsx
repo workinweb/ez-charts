@@ -130,7 +130,8 @@ function DocumentRow({
         type="button"
         onClick={() => onDelete(doc.id, doc.name)}
         className="shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors hover:bg-red-50 hover:text-red-500"
-        aria-label="Delete document"
+        aria-label={`Delete ${doc.name}`}
+        title={`Delete ${doc.name}`}
       >
         <Trash2 className="size-4" />
       </button>
@@ -140,6 +141,7 @@ function DocumentRow({
         onClick={() => onLoadToChat(doc)}
         className="flex shrink-0 items-center gap-2 rounded-xl bg-[#94B49F]/20 px-4 py-2.5 text-[13px] font-semibold text-[#3D4035] transition-colors hover:bg-[#94B49F]/30"
         aria-label={`Load ${doc.name} to chat`}
+        title={`Load ${doc.name} to chat`}
       >
         <MessageSquare className="size-4" />
         Load to chat
@@ -150,6 +152,7 @@ function DocumentRow({
         disabled={!canDownload}
         className="flex shrink-0 items-center gap-2 rounded-xl bg-[#6C5DD3]/15 px-4 py-2.5 text-[13px] font-semibold text-[#6C5DD3] transition-colors hover:bg-[#6C5DD3]/25 disabled:opacity-50"
         aria-label={`Download ${doc.name}`}
+        title={`Download ${doc.name}`}
       >
         <Download className="size-4" />
         Download

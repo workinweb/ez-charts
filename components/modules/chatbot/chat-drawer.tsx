@@ -17,6 +17,8 @@ export function ChatDrawer() {
       <DrawerTrigger asChild>
         <Button
           size="icon-sm"
+          aria-label="Open AI chat"
+          title="Open AI chat"
           className="fixed bottom-5 right-5 z-50 flex size-12 items-center justify-center rounded-full bg-[#6C5DD3] text-white shadow-lg hover:bg-[#5B4DC2] lg:hidden"
         >
           <MessageCircle className="size-5" />
@@ -32,6 +34,8 @@ export function ChatDrawer() {
             <Button
               variant="ghost"
               size="icon-xs"
+              aria-label="Close chat"
+              title="Close chat"
               className="text-sidebar-foreground/50"
             >
               <X className="size-4" />

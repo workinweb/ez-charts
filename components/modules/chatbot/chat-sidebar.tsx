@@ -505,6 +505,8 @@ export function ChatSidebarContent() {
                       type="button"
                       onClick={() => removeFile(idx)}
                       className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-sidebar-foreground/10"
+                      aria-label={`Remove ${af.name} from attachments`}
+                      title={`Remove ${af.name} from attachments`}
                     >
                       <X className="size-2.5" />
                     </button>
@@ -548,6 +550,8 @@ export function ChatSidebarContent() {
             <Button
               type="submit"
               size="icon-xs"
+              aria-label="Send message"
+              title="Send message"
               disabled={
                 isLoading ||
                 hasParsing ||
@@ -580,6 +584,9 @@ export function ChatSidebarContent() {
           size="icon-xs"
           type="button"
           onClick={toggleChatSidebarView}
+          aria-label={
+            chatSidebarView === "settings" ? "Back to chat" : "Chat settings"
+          }
           title={
             chatSidebarView === "settings" ? "Back to chat" : "Chat settings"
           }
@@ -599,6 +606,7 @@ export function ChatSidebarContent() {
           size="icon-xs"
           type="button"
           onClick={startNewChat}
+          aria-label="New chat"
           title="New chat"
           className="text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground"
         >

@@ -68,6 +68,8 @@ export function Navbar() {
               <Button
                 variant="ghost"
                 size="icon-xs"
+                aria-label="Open navigation menu"
+                title="Open navigation menu"
                 className="flex md:hidden rounded-xl text-[#3D4035]/60 hover:text-[#3D4035]"
               >
                 <Menu className="size-5" />

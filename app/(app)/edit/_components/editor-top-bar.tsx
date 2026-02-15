@@ -58,8 +58,9 @@ export function EditorTopBar({
         variant="ghost"
         size="sm"
         onClick={onSendToAI}
-        className="gap-2 text-[#6C5DD3]/80 hover:bg-[#6C5DD3]/10 hover:text-[#6C5DD3]"
+        aria-label="Load this chart into AI chat for guided editing"
         title="Load this chart into AI chat for guided editing"
+        className="gap-2 text-[#6C5DD3]/80 hover:bg-[#6C5DD3]/10 hover:text-[#6C5DD3]"
       >
         <Sparkles className="size-3.5" />
         Load on Assistant
@@ -69,6 +70,8 @@ export function EditorTopBar({
         size="sm"
         disabled={(!dirty && !isCreateMode && !isUnsavedChart) || saving}
         onClick={onSave}
+        aria-label={saving ? "Saving…" : saved ? "Saved" : isCreateMode ? "Create chart" : isUnsavedChart ? "Save chart" : "Save changes"}
+        title={saving ? "Saving…" : saved ? "Saved" : isCreateMode ? "Create chart" : isUnsavedChart ? "Save chart" : "Save changes"}
         className={cn(
           "gap-2 rounded-xl text-[12px] font-semibold transition-all",
           dirty

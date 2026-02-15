@@ -89,6 +89,8 @@ export function DataEditor({ shape, data, onChange }: EditorProps) {
           variant="ghost"
           size="sm"
           onClick={addRow}
+          aria-label="Add data point"
+          title="Add data point"
           className="gap-1.5 text-[12px] text-[#6C5DD3] hover:text-[#5a4dbf]"
         >
           <Plus className="size-3.5" />
@@ -261,6 +263,8 @@ function DataRow({
                             ).filter((_: number, i: number) => i !== vi);
                             onUpdate({ values: vals });
                           }}
+                          aria-label={`Remove value ${vi + 1}`}
+                          title="Remove value"
                           className="rounded-full p-1 text-[#3D4035]/30 hover:text-red-500"
                         >
                           <Trash2 className="size-3" />
@@ -383,6 +387,7 @@ function DataRow({
                 variant="ghost"
                 size="sm"
                 onClick={onRemove}
+                aria-label="Remove"
                 title="Remove"
                 className="shrink-0 gap-1.5 text-[12px] text-red-500 hover:bg-red-50 hover:text-red-600"
               >
@@ -482,6 +487,8 @@ function LineSeriesEditor({
                 data: points.filter((_: unknown, i: number) => i !== pi),
               });
             }}
+            aria-label={`Remove point ${pi + 1}`}
+            title="Remove point"
             className="rounded-full p-1 text-[#3D4035]/30 hover:text-red-500"
           >
             <Trash2 className="size-3" />
@@ -572,6 +579,8 @@ function TreeMapEditor({
                     nextArr[si] = nextSub;
                     onUpdate({ subtopics: nextArr });
                   }}
+                  aria-label={`Remove topic ${key}`}
+                  title="Remove topic"
                   className="rounded-full p-1 text-[#3D4035]/30 hover:text-red-500"
                 >
                   <Trash2 className="size-3" />

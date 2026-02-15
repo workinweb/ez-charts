@@ -149,6 +149,7 @@ export default function SlidesPage() {
                                 onClick={() => setEditSlide(slide)}
                                 className="shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors hover:bg-black/[0.04] hover:text-[#3D4035]/70"
                                 aria-label="Edit slide deck"
+                                title="Edit slide deck"
                               >
                                 <Pencil className="size-4" />
                               </button>
@@ -163,6 +164,7 @@ export default function SlidesPage() {
                                 }
                                 className="shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors hover:bg-red-50 hover:text-red-500"
                                 aria-label="Delete slide deck"
+                                title="Delete slide deck"
                               >
                                 <Trash2 className="size-4" />
                               </button>

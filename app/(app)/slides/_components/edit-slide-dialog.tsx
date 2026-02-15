@@ -88,6 +88,7 @@ function SortableChartRow({
         {...listeners}
         className="cursor-grab touch-none rounded p-1 text-[#3D4035]/40 transition-colors hover:text-[#3D4035]/70 active:cursor-grabbing"
         aria-label="Drag to reorder"
+        title="Drag to reorder"
       >
         <GripVertical className="size-4" />
       </button>
@@ -107,6 +108,7 @@ function SortableChartRow({
         onClick={onRemove}
         className="shrink-0 rounded p-1 text-[#3D4035]/40 transition-colors hover:bg-red-50 hover:text-red-500"
         aria-label="Remove chart"
+        title="Remove chart"
       >
         <X className="size-4" />
       </button>

@@ -154,6 +154,8 @@ function AppNavbarInner() {
           <Button
             variant="ghost"
             size="icon-xs"
+            aria-label="Share"
+            title="Share"
             className="rounded-lg text-foreground/40 hover:text-foreground/70"
           >
             <Share className="size-3.5" />
@@ -161,6 +163,8 @@ function AppNavbarInner() {
           <Button
             variant="ghost"
             size="icon-xs"
+            aria-label="Bookmarks"
+            title="Bookmarks"
             className="rounded-lg text-foreground/40 hover:text-foreground/70"
           >
             <Bookmark className="size-3.5" />
@@ -246,6 +250,8 @@ function AppNavbarInner() {
         <Button
           variant="ghost"
           size="icon-xs"
+          aria-label="More options"
+          title="More options"
           className="rounded-lg text-foreground/40"
         >
           <MoreHorizontal className="size-3.5" />

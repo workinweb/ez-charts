@@ -183,6 +183,7 @@ export default function SlideViewPage() {
               size="icon-xs"
               onClick={exportChartAsImage}
               disabled={exporting}
+              aria-label="Export chart as image"
               title="Export chart as image"
               className="rounded-xl text-[#3D4035]/40 hover:text-[#3D4035]"
             >
@@ -197,6 +198,7 @@ export default function SlideViewPage() {
             variant="ghost"
             size="icon-xs"
             onClick={toggleFullscreen}
+            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
             title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
             className="rounded-xl text-[#3D4035]/40 hover:text-[#3D4035]"
           >

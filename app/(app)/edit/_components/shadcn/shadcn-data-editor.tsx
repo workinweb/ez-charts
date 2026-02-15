@@ -218,6 +218,8 @@ function ShadcnCartesianDataEditor({
             variant="ghost"
             size="sm"
             onClick={onAddSeries}
+            aria-label="Add series"
+            title="Add series"
             className="gap-1.5 text-[12px] text-[#6C5DD3] hover:text-[#5a4dbf]"
           >
             <Plus className="size-3.5" />
@@ -227,6 +229,8 @@ function ShadcnCartesianDataEditor({
             variant="ghost"
             size="sm"
             onClick={onAddRow}
+            aria-label="Add row"
+            title="Add row"
             className="gap-1.5 text-[12px] text-[#6C5DD3] hover:text-[#5a4dbf]"
           >
             <Plus className="size-3.5" />
@@ -263,12 +267,13 @@ function ShadcnCartesianDataEditor({
                       placeholder="Series"
                     />
                     {canRemoveSeries && (
-                      <button
-                        type="button"
-                        onClick={() => onRemoveSeries(k)}
-                        className="shrink-0 rounded p-0.5 text-[#3D4035]/30 hover:bg-red-50 hover:text-red-500"
-                        title="Remove series"
-                      >
+                <button
+                  type="button"
+                  onClick={() => onRemoveSeries(k)}
+                  aria-label={`Remove series ${k}`}
+                  title={`Remove series ${k}`}
+                  className="shrink-0 rounded p-0.5 text-[#3D4035]/30 hover:bg-red-50 hover:text-red-500"
+                >
                         <X className="size-3" />
                       </button>
                     )}
@@ -281,8 +286,9 @@ function ShadcnCartesianDataEditor({
                 variant="ghost"
                 size="sm"
                 onClick={onAddSeries}
-                className="h-7 gap-1 px-2 text-[10px] text-[#6C5DD3] hover:text-[#5a4dbf]"
+                aria-label="Add series"
                 title="Add series"
+                className="h-7 gap-1 px-2 text-[10px] text-[#6C5DD3] hover:text-[#5a4dbf]"
               >
                 <Plus className="size-3" />
               </Button>
@@ -323,8 +329,9 @@ function ShadcnCartesianDataEditor({
                 <button
                   type="button"
                   onClick={() => onRemoveRow(idx)}
-                  className="rounded p-1.5 text-[#3D4035]/30 hover:bg-red-50 hover:text-red-500"
+                  aria-label={`Remove row ${idx + 1}`}
                   title="Remove row"
+                  className="rounded p-1.5 text-[#3D4035]/30 hover:bg-red-50 hover:text-red-500"
                 >
                   <Trash2 className="size-3.5" />
                 </button>
@@ -373,6 +380,8 @@ function ShadcnPieDataEditor({
           variant="ghost"
           size="sm"
           onClick={onAdd}
+          aria-label="Add slice"
+          title="Add slice"
           className="gap-1.5 text-[12px] text-[#6C5DD3] hover:text-[#5a4dbf]"
         >
           <Plus className="size-3.5" />
@@ -411,6 +420,7 @@ function ShadcnPieDataEditor({
               variant="ghost"
               size="sm"
               onClick={() => removeRow(idx)}
+              aria-label="Remove slice"
               title="Remove slice"
               className="shrink-0 self-end gap-1.5 text-[12px] text-red-500 hover:bg-red-50 hover:text-red-600 sm:self-end"
             >

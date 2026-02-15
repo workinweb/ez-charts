@@ -67,6 +67,7 @@ export function RecentCharts() {
                   onClick={() => mutations.toggleFavorite(chart.id as any)}
                   className="shrink-0 rounded-full p-2 text-[#3D4035]/40 transition-colors hover:bg-black/[0.04] hover:text-[#3D4035]/70"
                   aria-label={chart.favorited ? "Remove from favorites" : "Add to favorites"}
+                  title={chart.favorited ? "Remove from favorites" : "Add to favorites"}
                 >
                   {chart.favorited ? (
                     <Heart className="size-5 fill-[#6C5DD3] text-[#6C5DD3]" />

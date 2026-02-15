@@ -226,6 +226,7 @@ export function NewSection() {
                       size="icon-xs"
                       asChild
                       onClick={(e) => e.stopPropagation()}
+                      aria-label="Edit chart"
                       title="Edit chart"
                     >
                       <Link href={`/edit?chart=${chart.id}`}>
@@ -239,6 +240,7 @@ export function NewSection() {
                         e.stopPropagation();
                         openSaveDialog(chart.id);
                       }}
+                      aria-label="Save chart"
                       title="Save chart"
                     >
                       <Save className="size-3.5" />
