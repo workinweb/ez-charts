@@ -41,7 +41,10 @@ import {
   User,
 } from "lucide-react";
 import { useState } from "react";
-import { PlansDialog } from "@/components/modules/plans";
+import {
+  BuyCustomCreditsDialog,
+  PlansDialog,
+} from "@/components/modules/plans";
 
 function ResendVerificationButton({ email }: { email: string }) {
   const [loading, setLoading] = useState(false);
@@ -160,6 +163,7 @@ export default function UserPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [plansDialogOpen, setPlansDialogOpen] = useState(false);
+  const [buyCreditsDialogOpen, setBuyCreditsDialogOpen] = useState(false);
 
   const credits = savedSettings?.credits ?? 100;
   const planTier = (savedSettings?.planTier ?? "free") as "free" | "pro" | "max";
@@ -247,16 +251,29 @@ export default function UserPage() {
                   </p>
                 </div>
               </div>
-              <Button
-                onClick={() => setPlansDialogOpen(true)}
-                className="rounded-xl bg-[#6C5DD3] px-4 py-2 text-[14px] font-semibold text-white hover:bg-[#5a4dbf]"
-              >
-                Change plan
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  onClick={() => setPlansDialogOpen(true)}
+                  className="rounded-xl bg-[#6C5DD3] px-4 py-2 text-[14px] font-semibold text-white hover:bg-[#5a4dbf]"
+                >
+                  Change plan
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setBuyCreditsDialogOpen(true)}
+                  className="rounded-xl border-[#3D4035]/25 px-4 py-2 text-[14px] font-semibold text-[#3D4035] hover:bg-[#3D4035]/5"
+                >
+                  Buy credits
+                </Button>
+              </div>
             </div>
           </section>
 
           <PlansDialog open={plansDialogOpen} onOpenChange={setPlansDialogOpen} />
+          <BuyCustomCreditsDialog
+            open={buyCreditsDialogOpen}
+            onOpenChange={setBuyCreditsDialogOpen}
+          />
 
           {/* Dashboard cards */}
           {!settingsReady ? (
