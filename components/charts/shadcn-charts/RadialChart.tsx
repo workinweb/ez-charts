@@ -12,6 +12,8 @@ export interface ShadcnRadialChartProps {
   data: { name: string; value: number }[];
   config: ChartConfig;
   className?: string;
+  withTooltip?: boolean;
+  withAnimation?: boolean;
 }
 
 const DEFAULT_COLORS = [
@@ -22,7 +24,13 @@ const DEFAULT_COLORS = [
   "var(--chart-5)",
 ];
 
-export function ShadcnRadialChart({ data, config, className }: ShadcnRadialChartProps) {
+export function ShadcnRadialChart({
+  data,
+  config,
+  className,
+  withTooltip = true,
+  withAnimation = true,
+}: ShadcnRadialChartProps) {
   const max = Math.max(...data.map((d) => d.value), 1);
   const dataWithFill = data.map((item, i) => ({
     ...item,
@@ -39,8 +47,8 @@ export function ShadcnRadialChart({ data, config, className }: ShadcnRadialChart
         outerRadius="90%"
         barCategoryGap="10%"
       >
-        <ChartTooltip content={<ChartTooltipContent />} />
-        <RadialBar dataKey="value" cornerRadius={4} />
+        {withTooltip && <ChartTooltip content={<ChartTooltipContent />} />}
+        <RadialBar dataKey="value" cornerRadius={4} isAnimationActive={withAnimation} />
       </RechartsRadialBarChart>
     </ChartContainer>
   );

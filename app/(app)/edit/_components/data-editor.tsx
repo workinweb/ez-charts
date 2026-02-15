@@ -96,7 +96,7 @@ export function DataEditor({ shape, data, onChange }: EditorProps) {
         </Button>
       </div>
 
-      <div className="flex max-h-[40vh] flex-col gap-3 overflow-y-auto pr-1 sm:max-h-[45vh] md:max-h-[50vh] lg:max-h-[56vh]">
+      <div className="flex max-h-[40vh] min-w-0 flex-col gap-3 overflow-y-auto pr-2 sm:max-h-[45vh] md:max-h-[50vh] lg:max-h-[56vh]">
         {arr.map((item: Record<string, unknown>, idx: number) => (
           <DataRow
             key={idx}
@@ -143,7 +143,7 @@ function DataRow({
     `#${index + 1}`;
 
   return (
-    <div className="rounded-xl bg-white/60 ring-1 ring-black/[0.03] overflow-hidden">
+    <div className="min-w-0 rounded-xl bg-white/60 ring-1 ring-black/[0.03]">
       {/* Header */}
       <button
         type="button"
@@ -164,28 +164,34 @@ function DataRow({
 
       {/* Expanded fields */}
       {expanded && (
-        <div className="border-t border-black/[0.03] px-4 py-3">
-          <div className="flex flex-col gap-3">
+        <div className="min-w-0 border-t border-black/[0.03] px-4 py-3">
+          <div className="flex min-w-0 flex-col gap-3">
             {/* ── Key/Value (bar, breakdown, benchmark, gradient, thin) ── */}
             {shape === "keyValue" && (
               <>
-                <FieldRow label="Label">
-                  <Input
-                    value={(item.key as string) ?? ""}
-                    onChange={(e) => onUpdate({ key: e.target.value })}
-                    className="h-8 rounded-lg text-[13px]"
-                  />
-                </FieldRow>
-                <FieldRow label="Value">
-                  <Input
-                    type="number"
-                    value={item.value as number}
-                    onChange={(e) =>
-                      onUpdate({ value: parseFloat(e.target.value) || 0 })
-                    }
-                    className="h-8 rounded-lg text-[13px]"
-                  />
-                </FieldRow>
+                <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4">
+                  <div className="min-w-0 flex-1 sm:min-w-[120px]">
+                    <FieldRow label="Label">
+                      <Input
+                        value={(item.key as string) ?? ""}
+                        onChange={(e) => onUpdate({ key: e.target.value })}
+                        className="h-8 min-w-0 rounded-lg text-[13px]"
+                      />
+                    </FieldRow>
+                  </div>
+                  <div className="min-w-0 flex-1 sm:min-w-[80px] sm:max-w-[100px]">
+                    <FieldRow label="Value">
+                      <Input
+                        type="number"
+                        value={item.value as number}
+                        onChange={(e) =>
+                          onUpdate({ value: parseFloat(e.target.value) || 0 })
+                        }
+                        className="h-8 min-w-0 rounded-lg text-[13px]"
+                      />
+                    </FieldRow>
+                  </div>
+                </div>
               </>
             )}
 
@@ -196,7 +202,7 @@ function DataRow({
                   <Input
                     value={(item.key as string) ?? ""}
                     onChange={(e) => onUpdate({ key: e.target.value })}
-                    className="h-8 rounded-lg text-[13px]"
+                    className="h-8 min-w-0 rounded-lg text-[13px]"
                   />
                 </FieldRow>
                 <FieldRow label="Value">
@@ -206,14 +212,14 @@ function DataRow({
                     onChange={(e) =>
                       onUpdate({ value: parseFloat(e.target.value) || 0 })
                     }
-                    className="h-8 rounded-lg text-[13px]"
+                    className="h-8 min-w-0 rounded-lg text-[13px]"
                   />
                 </FieldRow>
                 <FieldRow label="Image URL">
                   <Input
                     value={(item.image as string) ?? ""}
                     onChange={(e) => onUpdate({ image: e.target.value })}
-                    className="h-8 rounded-lg text-[13px]"
+                    className="h-8 min-w-0 rounded-lg text-[13px]"
                     placeholder="https://..."
                   />
                 </FieldRow>
@@ -227,7 +233,7 @@ function DataRow({
                   <Input
                     value={(item.key as string) ?? ""}
                     onChange={(e) => onUpdate({ key: e.target.value })}
-                    className="h-8 rounded-lg text-[13px]"
+                    className="h-8 min-w-0 rounded-lg text-[13px]"
                   />
                 </FieldRow>
                 <div className="space-y-2">
@@ -245,7 +251,7 @@ function DataRow({
                             vals[vi] = parseFloat(e.target.value) || 0;
                             onUpdate({ values: vals });
                           }}
-                          className="h-8 flex-1 rounded-lg text-[13px]"
+                          className="h-8 min-w-0 flex-1 rounded-lg text-[13px]"
                         />
                         <button
                           type="button"
@@ -290,29 +296,35 @@ function DataRow({
             {/* ── Pie / Donut ──────────────────────── */}
             {shape === "pie" && (
               <>
-                <FieldRow label="Name">
-                  <Input
-                    value={(item.name as string) ?? ""}
-                    onChange={(e) => onUpdate({ name: e.target.value })}
-                    className="h-8 rounded-lg text-[13px]"
-                  />
-                </FieldRow>
-                <FieldRow label="Value">
-                  <Input
-                    type="number"
-                    value={item.value as number}
-                    onChange={(e) =>
-                      onUpdate({ value: parseFloat(e.target.value) || 0 })
-                    }
-                    className="h-8 rounded-lg text-[13px]"
-                  />
-                </FieldRow>
+                <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4">
+                  <div className="min-w-0 flex-1 sm:min-w-[120px]">
+                    <FieldRow label="Name">
+                      <Input
+                        value={(item.name as string) ?? ""}
+                        onChange={(e) => onUpdate({ name: e.target.value })}
+                        className="h-8 min-w-0 rounded-lg text-[13px]"
+                      />
+                    </FieldRow>
+                  </div>
+                  <div className="min-w-0 flex-1 sm:min-w-[80px] sm:max-w-[100px]">
+                    <FieldRow label="Value">
+                      <Input
+                        type="number"
+                        value={item.value as number}
+                        onChange={(e) =>
+                          onUpdate({ value: parseFloat(e.target.value) || 0 })
+                        }
+                        className="h-8 min-w-0 rounded-lg text-[13px]"
+                      />
+                    </FieldRow>
+                  </div>
+                </div>
                 {typeof item.logo === "string" && (
                   <FieldRow label="Logo URL">
                     <Input
                       value={item.logo}
                       onChange={(e) => onUpdate({ logo: e.target.value })}
-                      className="h-8 rounded-lg text-[13px]"
+                      className="h-8 min-w-0 rounded-lg text-[13px]"
                       placeholder="https://..."
                     />
                   </FieldRow>
@@ -337,10 +349,10 @@ function DataRow({
                   <Input
                     value={(item.name as string) ?? ""}
                     onChange={(e) => onUpdate({ name: e.target.value })}
-                    className="h-8 rounded-lg text-[13px]"
+                    className="h-8 min-w-0 rounded-lg text-[13px]"
                   />
                 </FieldRow>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid min-w-0 grid-cols-2 gap-3">
                   <FieldRow label="X value">
                     <Input
                       type="number"
@@ -348,7 +360,7 @@ function DataRow({
                       onChange={(e) =>
                         onUpdate({ xValue: parseFloat(e.target.value) || 0 })
                       }
-                      className="h-8 rounded-lg text-[13px]"
+                      className="h-8 min-w-0 rounded-lg text-[13px]"
                     />
                   </FieldRow>
                   <FieldRow label="Y value">
@@ -358,7 +370,7 @@ function DataRow({
                       onChange={(e) =>
                         onUpdate({ yValue: parseFloat(e.target.value) || 0 })
                       }
-                      className="h-8 rounded-lg text-[13px]"
+                      className="h-8 min-w-0 rounded-lg text-[13px]"
                     />
                   </FieldRow>
                 </div>
@@ -366,14 +378,15 @@ function DataRow({
             )}
 
             {/* Remove button */}
-            <div className="flex justify-end pt-1">
+            <div className="flex min-w-0 shrink-0 justify-end pt-1">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onRemove}
-                className="gap-1.5 text-[12px] text-red-500 hover:bg-red-50 hover:text-red-600"
+                title="Remove"
+                className="shrink-0 gap-1.5 text-[12px] text-red-500 hover:bg-red-50 hover:text-red-600"
               >
-                <Trash2 className="size-3" />
+                <Trash2 className="size-3 shrink-0" />
                 Remove
               </Button>
             </div>
@@ -403,7 +416,7 @@ function ShadcnCartesianEditor({
           <Input
             value={String(catEntry[1])}
             onChange={(e) => onUpdate({ [catEntry[0]]: e.target.value })}
-            className="h-8 rounded-lg text-[13px]"
+            className="h-8 min-w-0 rounded-lg text-[13px]"
           />
         </FieldRow>
       )}
@@ -415,7 +428,7 @@ function ShadcnCartesianEditor({
             onChange={(e) =>
               onUpdate({ [k]: parseFloat(e.target.value) || 0 })
             }
-            className="h-8 rounded-lg text-[13px]"
+            className="h-8 min-w-0 rounded-lg text-[13px]"
           />
         </FieldRow>
       ))}
@@ -448,7 +461,7 @@ function LineSeriesEditor({
               next[pi] = { ...pt, date: e.target.value };
               onUpdate({ data: next });
             }}
-            className="h-8 flex-1 rounded-lg text-[12px]"
+            className="h-8 min-w-0 flex-1 rounded-lg text-[12px]"
             placeholder="Date"
           />
           <Input
@@ -512,7 +525,7 @@ function TreeMapEditor({
         <Input
           value={(item.name as string) ?? ""}
           onChange={(e) => onUpdate({ name: e.target.value })}
-          className="h-8 rounded-lg text-[13px]"
+          className="h-8 min-w-0 rounded-lg text-[13px]"
         />
       </FieldRow>
 
@@ -534,7 +547,7 @@ function TreeMapEditor({
                     nextArr[si] = nextSub;
                     onUpdate({ subtopics: nextArr });
                   }}
-                  className="h-8 flex-1 rounded-lg text-[12px]"
+                  className="h-8 min-w-0 flex-1 rounded-lg text-[12px]"
                 />
                 <Input
                   type="number"

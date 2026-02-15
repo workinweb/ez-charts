@@ -44,7 +44,7 @@ export function BarChartHorizontalGradient({
     "bg-gradient-to-r from-lime-300 to-lime-400",
   ];
 
-  const longestWord = max(data.map((d) => d.key.length)) || 1;
+  const longestWord = max(data.map((d) => (d?.key ?? "").length)) || 1;
   return (
     <div
       className={`relative w-full h-72 ${className}`}

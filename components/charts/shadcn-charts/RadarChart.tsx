@@ -12,10 +12,10 @@ export interface ShadcnRadarChartProps {
   data: Record<string, string | number>[];
   config: ChartConfig;
   className?: string;
-  /** Key for categories (e.g. "subject") */
   categoryKey?: string;
-  /** Keys for numeric series, e.g. ["A", "B"] */
   seriesKeys?: string[];
+  withTooltip?: boolean;
+  withAnimation?: boolean;
 }
 
 function getSeriesKeys(data: Record<string, string | number>[], categoryKey: string): string[] {
@@ -31,6 +31,8 @@ export function ShadcnRadarChart({
   className,
   categoryKey = "subject",
   seriesKeys,
+  withTooltip = true,
+  withAnimation = true,
 }: ShadcnRadarChartProps) {
   const keys = seriesKeys ?? getSeriesKeys(data, categoryKey);
   return (
@@ -41,7 +43,7 @@ export function ShadcnRadarChart({
           dataKey={categoryKey}
           tick={{ fill: "var(--muted-foreground)" }}
         />
-        <ChartTooltip content={<ChartTooltipContent />} />
+        {withTooltip && <ChartTooltip content={<ChartTooltipContent />} />}
         {keys.map((key, i) => (
           <Radar
             key={key}
@@ -50,6 +52,7 @@ export function ShadcnRadarChart({
             stroke={`var(--color-${key})`}
             fill={`var(--color-${key})`}
             fillOpacity={0.3}
+            isAnimationActive={withAnimation}
           />
         ))}
       </RechartsRadarChart>

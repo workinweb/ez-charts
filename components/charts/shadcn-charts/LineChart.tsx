@@ -20,6 +20,8 @@ export interface ShadcnLineChartProps {
   className?: string;
   categoryKey?: string;
   seriesKeys?: string[];
+  withTooltip?: boolean;
+  withAnimation?: boolean;
 }
 
 function getSeriesKeys(data: Record<string, string | number>[], categoryKey: string): string[] {
@@ -33,6 +35,8 @@ export function ShadcnLineChart({
   className,
   categoryKey = "month",
   seriesKeys,
+  withTooltip = true,
+  withAnimation = true,
 }: ShadcnLineChartProps) {
   const keys = seriesKeys ?? getSeriesKeys(data, categoryKey);
   return (
@@ -46,7 +50,7 @@ export function ShadcnLineChart({
           tickFormatter={(value) => String(value).slice(0, 3)}
         />
         <YAxis tickLine={false} axisLine={false} tickFormatter={(v) => `${v}`} />
-        <ChartTooltip content={<ChartTooltipContent />} />
+        {withTooltip && <ChartTooltip content={<ChartTooltipContent />} />}
         {keys.map((key) => (
           <Line
             key={key}
@@ -55,6 +59,7 @@ export function ShadcnLineChart({
             stroke={`var(--color-${key})`}
             strokeWidth={2}
             dot={{ fill: `var(--color-${key})` }}
+            isAnimationActive={withAnimation}
           />
         ))}
       </RechartsLineChart>

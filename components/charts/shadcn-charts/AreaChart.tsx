@@ -20,6 +20,8 @@ export interface ShadcnAreaChartProps {
   className?: string;
   categoryKey?: string;
   seriesKeys?: string[];
+  withTooltip?: boolean;
+  withAnimation?: boolean;
 }
 
 function getSeriesKeys(data: Record<string, string | number>[], categoryKey: string): string[] {
@@ -33,6 +35,8 @@ export function ShadcnAreaChart({
   className,
   categoryKey = "month",
   seriesKeys,
+  withTooltip = true,
+  withAnimation = true,
 }: ShadcnAreaChartProps) {
   const keys = seriesKeys ?? getSeriesKeys(data, categoryKey);
   return (
@@ -46,7 +50,7 @@ export function ShadcnAreaChart({
           tickFormatter={(value) => String(value).slice(0, 3)}
         />
         <YAxis tickLine={false} axisLine={false} tickFormatter={(v) => `${v}`} />
-        <ChartTooltip content={<ChartTooltipContent />} />
+        {withTooltip && <ChartTooltip content={<ChartTooltipContent />} />}
         {keys.map((key) => (
           <Area
             key={key}
@@ -55,6 +59,7 @@ export function ShadcnAreaChart({
             stroke={`var(--color-${key})`}
             fill={`var(--color-${key})`}
             fillOpacity={0.4}
+            isAnimationActive={withAnimation}
           />
         ))}
       </RechartsAreaChart>

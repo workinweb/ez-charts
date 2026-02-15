@@ -3,6 +3,7 @@
 import type { JSX } from "react";
 import { getChartTypeByName } from "@/components/charts/rosencharts";
 import { getShadcnChartByName } from "@/components/charts/shadcn-charts";
+import { unwrapShadcnData } from "@/lib/shadcn-chart-data";
 
 /**
  * Unified chart renderer: routes to Rosencharts or Shadcn based on chartType.
@@ -21,12 +22,15 @@ export function renderChart(
   if (!data || !chartType) return null;
 
   if (chartType.startsWith("shadcn:")) {
-    const arr = Array.isArray(data) ? data : [];
+    const { rows, seriesColors } = unwrapShadcnData(data);
     return getShadcnChartByName(
-      arr as Parameters<typeof getShadcnChartByName>[0],
+      rows as Parameters<typeof getShadcnChartByName>[0],
       chartType,
       {
         className: options?.className,
+        seriesColors,
+        withTooltip: options?.withTooltip,
+        withAnimation: options?.withAnimation,
       },
     );
   }

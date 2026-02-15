@@ -277,6 +277,7 @@ function EditChartContent() {
             <EditorPanel
               activeTab={activeTab}
               onTabChange={setActiveTab}
+              chartType={chartType}
               editorShape={editorShape}
               data={data}
               onDataChange={(d) => edit(setData)(d)}

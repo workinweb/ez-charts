@@ -12,6 +12,8 @@ export interface ShadcnPieChartProps {
   data: { name: string; value: number; fill?: string }[];
   config: ChartConfig;
   className?: string;
+  withTooltip?: boolean;
+  withAnimation?: boolean;
 }
 
 const DEFAULT_COLORS = [
@@ -22,7 +24,13 @@ const DEFAULT_COLORS = [
   "var(--chart-5)",
 ];
 
-export function ShadcnPieChart({ data, config, className }: ShadcnPieChartProps) {
+export function ShadcnPieChart({
+  data,
+  config,
+  className,
+  withTooltip = true,
+  withAnimation = true,
+}: ShadcnPieChartProps) {
   const dataWithFill = data.map((item, i) => ({
     ...item,
     fill: item.fill ?? DEFAULT_COLORS[i % DEFAULT_COLORS.length],
@@ -30,7 +38,7 @@ export function ShadcnPieChart({ data, config, className }: ShadcnPieChartProps)
   return (
     <ChartContainer config={config} className={className}>
       <RechartsPieChart>
-        <ChartTooltip content={<ChartTooltipContent />} />
+        {withTooltip && <ChartTooltip content={<ChartTooltipContent />} />}
         <Pie
           data={dataWithFill}
           dataKey="value"
@@ -41,6 +49,7 @@ export function ShadcnPieChart({ data, config, className }: ShadcnPieChartProps)
           outerRadius="80%"
           paddingAngle={2}
           label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+          isAnimationActive={withAnimation}
         >
           {dataWithFill.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={entry.fill} />

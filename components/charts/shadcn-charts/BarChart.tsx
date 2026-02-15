@@ -20,8 +20,9 @@ export interface ShadcnBarChartProps {
   config: ChartConfig;
   className?: string;
   categoryKey?: string;
-  /** Keys for numeric series, e.g. ["desktop", "mobile"] */
   seriesKeys?: string[];
+  withTooltip?: boolean;
+  withAnimation?: boolean;
 }
 
 function getSeriesKeys(data: Record<string, string | number>[], categoryKey: string): string[] {
@@ -35,6 +36,8 @@ export function ShadcnBarChart({
   className,
   categoryKey = "month",
   seriesKeys,
+  withTooltip = true,
+  withAnimation = true,
 }: ShadcnBarChartProps) {
   const keys = seriesKeys ?? getSeriesKeys(data, categoryKey);
   return (
@@ -48,9 +51,15 @@ export function ShadcnBarChart({
           tickFormatter={(value) => String(value).slice(0, 3)}
         />
         <YAxis tickLine={false} axisLine={false} tickFormatter={(v) => `${v}`} />
-        <ChartTooltip content={<ChartTooltipContent />} />
+        {withTooltip && <ChartTooltip content={<ChartTooltipContent />} />}
         {keys.map((key) => (
-          <Bar key={key} dataKey={key} fill={`var(--color-${key})`} radius={[4, 4, 0, 0]} />
+          <Bar
+            key={key}
+            dataKey={key}
+            fill={`var(--color-${key})`}
+            radius={[4, 4, 0, 0]}
+            isAnimationActive={withAnimation}
+          />
         ))}
       </RechartsBarChart>
     </ChartContainer>
