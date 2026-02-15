@@ -130,6 +130,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const chat = useChat();
   const createConversationMutation = useMutation(api.chat.createConversation);
   const addMessageMutation = useMutation(api.chat.addMessage);
+  const documentsCreate = useMutation(api.documents.create);
+  const generateUploadUrl = useMutation(api.documents.generateUploadUrl);
   const {
     input,
     setInput,
@@ -144,6 +146,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     conversationId,
     setConversationId,
     clearConversation,
+    saveDocumentsOnDb,
   } = useChatbotStore();
   const addChartFromTool = useChartsStore((s) => s.addChartFromTool);
   const processedToolCalls = useRef<Set<string>>(new Set());
@@ -229,7 +232,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   }, [chat.messages, addChartFromTool]);
 
   const handleSubmit = useCallback(
-    (e?: React.FormEvent) => {
+    async (e?: React.FormEvent) => {
       e?.preventDefault();
       const trimmed = input.trim();
       const hasFiles = attachedFiles.some((f) => f.parsedContent);
@@ -240,10 +243,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       let messageText = trimmed;
 
       const contextParts: string[] = [];
+      const filesToSave = hasFiles
+        ? attachedFiles.filter((f) => f.parsedContent)
+        : [];
       if (hasFiles) {
-        const fileParts = attachedFiles
-          .filter((f) => f.parsedContent)
-          .map((f) => `[Attached file: ${f.name}]\n${f.parsedContent}`);
+        const fileParts = filesToSave.map(
+          (f) => `[Attached file: ${f.name}]\n${f.parsedContent}`
+        );
         contextParts.push(...fileParts);
       }
       if (hasChart) {
@@ -255,6 +261,31 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         messageText = messageText ? `${messageText}\n\n---\n${combined}` : combined;
       }
 
+      // Auto-save attached files to Convex when Save documents on DB is enabled
+      if (saveDocumentsOnDb && filesToSave.length > 0) {
+        for (const af of filesToSave) {
+          try {
+            const uploadUrl = await generateUploadUrl();
+            const res = await fetch(uploadUrl, {
+              method: "POST",
+              headers: { "Content-Type": af.file.type || "application/octet-stream" },
+              body: af.file,
+            });
+            if (!res.ok) continue;
+            const { storageId } = await res.json();
+            await documentsCreate({
+              name: af.name,
+              size: af.file.size,
+              mimeType: af.file.type || "application/octet-stream",
+              content: af.parsedContent!,
+              storageId,
+            });
+          } catch {
+            // Ignore per-file errors; chat continues
+          }
+        }
+      }
+
       const chartKey = selectedChartKey ?? (hasChart ? attachedChartContext!.chartType : undefined);
       chat.sendMessage(
         { text: messageText },
@@ -264,7 +295,19 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       clearFiles();
       setAttachedChartContext(null);
     },
-    [input, chat, attachedFiles, attachedChartContext, setInput, clearFiles, selectedChartKey, setAttachedChartContext],
+    [
+      input,
+      chat,
+      attachedFiles,
+      attachedChartContext,
+      setInput,
+      clearFiles,
+      selectedChartKey,
+      setAttachedChartContext,
+      saveDocumentsOnDb,
+      documentsCreate,
+      generateUploadUrl,
+    ],
   );
 
   const startNewChat = useCallback(() => {

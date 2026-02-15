@@ -11,4 +11,3 @@ export {
   DASHBOARD_CARD_SPAN,
 } from "./dashboard-settings-store";
 export type { DashboardCardId } from "./dashboard-settings-store";
-export { useDocumentsStore } from "./documents-store";

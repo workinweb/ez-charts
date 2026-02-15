@@ -32,6 +32,20 @@ export const get = query({
   },
 });
 
+/** Get a download URL for a document's stored file. Returns null if no storageId. */
+export const getDownloadUrl = query({
+  args: { id: v.id("documents") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+    const doc = await ctx.db.get(args.id);
+    if (!doc || doc.userId !== identity.subject) return null;
+    if (doc.isVisible === false) return null;
+    if (!doc.storageId) return null;
+    return ctx.storage.getUrl(doc.storageId);
+  },
+});
+
 // ─── Mutations ──────────────────────────────────────────────────────────────
 
 /** Save a parsed document. */
