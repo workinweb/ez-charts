@@ -2,8 +2,12 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, BarChart3 } from "lucide-react";
+import { useDashboardStats } from "@/hooks/use-dashboard-stats";
 
 export function FavoritesStats() {
+  const { stats, isLoading } = useDashboardStats();
+  const { favoritesCount, chartsThisWeek } = stats;
+
   return (
     <Card className="col-span-full rounded-[32px] bg-[#354052] text-white ring-0 lg:col-span-5 p-6">
       <CardHeader className="p-0 mb-6">
@@ -25,7 +29,7 @@ export function FavoritesStats() {
           </p>
           <div className="mt-8">
             <span className="text-[32px] font-light leading-none tracking-tight text-white lg:text-[48px]">
-              9
+              {isLoading ? "—" : favoritesCount}
             </span>
           </div>
         </div>
@@ -43,7 +47,7 @@ export function FavoritesStats() {
           <div className="mt-8">
             <div className="flex items-baseline">
               <span className="text-[32px] font-light leading-none tracking-tight text-[#1F2128] lg:text-[48px]">
-                12
+                {isLoading ? "—" : chartsThisWeek}
               </span>
             </div>
           </div>

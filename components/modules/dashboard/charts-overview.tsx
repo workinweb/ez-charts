@@ -3,14 +3,7 @@
 import { Bar, BarChart, ResponsiveContainer, XAxis, Tooltip } from "recharts";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-const chartsData = [
-  { month: "Jan", charts: 18, projected: 22 },
-  { month: "Feb", charts: 24, projected: 28 },
-  { month: "Mar", charts: 31, projected: 32 },
-  { month: "Apr", charts: 28, projected: 35 },
-  { month: "May", charts: 42, projected: 38 },
-];
+import { useDashboardStats } from "@/hooks/use-dashboard-stats";
 
 function CustomTooltip({
   active,
@@ -39,6 +32,15 @@ function CustomTooltip({
 }
 
 export function ChartsOverview() {
+  const { stats, isLoading } = useDashboardStats();
+  const { totalCharts, chartsThisMonth, monthlyData } = stats;
+  const avgMonthly =
+    monthlyData.length > 0
+      ? (
+          monthlyData.reduce((s, m) => s + m.charts, 0) / monthlyData.length
+        ).toFixed(1)
+      : "0";
+
   return (
     <Card className="col-span-full min-w-0 overflow-hidden rounded-[28px] bg-[#BCBDEA] p-5 shadow-sm ring-0 sm:rounded-[40px] sm:p-6 lg:p-8 lg:col-span-7">
       <div className="mb-8 flex items-center justify-between">
@@ -55,7 +57,7 @@ export function ChartsOverview() {
             </p>
             <div className="flex items-baseline gap-1">
               <span className="text-[32px] font-light tracking-tight text-[#3D4035] lg:text-[48px]">
-                42
+                {isLoading ? "—" : chartsThisMonth}
               </span>
               <span className="text-[20px] font-light text-[#3D4035]/60 lg:text-[28px]">
                 charts
@@ -69,7 +71,7 @@ export function ChartsOverview() {
             </p>
             <div className="flex items-baseline gap-1">
               <span className="text-[32px] font-light tracking-tight text-white lg:text-[48px]">
-                598
+                {isLoading ? "—" : totalCharts}
               </span>
               <span className="text-[20px] font-light text-white/60 lg:text-[28px]">
                 charts
@@ -85,7 +87,7 @@ export function ChartsOverview() {
             </Badge>
             <div className="text-right">
               <p className="text-[28px] font-bold leading-none text-[#3D4035] lg:text-[36px]">
-                28.6
+                {isLoading ? "—" : avgMonthly}
               </p>
               <p className="text-[12px] font-medium text-[#3D4035]/50">
                 Avg. Monthly
@@ -95,7 +97,7 @@ export function ChartsOverview() {
 
           <div className="h-[160px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartsData} barGap={6} barCategoryGap="25%">
+              <BarChart data={monthlyData} barGap={6} barCategoryGap="25%">
                 <XAxis
                   dataKey="month"
                   axisLine={false}
@@ -114,12 +116,6 @@ export function ChartsOverview() {
                 <Bar
                   dataKey="charts"
                   fill="#6C5DD3"
-                  radius={[6, 6, 6, 6]}
-                  maxBarSize={10}
-                />
-                <Bar
-                  dataKey="projected"
-                  fill="#A098E5"
                   radius={[6, 6, 6, 6]}
                   maxBarSize={10}
                 />
