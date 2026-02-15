@@ -76,8 +76,8 @@ export default function SlidesPage() {
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-background">
       <Navbar />
 
-      <div className="flex-1 px-3 pb-6 sm:px-6 sm:pb-8">
-        <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6">
+      <div className="flex-1 px-3 pb-6 sm:px-4 sm:pb-6 md:px-5 lg:px-6 lg:pb-8 xl:px-6 xl:pb-8">
+        <div className="mx-auto flex w-full max-w-[1600px] min-w-0 flex-col gap-6">
           <PageSearchBar
             value={search}
             onChange={setSearch}
@@ -118,7 +118,7 @@ export default function SlidesPage() {
                       return (
                         <div
                           key={slide.id}
-                          className="flex items-center gap-6 rounded-[28px] p-3 transition-colors hover:bg-black/[0.02]"
+                          className="flex flex-wrap items-center gap-3 rounded-[28px] p-3 transition-colors hover:bg-black/[0.02] sm:gap-6"
                         >
                           <div
                             className={cn(
@@ -132,7 +132,7 @@ export default function SlidesPage() {
                             />
                           </div>
 
-                          <div className="min-w-0 flex-1">
+                          <div className="min-w-0 flex-1 basis-32">
                             <p className="text-[17px] font-medium text-[#3D4035]">
                               {slide.name}
                             </p>
@@ -142,36 +142,40 @@ export default function SlidesPage() {
                             </p>
                           </div>
 
-                          <button
-                            type="button"
-                            onClick={() => setEditSlide(slide)}
-                            className="shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors hover:bg-black/[0.04] hover:text-[#3D4035]/70"
-                            aria-label="Edit slide deck"
-                          >
-                            <Pencil className="size-4" />
-                          </button>
+                          <div className="flex shrink-0 flex-col items-end gap-2">
+                            <div className="flex items-center gap-0.5 sm:gap-1">
+                              <button
+                                type="button"
+                                onClick={() => setEditSlide(slide)}
+                                className="shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors hover:bg-black/[0.04] hover:text-[#3D4035]/70"
+                                aria-label="Edit slide deck"
+                              >
+                                <Pencil className="size-4" />
+                              </button>
 
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setDeleteTarget({
-                                id: slide.id,
-                                name: slide.name,
-                              })
-                            }
-                            className="shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors hover:bg-red-50 hover:text-red-500"
-                            aria-label="Delete slide deck"
-                          >
-                            <Trash2 className="size-4" />
-                          </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setDeleteTarget({
+                                    id: slide.id,
+                                    name: slide.name,
+                                  })
+                                }
+                                className="shrink-0 rounded-full p-2 text-[#3D4035]/30 transition-colors hover:bg-red-50 hover:text-red-500"
+                                aria-label="Delete slide deck"
+                              >
+                                <Trash2 className="size-4" />
+                              </button>
+                            </div>
 
-                          <Link
-                            href={`/present/${slide.id}`}
-                            className="flex shrink-0 items-center gap-1 text-[13px] font-semibold text-[#6C5DD3] hover:underline"
-                          >
-                            Present
-                            <ChevronRight className="size-3.5" />
-                          </Link>
+                            <Link
+                              href={`/present/${slide.id}`}
+                              className="flex items-center gap-1 text-[13px] font-semibold text-[#6C5DD3] hover:underline"
+                            >
+                              Present
+                              <ChevronRight className="size-3.5" />
+                            </Link>
+                          </div>
                         </div>
                       );
                     })}

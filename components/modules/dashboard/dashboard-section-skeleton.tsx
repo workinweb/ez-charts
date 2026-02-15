@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 
 /** Grid column span classes for skeleton cards */
 const SPAN_CLASS: Record<number, string> = {
-  3: "xl:col-span-3",
-  6: "xl:col-span-6",
-  12: "xl:col-span-12",
+  3: "min-[1440px]:col-span-3",
+  6: "min-[1440px]:col-span-6",
+  12: "min-[1440px]:col-span-12",
 };
 
 function SkeletonCard({ span = 6 }: { span?: number }) {
@@ -34,7 +34,7 @@ export function DashboardSectionSkeleton() {
   return (
     <>
       <DashboardHeader />
-      <div className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-12">
+      <div className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-1 min-[1440px]:grid-cols-12">
         <SkeletonCard span={6} />
         <SkeletonCard span={3} />
         <SkeletonCard span={3} />

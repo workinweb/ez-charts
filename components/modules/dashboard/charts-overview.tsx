@@ -1,35 +1,10 @@
 "use client";
 
-import { Bar, BarChart, ResponsiveContainer, XAxis, Tooltip } from "recharts";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
-
-function CustomTooltip({
-  active,
-  payload,
-  label,
-}: {
-  active?: boolean;
-  payload?: Array<{ value: number; name: string; color: string }>;
-  label?: string;
-}) {
-  if (!active || !payload) return null;
-  return (
-    <div className="rounded-xl border border-border/5 bg-white px-3 py-2 shadow-xl">
-      <p className="mb-1 text-[10px] font-semibold text-gray-500">{label}</p>
-      {payload.map((entry, index) => (
-        <p
-          key={index}
-          className="text-xs font-bold"
-          style={{ color: entry.color }}
-        >
-          {entry.value} charts
-        </p>
-      ))}
-    </div>
-  );
-}
+import { BarChartHorizontal } from "@/components/rosencharts";
+import type { HorizontalBarData } from "@/components/rosencharts";
 
 export function ChartsOverview() {
   const { stats, isLoading } = useDashboardStats();
@@ -95,32 +70,29 @@ export function ChartsOverview() {
             </div>
           </div>
 
-          <div className="h-[160px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyData} barGap={6} barCategoryGap="25%">
-                <XAxis
-                  dataKey="month"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{
-                    fontSize: 11,
-                    fill: "#8E92A3",
-                    fontWeight: 500,
-                  }}
-                  dy={10}
-                />
-                <Tooltip
-                  content={<CustomTooltip />}
-                  cursor={{ fill: "rgba(0,0,0,0.03)", radius: 8 }}
-                />
-                <Bar
-                  dataKey="charts"
-                  fill="#6C5DD3"
-                  radius={[6, 6, 6, 6]}
-                  maxBarSize={10}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-[180px] w-full -mx-1 min-h-[160px]">
+            {isLoading ? (
+              <div className="flex h-[160px] items-center justify-center">
+                <div className="size-24 animate-pulse rounded-lg bg-[#3D4035]/10" />
+              </div>
+            ) : monthlyData.length === 0 ? (
+              <p className="flex h-[160px] items-center justify-center text-[13px] text-[#3D4035]/50">
+                No monthly data yet
+              </p>
+            ) : (
+              <BarChartHorizontal
+                data={monthlyData.map(
+                  (d): HorizontalBarData => ({
+                    key: d.month,
+                    value: d.charts,
+                    color: "#6C5DD3",
+                  }),
+                )}
+                withTooltip
+                withAnimation={false}
+                className="h-[160px]"
+              />
+            )}
           </div>
         </div>
       </div>

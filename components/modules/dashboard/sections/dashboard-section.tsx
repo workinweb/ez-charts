@@ -31,7 +31,7 @@ const CARD_COMPONENTS: Record<DashboardCardId, React.ComponentType> = {
 const SPAN_CLASS: Record<number, string> = {
   3: "xl:col-span-3",
   6: "xl:col-span-6",
-  12: "xl:col-span-12",
+  12: "xl:col-span-2",
 };
 
 export function DashboardSection() {
@@ -45,7 +45,7 @@ export function DashboardSection() {
   return (
     <>
       <DashboardHeader />
-      <div className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-12">
+      <div className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-1 2xl:grid-cols-12 ">
         {cardOrder.map((id) => {
           const Card = CARD_COMPONENTS[id];
           const span = DASHBOARD_CARD_SPAN[id] ?? 6;

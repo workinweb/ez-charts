@@ -39,8 +39,8 @@ export default function FavoritesPage() {
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-background">
       <Navbar />
 
-      <div className="flex-1 px-3 pb-6 sm:px-6 sm:pb-8">
-        <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6">
+      <div className="flex-1 px-3 pb-6 sm:px-4 sm:pb-6 md:px-5 lg:px-6 lg:pb-8 xl:px-6 xl:pb-8">
+        <div className="mx-auto flex w-full max-w-[1600px] min-w-0 flex-col gap-6">
           <PageSearchBar
             value={search}
             onChange={setSearch}
