@@ -32,8 +32,16 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useMutation, useQuery } from "convex/react";
-import { Check, GripVertical, Loader2, RotateCcw, User } from "lucide-react";
+import {
+  Check,
+  CreditCard,
+  GripVertical,
+  Loader2,
+  RotateCcw,
+  User,
+} from "lucide-react";
 import { useState } from "react";
+import { PlansDialog } from "@/components/modules/plans";
 
 function ResendVerificationButton({ email }: { email: string }) {
   const [loading, setLoading] = useState(false);
@@ -151,6 +159,11 @@ export default function UserPage() {
   const upsertSettings = useMutation(api.userSettings.upsert);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [plansDialogOpen, setPlansDialogOpen] = useState(false);
+
+  const credits = savedSettings?.credits ?? 100;
+  const planTier = (savedSettings?.planTier ?? "free") as "free" | "pro" | "max";
+  const renewDate = savedSettings?.renewDate;
 
   const dbCardOrder = savedSettings?.dashboardCardOrder ?? null;
   const dbSaveDocuments = savedSettings?.saveDocumentsOnDb ?? false;
@@ -209,6 +222,41 @@ export default function UserPage() {
               <User className="size-5 text-[#3D4035]/30" />
             </div>
           </section>
+
+          {/* Plan & credits */}
+          <section className="rounded-[28px] bg-white/80 p-6 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-[#6C5DD3]/20">
+                  <CreditCard className="size-5 text-[#6C5DD3]" />
+                </div>
+                <div>
+                  <h2 className="text-[18px] font-semibold text-[#3D4035]">
+                    Plan & Credits
+                  </h2>
+                  <p className="text-[13px] text-[#3D4035]/50">
+                    {credits} credits
+                    {renewDate
+                      ? ` · Renews ${new Date(renewDate).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}`
+                      : ""}{" "}
+                    <span className="capitalize">{planTier}</span> plan
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={() => setPlansDialogOpen(true)}
+                className="rounded-xl bg-[#6C5DD3] px-4 py-2 text-[14px] font-semibold text-white hover:bg-[#5a4dbf]"
+              >
+                Change plan
+              </Button>
+            </div>
+          </section>
+
+          <PlansDialog open={plansDialogOpen} onOpenChange={setPlansDialogOpen} />
 
           {/* Dashboard cards */}
           {!settingsReady ? (

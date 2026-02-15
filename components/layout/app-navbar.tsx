@@ -11,6 +11,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { PlansDialog } from "@/components/modules/plans";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +25,7 @@ import { useChartsStore } from "@/stores/charts-store";
 import {
   Bookmark,
   ChevronDown,
+  Coins,
   Home,
   LayoutGrid,
   LogOut,
@@ -36,6 +38,8 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 const navItems = [
   { label: "Home", href: "/", icon: Home },
@@ -50,6 +54,18 @@ function AppNavbarInner() {
   const { data: session } = authClient.useSession();
 
   const [createChartConfirmOpen, setCreateChartConfirmOpen] = useState(false);
+  const [plansDialogOpen, setPlansDialogOpen] = useState(false);
+
+  const settings = useQuery(
+    api.userSettings.get,
+    session?.user ? {} : "skip"
+  );
+  const planTier = (settings?.planTier ?? "free") as "free" | "pro" | "max";
+  const showUpgradeButton = planTier !== "max";
+
+  const credits = settings?.credits ?? 100;
+  const maxCredits =
+    planTier === "max" ? 1000 : planTier === "pro" ? 500 : 100;
 
   // Read last-edited chart ID from the Zustand store
   const lastEditedChartId = useChartsStore((s) => s.lastEditedChartId);
@@ -102,6 +118,15 @@ function AppNavbarInner() {
             align="start"
             className="min-w-[180px] rounded-xl border-0 bg-white p-1 shadow-xl"
           >
+            <div className="flex items-center gap-2 rounded-lg px-3 py-2">
+              <Coins className="size-3.5 text-[#6C5DD3]/70" />
+              <span className="text-[12px] font-medium text-foreground/70">
+                {credits}
+                <span className="text-foreground/40"> / {maxCredits}</span>{" "}
+                credits
+              </span>
+            </div>
+            <DropdownMenuSeparator className="my-1" />
             <DropdownMenuItem asChild>
               <Link
                 href="/user"
@@ -226,13 +251,18 @@ function AppNavbarInner() {
           <MoreHorizontal className="size-3.5" />
         </Button>
 
-        <Button
-          size="xs"
-          className="rounded-lg bg-[#7c6ee8] px-3 text-[11px] font-semibold text-white hover:bg-[#6b5dd4]"
-        >
-          Upgrade
-        </Button>
+        {showUpgradeButton && (
+          <Button
+            size="xs"
+            onClick={() => setPlansDialogOpen(true)}
+            className="rounded-lg bg-[#7c6ee8] px-3 text-[11px] font-semibold text-white hover:bg-[#6b5dd4]"
+          >
+            Upgrade
+          </Button>
+        )}
       </div>
+
+      <PlansDialog open={plansDialogOpen} onOpenChange={setPlansDialogOpen} />
 
       <AlertDialog
         open={createChartConfirmOpen}

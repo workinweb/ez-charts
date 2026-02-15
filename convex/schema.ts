@@ -68,7 +68,7 @@ export default defineSchema({
     .index("by_user_created", ["userId", "createdAt"]),
 
   // ── User Settings ───────────────────────────────────────────────────────
-  // Per-user preferences: dashboard layout, feature flags, etc.
+  // Per-user preferences: dashboard layout, feature flags, credits/plan, etc.
   // One row per user — upserted on change.
   userSettings: defineTable({
     userId: v.string(),
@@ -76,6 +76,12 @@ export default defineSchema({
     dashboardCardOrder: v.optional(v.array(v.string())),
     /** Whether to auto-save documents from chat */
     saveDocumentsOnDb: v.optional(v.boolean()),
+    /** Credits available for AI usage (Free: 100, Pro: 500, Max: 1000) */
+    credits: v.optional(v.number()),
+    /** Plan tier: free | pro | max */
+    planTier: v.optional(v.union(v.literal("free"), v.literal("pro"), v.literal("max"))),
+    /** Timestamp (ms) of next credit renewal. On renew, add 1 month to this. */
+    renewDate: v.optional(v.number()),
     updatedAt: v.number(),
   }).index("by_user", ["userId"]),
 

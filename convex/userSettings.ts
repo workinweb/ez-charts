@@ -11,6 +11,15 @@ const DEFAULT_DASHBOARD_CARD_ORDER = [
   "recent-slide-decks",
 ];
 
+const CREDITS_BY_PLAN = { free: 100, pro: 500, max: 1000 } as const;
+
+/** Full date 1 month from now — next renewal date. Set on creation or tier change. */
+function nextRenewDate(): number {
+  const d = new Date();
+  d.setMonth(d.getMonth() + 1);
+  return d.getTime();
+}
+
 /** Get the authenticated user's settings (or null if not set). */
 export const get = query({
   args: {},
@@ -25,11 +34,18 @@ export const get = query({
   },
 });
 
+const planTierValidator = v.union(
+  v.literal("free"),
+  v.literal("pro"),
+  v.literal("max"),
+);
+
 /** Upsert user settings. Creates the row if it doesn't exist. */
 export const upsert = mutation({
   args: {
     dashboardCardOrder: v.optional(v.array(v.string())),
     saveDocumentsOnDb: v.optional(v.boolean()),
+    planTier: v.optional(planTierValidator),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -48,15 +64,24 @@ export const upsert = mutation({
     if (args.saveDocumentsOnDb !== undefined) {
       updates.saveDocumentsOnDb = args.saveDocumentsOnDb;
     }
+    if (args.planTier !== undefined) {
+      updates.planTier = args.planTier;
+      updates.credits = CREDITS_BY_PLAN[args.planTier];
+      updates.renewDate = nextRenewDate();
+    }
 
     if (existing) {
       await ctx.db.patch(existing._id, updates);
       return existing._id;
     }
+    const planTier = args.planTier ?? "free";
     return ctx.db.insert("userSettings", {
       userId,
       dashboardCardOrder: args.dashboardCardOrder,
       saveDocumentsOnDb: args.saveDocumentsOnDb,
+      planTier,
+      credits: CREDITS_BY_PLAN[planTier],
+      renewDate: nextRenewDate(),
       updatedAt: Date.now(),
     });
   },
@@ -79,6 +104,9 @@ export const ensure = mutation({
       return {
         dashboardCardOrder: existing.dashboardCardOrder ?? DEFAULT_DASHBOARD_CARD_ORDER,
         saveDocumentsOnDb: existing.saveDocumentsOnDb ?? false,
+        credits: existing.credits ?? 100,
+        planTier: existing.planTier ?? "free",
+        renewDate: existing.renewDate ?? nextRenewDate(),
       };
     }
 
@@ -86,11 +114,17 @@ export const ensure = mutation({
       userId,
       dashboardCardOrder: DEFAULT_DASHBOARD_CARD_ORDER,
       saveDocumentsOnDb: false,
+      credits: 100,
+      planTier: "free",
+      renewDate: nextRenewDate(),
       updatedAt: Date.now(),
     });
     return {
       dashboardCardOrder: DEFAULT_DASHBOARD_CARD_ORDER,
       saveDocumentsOnDb: false,
+      credits: 100,
+      planTier: "free" as const,
+      renewDate: nextRenewDate(),
     };
   },
 });
