@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { TIER_LIMITS, type PlanTier } from "./tierLimits";
 
 // ─── Queries ────────────────────────────────────────────────────────────────
 
@@ -43,9 +44,30 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
+    const userId = identity.subject;
+
+    const settings = await ctx.db
+      .query("userSettings")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .unique();
+    const tier = (settings?.planTier ?? "free") as PlanTier;
+    const maxSlides = TIER_LIMITS[tier].maxSlides;
+    if (maxSlides < Infinity) {
+      const existing = await ctx.db
+        .query("slides")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .collect();
+      const visible = existing.filter((s) => s.isVisible !== false);
+      if (visible.length >= maxSlides) {
+        throw new Error(
+          `Slide deck limit reached (${maxSlides} for ${tier} plan). Upgrade to save more.`,
+        );
+      }
+    }
+
     const now = Date.now();
     return ctx.db.insert("slides", {
-      userId: identity.subject,
+      userId,
       name: args.name,
       chartIds: args.chartIds,
       isVisible: true,

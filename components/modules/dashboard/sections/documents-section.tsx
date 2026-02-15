@@ -19,7 +19,10 @@ import {
   useDocumentDownloadUrl,
   type DocumentItem,
 } from "@/hooks/use-documents";
+import { api } from "@/convex/_generated/api";
+import { useQuery } from "convex/react";
 import type { Id } from "@/convex/_generated/dataModel";
+import { TIER_LIMITS } from "@/lib/tier-limits";
 import { cn } from "@/lib/utils";
 import {
   AlertDialog,
@@ -171,6 +174,10 @@ export function DocumentsSection() {
 
   const addLoadedDocument = useChatbotStore((s) => s.addLoadedDocument);
   const documents = useDocumentsList();
+  const settings = useQuery(api.userSettings.get);
+  const planTier = (settings?.planTier ?? "free") as "free" | "pro" | "max";
+  const canUploadDocuments = TIER_LIMITS[planTier].maxDocuments > 0;
+
   const {
     uploadFiles,
     removeDocument,
@@ -217,19 +224,25 @@ export function DocumentsSection() {
         count={filtered.length}
         countLabel={filtered.length === 1 ? "document" : "documents"}
         addButton={
-          <Button
-            size="sm"
-            disabled={uploading}
-            onClick={() => fileInputRef.current?.click()}
-            className="gap-2 rounded-xl bg-[#6C5DD3] text-[12px] font-semibold text-white hover:bg-[#5a4dbf] disabled:opacity-50"
-          >
-            {uploading ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : (
-              <Plus className="size-3.5" />
-            )}
-            Add new
-          </Button>
+          canUploadDocuments ? (
+            <Button
+              size="sm"
+              disabled={uploading}
+              onClick={() => fileInputRef.current?.click()}
+              className="gap-2 rounded-xl bg-[#6C5DD3] text-[12px] font-semibold text-white hover:bg-[#5a4dbf] disabled:opacity-50"
+            >
+              {uploading ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Plus className="size-3.5" />
+              )}
+              Add new
+            </Button>
+          ) : (
+            <span className="text-[12px] text-[#3D4035]/50">
+              Upgrade to Pro to upload documents
+            </span>
+          )
         }
       />
       {uploadError && (
@@ -246,7 +259,9 @@ export function DocumentsSection() {
           </p>
           <p className="max-w-sm text-[13px] text-[#3D4035]/50">
             {documents.length === 0
-              ? 'Click "Add new" to upload CSV, Excel, PDF, JSON, or text files.'
+              ? canUploadDocuments
+                ? 'Click "Add new" to upload CSV, Excel, PDF, JSON, or text files.'
+                : "Upgrade to Pro to upload and save documents. Free plan: use files in chat only."
               : "Try a different search term."}
           </p>
         </div>

@@ -6,6 +6,7 @@ import { useDashboardSettingsStore } from "@/stores/dashboard-settings-store";
 import { useChatbotStore } from "@/stores/chatbot-store";
 import type { DashboardCardId } from "@/stores/dashboard-settings-store";
 import { authClient } from "@/lib/(auth)/auth-client";
+import { TIER_LIMITS } from "@/lib/tier-limits";
 import { useEffect, useRef } from "react";
 
 /**
@@ -30,8 +31,11 @@ export function useUserSettingsHydration(): { isLoadingUserSettings: boolean } {
     if (settings && settings.dashboardCardOrder?.length) {
       setCardOrder(settings.dashboardCardOrder as DashboardCardId[]);
     }
-    if (settings && settings.saveDocumentsOnDb !== undefined) {
+    const tier = (settings?.planTier ?? "free") as keyof typeof TIER_LIMITS;
+    if (TIER_LIMITS[tier].canSaveDocuments && settings?.saveDocumentsOnDb !== undefined) {
       setSaveDocumentsOnDb(settings.saveDocumentsOnDb);
+    } else {
+      setSaveDocumentsOnDb(false);
     }
   }, [isAuthenticated, settings, setCardOrder, setSaveDocumentsOnDb]);
 

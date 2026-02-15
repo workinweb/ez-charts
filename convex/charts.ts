@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
+import { TIER_LIMITS, type PlanTier } from "./tierLimits";
 
 // ─── Queries ────────────────────────────────────────────────────────────────
 
@@ -181,9 +182,30 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
+    const userId = identity.subject;
+
+    const settings = await ctx.db
+      .query("userSettings")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .unique();
+    const tier = (settings?.planTier ?? "free") as PlanTier;
+    const maxCharts = TIER_LIMITS[tier].maxCharts;
+    if (maxCharts < Infinity) {
+      const existing = await ctx.db
+        .query("charts")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .collect();
+      const visible = existing.filter((c) => c.isVisible !== false);
+      if (visible.length >= maxCharts) {
+        throw new Error(
+          `Chart limit reached (${maxCharts} for ${tier} plan). Upgrade to save more charts.`,
+        );
+      }
+    }
+
     const now = Date.now();
     return ctx.db.insert("charts", {
-      userId: identity.subject,
+      userId,
       title: args.title,
       chartLibrary: args.chartLibrary,
       chartType: args.chartType,
@@ -256,11 +278,30 @@ export const duplicate = mutation({
     if (!chart || chart.userId !== identity.subject) {
       throw new Error("Chart not found");
     }
+    const userId = identity.subject;
+    const settings = await ctx.db
+      .query("userSettings")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .unique();
+    const tier = (settings?.planTier ?? "free") as PlanTier;
+    const maxCharts = TIER_LIMITS[tier].maxCharts;
+    if (maxCharts < Infinity) {
+      const existing = await ctx.db
+        .query("charts")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .collect();
+      const visible = existing.filter((c) => c.isVisible !== false);
+      if (visible.length >= maxCharts) {
+        throw new Error(
+          `Chart limit reached (${maxCharts} for ${tier} plan). Upgrade to save more charts.`,
+        );
+      }
+    }
     const now = Date.now();
     const library = chart.chartLibrary ?? (chart.chartType?.startsWith("shadcn:") ? "shadcn" : "rosencharts");
     const type = chart.chartType?.startsWith("shadcn:") ? chart.chartType.slice(7) : chart.chartType;
     return ctx.db.insert("charts", {
-      userId: identity.subject,
+      userId,
       title: `${chart.title} (copy)`,
       chartLibrary: library,
       chartType: type,

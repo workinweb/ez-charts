@@ -11,7 +11,7 @@ const DEFAULT_DASHBOARD_CARD_ORDER = [
   "recent-slide-decks",
 ];
 
-const CREDITS_BY_PLAN = { free: 100, pro: 500, max: 1000 } as const;
+const CREDITS_BY_PLAN = { free: 100, pro: 250, max: 700 } as const;
 
 /** Full date 1 month from now — next renewal date. Set on creation or tier change. */
 function nextRenewDate(): number {
@@ -62,7 +62,12 @@ export const upsert = mutation({
       updates.dashboardCardOrder = args.dashboardCardOrder;
     }
     if (args.saveDocumentsOnDb !== undefined) {
-      updates.saveDocumentsOnDb = args.saveDocumentsOnDb;
+      const tier = (args.planTier ?? existing?.planTier ?? "free") as keyof typeof CREDITS_BY_PLAN;
+      if (tier === "free") {
+        updates.saveDocumentsOnDb = false;
+      } else {
+        updates.saveDocumentsOnDb = args.saveDocumentsOnDb;
+      }
     }
     if (args.planTier !== undefined) {
       updates.planTier = args.planTier;

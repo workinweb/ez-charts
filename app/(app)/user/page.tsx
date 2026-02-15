@@ -1,11 +1,16 @@
 "use client";
 
 import { Navbar } from "@/components/layout/navbar";
+import {
+  BuyCustomCreditsDialog,
+  PlansDialog,
+} from "@/components/modules/plans";
 import { UserSettingsSkeleton } from "@/components/skeletons/user-settings-skeleton";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { api } from "@/convex/_generated/api";
 import { authClient } from "@/lib/(auth)/auth-client";
+import { TIER_LIMITS } from "@/lib/tier-limits";
 import { cn } from "@/lib/utils";
 import { useChatbotStore } from "@/stores/chatbot-store";
 import {
@@ -41,10 +46,6 @@ import {
   User,
 } from "lucide-react";
 import { useState } from "react";
-import {
-  BuyCustomCreditsDialog,
-  PlansDialog,
-} from "@/components/modules/plans";
 
 function ResendVerificationButton({ email }: { email: string }) {
   const [loading, setLoading] = useState(false);
@@ -166,16 +167,20 @@ export default function UserPage() {
   const [buyCreditsDialogOpen, setBuyCreditsDialogOpen] = useState(false);
 
   const credits = savedSettings?.credits ?? 100;
-  const planTier = (savedSettings?.planTier ?? "free") as "free" | "pro" | "max";
+  const planTier = (savedSettings?.planTier ?? "free") as
+    | "free"
+    | "pro"
+    | "max";
   const renewDate = savedSettings?.renewDate;
 
   const dbCardOrder = savedSettings?.dashboardCardOrder ?? null;
   const dbSaveDocuments = savedSettings?.saveDocumentsOnDb ?? false;
+  const canSaveDocuments = TIER_LIMITS[planTier].canSaveDocuments;
   const hasUnsavedChanges =
     savedSettings !== undefined &&
     (JSON.stringify(dbCardOrder ?? DASHBOARD_CARD_IDS) !==
       JSON.stringify(cardOrder) ||
-      dbSaveDocuments !== saveDocumentsOnDb);
+      (canSaveDocuments && dbSaveDocuments !== saveDocumentsOnDb));
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -241,11 +246,14 @@ export default function UserPage() {
                   <p className="text-[13px] text-[#3D4035]/50">
                     {credits} credits
                     {renewDate
-                      ? ` · Renews ${new Date(renewDate).toLocaleDateString(undefined, {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}`
+                      ? ` · Renews ${new Date(renewDate).toLocaleDateString(
+                          undefined,
+                          {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          },
+                        )}`
                       : ""}{" "}
                     <span className="capitalize">{planTier}</span> plan
                   </p>
@@ -269,7 +277,10 @@ export default function UserPage() {
             </div>
           </section>
 
-          <PlansDialog open={plansDialogOpen} onOpenChange={setPlansDialogOpen} />
+          <PlansDialog
+            open={plansDialogOpen}
+            onOpenChange={setPlansDialogOpen}
+          />
           <BuyCustomCreditsDialog
             open={buyCreditsDialogOpen}
             onOpenChange={setBuyCreditsDialogOpen}
@@ -335,13 +346,19 @@ export default function UserPage() {
                 <label
                   htmlFor="save-docs"
                   className={cn(
-                    "flex cursor-pointer items-center gap-4 rounded-2xl border border-border/40 bg-white/80 px-4 py-3.5 transition-colors hover:border-border/60",
+                    "flex cursor-pointer items-center gap-4 rounded-2xl border border-border/40 bg-white/80 px-4 py-3.5 transition-colors",
+                    canSaveDocuments && "hover:border-border/60",
+                    !canSaveDocuments &&
+                      "cursor-not-allowed opacity-70 hover:border-border/40",
                   )}
                 >
                   <Checkbox
                     id="save-docs"
-                    checked={saveDocumentsOnDb}
-                    onCheckedChange={(v) => setSaveDocumentsOnDb(!!v)}
+                    checked={canSaveDocuments ? saveDocumentsOnDb : false}
+                    onCheckedChange={(v) =>
+                      canSaveDocuments && setSaveDocumentsOnDb(!!v)
+                    }
+                    disabled={!canSaveDocuments}
                     className="rounded-md"
                   />
                   <div className="flex-1">
@@ -349,8 +366,9 @@ export default function UserPage() {
                       Save documents on DB
                     </p>
                     <p className="text-[13px] text-[#3D4035]/50">
-                      When enabled, attached files from chat will be saved to
-                      your account.
+                      {canSaveDocuments
+                        ? "When enabled, attached files from chat will be saved to your account."
+                        : "Upgrade to Pro to save documents to your account. Free plan: files can be used in chat but are not stored."}
                     </p>
                   </div>
                 </label>
@@ -364,7 +382,9 @@ export default function UserPage() {
                         try {
                           await upsertSettings({
                             dashboardCardOrder: cardOrder,
-                            saveDocumentsOnDb,
+                            ...(canSaveDocuments && {
+                              saveDocumentsOnDb,
+                            }),
                           });
                           setSaved(true);
                           setTimeout(() => setSaved(false), 2000);
