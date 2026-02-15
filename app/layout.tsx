@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import { ConvexClientProvider } from "@/providers/convex-client-provider";
+import { PostHogProvider } from "@/providers/posthog-provider";
 import { getToken } from "@/lib/(auth)/auth-server";
 
 const inter = Inter({
@@ -24,9 +26,12 @@ export default async function RootLayout({
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body className="font-sans antialiased">
-        <ConvexClientProvider initialToken={token}>
-          {children}
-        </ConvexClientProvider>
+        <PostHogProvider>
+          <ConvexClientProvider initialToken={token}>
+            {children}
+          </ConvexClientProvider>
+        </PostHogProvider>
+        <Analytics />
       </body>
     </html>
   );

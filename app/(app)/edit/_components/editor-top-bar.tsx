@@ -73,9 +73,9 @@ export function EditorTopBar({
           "gap-2 rounded-xl text-[12px] font-semibold transition-all",
           dirty
             ? "bg-[#6C5DD3] text-white hover:bg-[#5a4dbf]"
-            :           saved
+            : saved
               ? "bg-emerald-500/10 text-emerald-600"
-              : isUnsavedChart
+              : isCreateMode || isUnsavedChart
                 ? "bg-[#6C5DD3] text-white hover:bg-[#5a4dbf]"
                 : "bg-[#3D4035]/10 text-[#3D4035]/40",
         )}
