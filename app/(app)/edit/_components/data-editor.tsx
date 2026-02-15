@@ -66,6 +66,16 @@ export function DataEditor({ shape, data, onChange }: EditorProps) {
           { xValue: 0, yValue: 0, name: `Point ${arr.length + 1}` },
         ]);
         break;
+      case "shadcnCartesian":
+        const sample = (arr[0] as Record<string, unknown>) ?? {};
+        const catKey = Object.keys(sample).find((k) => typeof sample[k] === "string") ?? "month";
+        const numKeys = Object.keys(sample).filter((k) => k !== catKey && typeof sample[k] === "number");
+        const defaults: Record<string, unknown> = { [catKey]: `Row ${arr.length + 1}` };
+        for (const k of numKeys.length ? numKeys : ["desktop", "mobile"]) {
+          defaults[k] = 0;
+        }
+        onChange([...arr, defaults]);
+        break;
     }
   }, [arr, onChange, shape]);
 
@@ -126,7 +136,11 @@ function DataRow({
   const [expanded, setExpanded] = useState(false);
 
   const label =
-    (item.key as string) || (item.name as string) || `#${index + 1}`;
+    (item.key as string) ||
+    (item.name as string) ||
+    (item.month as string) ||
+    (item.subject as string) ||
+    `#${index + 1}`;
 
   return (
     <div className="rounded-xl bg-white/60 ring-1 ring-black/[0.03] overflow-hidden">
@@ -311,6 +325,11 @@ function DataRow({
               <TreeMapEditor item={item} onUpdate={onUpdate} />
             )}
 
+            {/* ── Shadcn Cartesian (bar/area/line) ─── */}
+            {shape === "shadcnCartesian" && (
+              <ShadcnCartesianEditor item={item} onUpdate={onUpdate} />
+            )}
+
             {/* ── Scatter ──────────────────────────── */}
             {shape === "scatter" && (
               <>
@@ -361,6 +380,45 @@ function DataRow({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ── Shadcn Cartesian editor (bar/area/line/radar) ─────────────────── */
+function ShadcnCartesianEditor({
+  item,
+  onUpdate,
+}: {
+  item: Record<string, unknown>;
+  onUpdate: (patch: Record<string, unknown>) => void;
+}) {
+  const entries = Object.entries(item);
+  const catEntry = entries.find(([, v]) => typeof v === "string");
+  const numEntries = entries.filter(([, v]) => typeof v === "number");
+
+  return (
+    <div className="flex flex-col gap-3">
+      {catEntry && (
+        <FieldRow label={catEntry[0]}>
+          <Input
+            value={String(catEntry[1])}
+            onChange={(e) => onUpdate({ [catEntry[0]]: e.target.value })}
+            className="h-8 rounded-lg text-[13px]"
+          />
+        </FieldRow>
+      )}
+      {numEntries.map(([k, v]) => (
+        <FieldRow key={k} label={k}>
+          <Input
+            type="number"
+            value={v as number}
+            onChange={(e) =>
+              onUpdate({ [k]: parseFloat(e.target.value) || 0 })
+            }
+            className="h-8 rounded-lg text-[13px]"
+          />
+        </FieldRow>
+      ))}
     </div>
   );
 }

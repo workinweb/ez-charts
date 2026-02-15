@@ -2,7 +2,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import type { Doc } from "@/convex/_generated/dataModel";
 import type { UserChart } from "@/lib/charts-data";
 import { chartTypeToIcon } from "@/lib/charts-data";
-import type { ChartTypeKey } from "@/components/rosencharts";
+import { normalizeChartForRender } from "@/lib/chart-keys";
 
 export function formatChartDate(timestamp: number): string {
   const d = new Date(timestamp);
@@ -27,17 +27,18 @@ export function formatChartDate(timestamp: number): string {
 }
 
 export function convexChartToUserChart(chart: Doc<"charts">): UserChart {
+  const chartTypeKey = normalizeChartForRender(chart);
   return {
     id: chart._id as string,
     title: chart.title,
-    chartType: chart.chartType as ChartTypeKey,
+    chartType: chartTypeKey,
     data: chart.data,
     source: chart.source,
     date: formatChartDate(chart.updatedAt),
     favorited: chart.favorited,
     withTooltip: chart.withTooltip,
     withAnimation: chart.withAnimation,
-    ...chartTypeToIcon(chart.chartType as ChartTypeKey),
+    ...chartTypeToIcon(chartTypeKey),
   };
 }
 

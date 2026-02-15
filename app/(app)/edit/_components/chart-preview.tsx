@@ -6,16 +6,22 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import {
   isChartTypeCompatible,
   transformChartData,
-  chartTypes,
-} from "@/components/rosencharts";
-import type { ChartTypeKey } from "@/components/rosencharts";
+} from "@/components/charts/rosencharts";
+import type { ChartTypeKey } from "@/components/charts/rosencharts";
+import {
+  CHART_LIBRARIES,
+  getChartTypesByLibrary,
+  isShadcnChartType,
+} from "@/lib/chart-registry";
 
 interface ChartPreviewProps {
   title: string;
@@ -24,7 +30,7 @@ interface ChartPreviewProps {
   previewEl: React.ReactNode;
   onTitleChange: (title: string) => void;
   onChartTypeChange: (chartType: string, newData?: unknown) => void;
-  onIncompatibleType: (target: ChartTypeKey) => void;
+  onIncompatibleType: (target: string) => void;
 }
 
 export function ChartPreview({
@@ -63,18 +69,43 @@ export function ChartPreview({
             <Select
               value={chartType}
               onValueChange={(v) => {
-                const newType = v as ChartTypeKey;
-                const compatible = isChartTypeCompatible(
-                  chartType as ChartTypeKey,
-                  newType,
-                );
+                const newType = v;
+                const fromRosencharts = !isShadcnChartType(chartType);
+                const toRosencharts = !isShadcnChartType(newType);
+                const sameLibrary = fromRosencharts === toRosencharts;
+                const compatible =
+                  sameLibrary &&
+                  fromRosencharts &&
+                  isChartTypeCompatible(
+                    chartType as ChartTypeKey,
+                    newType as ChartTypeKey,
+                  );
                 if (compatible) {
                   const transformed = transformChartData(
                     data,
                     chartType as ChartTypeKey,
-                    newType,
+                    newType as ChartTypeKey,
                   );
                   onChartTypeChange(v, transformed);
+                } else if (sameLibrary && isShadcnChartType(newType)) {
+                  const shadcnCartesian = [
+                    "shadcn:bar",
+                    "shadcn:area",
+                    "shadcn:line",
+                  ];
+                  const shadcnPieLike = ["shadcn:pie", "shadcn:radial"];
+                  const fromCartesian = shadcnCartesian.includes(chartType);
+                  const toCartesian = shadcnCartesian.includes(newType);
+                  const fromPieLike = shadcnPieLike.includes(chartType);
+                  const toPieLike = shadcnPieLike.includes(newType);
+                  if (
+                    (fromCartesian && toCartesian) ||
+                    (fromPieLike && toPieLike)
+                  ) {
+                    onChartTypeChange(v, data);
+                  } else {
+                    onIncompatibleType(newType);
+                  }
                 } else {
                   onIncompatibleType(newType);
                 }
@@ -84,20 +115,54 @@ export function ChartPreview({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {chartTypes.map((ct) => {
-                  const compatible = isChartTypeCompatible(
-                    chartType as ChartTypeKey,
-                    ct.key as ChartTypeKey,
-                  );
+                {CHART_LIBRARIES.map((lib) => {
+                  const types = getChartTypesByLibrary()[lib.id];
+                  if (!types.length) return null;
                   return (
-                    <SelectItem key={ct.key} value={ct.key}>
-                      <span className="flex items-center gap-2">
-                        {ct.label}
-                        {!compatible && (
-                          <Lock className="size-3.5 shrink-0 text-[#3D4035]/40" />
-                        )}
-                      </span>
-                    </SelectItem>
+                    <SelectGroup key={lib.id}>
+                      <SelectLabel className="text-[11px] font-semibold uppercase tracking-wider">
+                        {lib.label}
+                      </SelectLabel>
+                      {types.map((ct) => {
+                        const fromRosencharts = !isShadcnChartType(chartType);
+                        const toRosencharts = !isShadcnChartType(ct.key);
+                        const sameLibrary = fromRosencharts === toRosencharts;
+                        const compatible =
+                          sameLibrary &&
+                          fromRosencharts &&
+                          isChartTypeCompatible(
+                            chartType as ChartTypeKey,
+                            ct.key as ChartTypeKey,
+                          );
+                        const shadcnCompatible =
+                          sameLibrary &&
+                          isShadcnChartType(ct.key) &&
+                          ([
+                            "shadcn:bar",
+                            "shadcn:area",
+                            "shadcn:line",
+                          ].includes(ct.key)
+                            ? [
+                                "shadcn:bar",
+                                "shadcn:area",
+                                "shadcn:line",
+                              ].includes(chartType)
+                            : ["shadcn:pie", "shadcn:radial"].includes(
+                                chartType,
+                              ));
+                        const canSwitch = compatible || shadcnCompatible;
+                        return (
+                          <SelectItem key={ct.key} value={ct.key}>
+                            <span className="flex items-center gap-2">
+                              {ct.label}
+                              {!canSwitch && (
+                                <Lock className="size-3.5 shrink-0 text-[#3D4035]/40" />
+                              )}
+                            </span>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectGroup>
                   );
                 })}
               </SelectContent>

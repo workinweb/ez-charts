@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles, Save, Pencil } from "lucide-react";
-import { getChartTypeByName } from "@/components/rosencharts";
+import { renderChart } from "@/lib/chart-render";
 import { useChartsStore } from "@/stores/charts-store";
 import { useChartsMutations } from "@/hooks/use-charts";
 import { Button } from "@/components/ui/button";
@@ -150,8 +150,8 @@ export function NewSection() {
               </div>
             </div>
             <div className="min-h-[220px] overflow-hidden rounded-xl bg-white/60 ring-1 ring-black/[0.03] p-5">
-              {getChartTypeByName(
-                displayChart.data as Parameters<typeof getChartTypeByName>[0],
+              {renderChart(
+                displayChart.data,
                 displayChart.chartType,
                 {
                   withTooltip: true,

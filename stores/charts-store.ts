@@ -1,12 +1,11 @@
 "use client";
 
 import { create } from "zustand";
-import type { ChartTypeKey } from "@/components/rosencharts";
 import type { UserChart } from "@/lib/charts-data";
 import { chartTypeToIcon } from "@/lib/charts-data";
 
 export interface ChartFromTool {
-  chartType: ChartTypeKey;
+  chartType: string;
   title: string;
   data: unknown;
 }

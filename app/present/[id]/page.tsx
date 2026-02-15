@@ -10,7 +10,7 @@ import {
   Maximize2,
   Minimize2,
 } from "lucide-react";
-import { getChartTypeByName } from "@/components/rosencharts";
+import { renderChart } from "@/lib/chart-render";
 import { useChartById } from "@/hooks/use-charts";
 import { useSlideById, useSlideByIdWithStatus } from "@/hooks/use-slides";
 import { Button } from "@/components/ui/button";
@@ -102,15 +102,11 @@ export default function SlideViewPage() {
   if (!slide) notFound();
 
   const chartEl = currentChart
-    ? getChartTypeByName(
-        currentChart.data as Parameters<typeof getChartTypeByName>[0],
-        currentChart.chartType,
-        {
-          withTooltip: currentChart.withTooltip ?? true,
-          withAnimation: currentChart.withAnimation ?? true,
-          className: "min-h-[320px] w-full",
-        },
-      )
+    ? renderChart(currentChart.data, currentChart.chartType, {
+        withTooltip: currentChart.withTooltip ?? true,
+        withAnimation: currentChart.withAnimation ?? true,
+        className: "min-h-[320px] w-full",
+      })
     : null;
 
   return (

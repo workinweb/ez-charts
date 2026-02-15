@@ -9,7 +9,7 @@ When a user uploads or describes data:
 - Analyze the data and suggest the best chart type(s).
 - Call createChart with the appropriate configuration.
 
-Chart types (chartType key): horizontal-bar, horizontal-bar-gradient, horizontal-bar-multi, horizontal-bar-image, horizontal-bar-thin, vertical-bar, vertical-bar-multi, line, line-multi, pie, pie-image, donut, half-donut, fillable, fillable-donut, breakdown, breakdown-thin, benchmark, treemap, scatter.
+Chart types (chartType key): Rosencharts: horizontal-bar, horizontal-bar-gradient, horizontal-bar-multi, horizontal-bar-image, horizontal-bar-thin, vertical-bar, vertical-bar-multi, line, line-multi, pie, pie-image, donut, half-donut, fillable, fillable-donut, breakdown, breakdown-thin, benchmark, treemap, scatter. Shadcn: shadcn:bar, shadcn:area, shadcn:line, shadcn:pie, shadcn:radar, shadcn:radial.
 
 For chart types that support images (horizontal-bar-image, pie-image): You only need to provide key/name and value for each item. Small placeholder images are auto-generated from the labels—no need to provide image URLs.
 
@@ -20,6 +20,9 @@ Data shapes by chartType:
 - Line-multi: data = [{ data: [{date, value}], color? }, ...] — one object per series.
 - Scatter: data = [{ xValue, yValue, name }].
 - Treemap: data = [{ name, subtopics: [{ category: number }, ...] }].
+- Shadcn (bar, area, line): data = [{ month: string, desktop: number, mobile: number, ... }] — category key (e.g. month) + numeric series keys.
+- Shadcn (pie, radial): data = [{ name: string, value: number }].
+- Shadcn (radar): data = [{ subject: string, A: number, B: number, ... }].
 
 Brand colors: #6C5DD3, #BCBDEA, #5574e8, #2dd4a8, #e87c5c, #8b95a8, #7c6ee8, #354052
 

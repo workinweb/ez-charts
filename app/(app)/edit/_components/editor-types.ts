@@ -9,7 +9,8 @@ export type EditorShape =
   | "line" // series → { data: [{ date, value }], color }
   | "pie" // { name, value, colorFrom?, colorTo?, logo? }
   | "treemap" // { name, subtopics, colorFrom?, colorTo? }
-  | "scatter"; // { xValue, yValue, name, color? }
+  | "scatter" // { xValue, yValue, name, color? }
+  | "shadcnCartesian"; // { month, desktop, mobile } — shadcn bar/area/line
 
 export type EditorTab = "data" | "style" | "settings";
 
@@ -20,6 +21,12 @@ export interface EditorProps {
 }
 
 export function getEditorShape(chartType: string): EditorShape {
+  if (chartType.startsWith("shadcn:")) {
+    if (chartType === "shadcn:pie" || chartType === "shadcn:radial") return "pie";
+    if (chartType === "shadcn:radar") return "shadcnCartesian";
+    if (["shadcn:bar", "shadcn:area", "shadcn:line"].includes(chartType)) return "shadcnCartesian";
+    return "shadcnCartesian";
+  }
   if (chartType === "horizontal-bar-image") return "bar-image";
   if (
     chartType === "horizontal-bar-multi" ||
@@ -44,16 +51,37 @@ export function cloneData<T>(data: T): T {
   return JSON.parse(JSON.stringify(data));
 }
 
-export const DEFAULT_CHART_TYPE = "horizontal-bar" as const;
+export const DEFAULT_CHART_TYPE = "shadcn:bar" as const;
 
 export const DEFAULT_CREATE_DATA = [
-  { key: "Item 1", value: 0 },
-  { key: "Item 2", value: 10 },
-  { key: "Item 3", value: 25 },
+  { month: "January", desktop: 186, mobile: 80 },
+  { month: "February", desktop: 305, mobile: 200 },
+  { month: "March", desktop: 237, mobile: 120 },
 ];
 
 /** Default data for a chart type when switching to an incompatible type */
 export function getDefaultDataForChartType(chartType: string): unknown[] {
+  if (chartType.startsWith("shadcn:")) {
+    if (chartType === "shadcn:pie" || chartType === "shadcn:radial") {
+      return [
+        { name: "Technology", value: 548 },
+        { name: "Utilities", value: 412 },
+        { name: "Materials", value: 287 },
+      ];
+    }
+    if (chartType === "shadcn:radar") {
+      return [
+        { subject: "Math", A: 120, B: 110 },
+        { subject: "Chinese", A: 98, B: 130 },
+        { subject: "English", A: 86, B: 130 },
+      ];
+    }
+    return [
+      { month: "January", desktop: 186, mobile: 80 },
+      { month: "February", desktop: 305, mobile: 200 },
+      { month: "March", desktop: 237, mobile: 120 },
+    ];
+  }
   if (chartType === "horizontal-bar-image") {
     return [{ key: "Item 1", value: 0, image: "" }];
   }

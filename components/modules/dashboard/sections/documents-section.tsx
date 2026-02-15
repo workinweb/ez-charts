@@ -9,6 +9,7 @@ import {
   Trash2,
   Plus,
   Loader2,
+  MessageSquare,
 } from "lucide-react";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useChatbotStore } from "@/stores/chatbot-store";
 
 const ACCEPTED_FILE_TYPES =
   ".csv,.xlsx,.xls,.pdf,.json,.txt,.tsv,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/pdf,application/json,text/plain,text/tab-separated-values";
@@ -82,9 +84,11 @@ function downloadFromContent(doc: {
 function DocumentRow({
   doc,
   onDelete,
+  onLoadToChat,
 }: {
   doc: DocumentItem;
   onDelete: (id: string, name: string) => void;
+  onLoadToChat: (doc: DocumentItem) => void;
 }) {
   const downloadUrl = useDocumentDownloadUrl(doc.id as Id<"documents">);
 
@@ -133,6 +137,15 @@ function DocumentRow({
 
       <button
         type="button"
+        onClick={() => onLoadToChat(doc)}
+        className="flex shrink-0 items-center gap-2 rounded-xl bg-[#94B49F]/20 px-4 py-2.5 text-[13px] font-semibold text-[#3D4035] transition-colors hover:bg-[#94B49F]/30"
+        aria-label={`Load ${doc.name} to chat`}
+      >
+        <MessageSquare className="size-4" />
+        Load to chat
+      </button>
+      <button
+        type="button"
         onClick={handleDownload}
         disabled={!canDownload}
         className="flex shrink-0 items-center gap-2 rounded-xl bg-[#6C5DD3]/15 px-4 py-2.5 text-[13px] font-semibold text-[#6C5DD3] transition-colors hover:bg-[#6C5DD3]/25 disabled:opacity-50"
@@ -153,6 +166,7 @@ export function DocumentsSection() {
   const [search, setSearch] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const addLoadedDocument = useChatbotStore((s) => s.addLoadedDocument);
   const documents = useDocumentsList();
   const {
     uploadFiles,
@@ -241,6 +255,13 @@ export function DocumentsSection() {
                 key={doc.id}
                 doc={doc}
                 onDelete={(id, name) => setDeleteTarget({ id, name })}
+                onLoadToChat={(d) =>
+                  addLoadedDocument({
+                    id: d.id,
+                    name: d.name,
+                    content: d.content,
+                  })
+                }
               />
             ))}
           </div>

@@ -2,8 +2,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
-import { BenchmarkChart } from "@/components/rosencharts";
-import type { BenchmarkChartItem } from "@/components/rosencharts";
+import { BenchmarkChart } from "@/components/charts/rosencharts";
+import type { BenchmarkChartItem } from "@/components/charts/rosencharts";
 
 const SOURCE_CONFIG: Record<string, { color: string }> = {
   "From prompt": { color: "#6C5DD3" },

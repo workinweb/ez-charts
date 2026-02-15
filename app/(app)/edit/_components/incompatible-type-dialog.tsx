@@ -1,6 +1,5 @@
 "use client";
 
-import type { ChartTypeKey } from "@/components/rosencharts";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,9 +12,9 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface IncompatibleTypeDialogProps {
-  target: ChartTypeKey | null;
+  target: string | null;
   onCancel: () => void;
-  onConfirm: (target: ChartTypeKey) => void;
+  onConfirm: (target: string) => void;
 }
 
 export function IncompatibleTypeDialog({

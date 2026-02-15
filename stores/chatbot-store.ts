@@ -19,10 +19,19 @@ export interface AttachedChartContext {
   data: unknown;
 }
 
+/** Document from DB loaded as context for the AI chat */
+export interface LoadedDocument {
+  id: string;
+  name: string;
+  content: string;
+}
+
 interface ChatbotState {
   input: string;
   attachedFiles: AttachedFile[];
   attachedChartContext: AttachedChartContext | null;
+  /** Documents loaded from the documents list for chat context */
+  loadedDocuments: LoadedDocument[];
   selectedChartKey: string | null;
   chatSidebarView: ChatSidebarView;
   /** Save attached documents to DB (default: disabled) */
@@ -41,6 +50,9 @@ interface ChatbotState {
   removeFile: (index: number) => void;
   clearFiles: () => void;
   setAttachedChartContext: (context: AttachedChartContext | null) => void;
+  addLoadedDocument: (doc: LoadedDocument) => void;
+  removeLoadedDocument: (id: string) => void;
+  clearLoadedDocuments: () => void;
   setSelectedChartKey: (key: string | null) => void;
   toggleSelectedChartKey: (key: string) => void;
   setChatSidebarView: (view: ChatSidebarView) => void;
@@ -69,6 +81,7 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
   input: "",
   attachedFiles: [],
   attachedChartContext: null,
+  loadedDocuments: [],
   selectedChartKey: null,
   chatSidebarView: "chat",
   saveDocumentsOnDb: false,
@@ -138,6 +151,20 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
 
   setAttachedChartContext: (context) =>
     set({ attachedChartContext: context }),
+
+  addLoadedDocument: (doc) =>
+    set((s) => ({
+      loadedDocuments: s.loadedDocuments.some((d) => d.id === doc.id)
+        ? s.loadedDocuments
+        : [...s.loadedDocuments, doc],
+    })),
+
+  removeLoadedDocument: (id) =>
+    set((s) => ({
+      loadedDocuments: s.loadedDocuments.filter((d) => d.id !== id),
+    })),
+
+  clearLoadedDocuments: () => set({ loadedDocuments: [] }),
 
   setSelectedChartKey: (key) => set({ selectedChartKey: key }),
 

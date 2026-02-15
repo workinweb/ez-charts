@@ -5,6 +5,8 @@ import { mutation } from "./_generated/server";
  * conversationId: null = new conversation; exists = append to it.
  */
 
+const chartLibraryValidator = v.union(v.literal("shadcn"), v.literal("rosencharts"));
+
 const messageValidator = v.object({
   role: v.string(),
   content: v.string(),
@@ -16,6 +18,7 @@ const messageValidator = v.object({
 
 const resultValidator = v.object({
   clientMessageId: v.optional(v.string()),
+  chartLibrary: chartLibraryValidator,
   chartType: v.string(),
   chartTitle: v.string(),
   chartData: v.any(),
@@ -72,6 +75,7 @@ export const addMessage = mutation({
         conversationId: args.conversationId,
         clientMessageId: args.result.clientMessageId,
         userId: identity.subject,
+        chartLibrary: args.result.chartLibrary,
         chartType: args.result.chartType,
         chartTitle: args.result.chartTitle,
         chartData: args.result.chartData,

@@ -14,6 +14,8 @@ export default defineSchema({
   charts: defineTable({
     userId: v.string(),
     title: v.string(),
+    /** shadcn | rosencharts — inferred from chartType when missing (legacy) */
+    chartLibrary: v.optional(v.union(v.literal("shadcn"), v.literal("rosencharts"))),
     chartType: v.string(),
     /** Serialized chart data (flexible shape per chart type) */
     data: v.any(),
@@ -115,6 +117,8 @@ export default defineSchema({
     clientMessageId: v.optional(v.string()),
     userId: v.string(),
 
+    /** shadcn | rosencharts — inferred from chartType when missing (legacy) */
+    chartLibrary: v.optional(v.union(v.literal("shadcn"), v.literal("rosencharts"))),
     chartType: v.string(),
     chartTitle: v.string(),
     chartData: v.any(),

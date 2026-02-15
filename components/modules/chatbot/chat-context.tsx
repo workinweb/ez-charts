@@ -4,9 +4,13 @@ import { createContext, useContext, useCallback, useEffect, useRef } from "react
 import { useChat } from "@ai-sdk/react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import type { AttachedChartContext } from "@/stores/chatbot-store";
+import type {
+  AttachedChartContext,
+  LoadedDocument,
+} from "@/stores/chatbot-store";
 import { useChatbotStore } from "@/stores/chatbot-store";
 import { useChartsStore } from "@/stores/charts-store";
+import { fromChartKey } from "@/lib/chart-keys";
 
 type UseChatReturn = ReturnType<typeof useChat>;
 
@@ -26,12 +30,17 @@ interface ChatContextValue {
   clearFiles: () => void;
   attachedChartContext: ReturnType<typeof useChatbotStore.getState>["attachedChartContext"];
   setAttachedChartContext: (ctx: AttachedChartContext | null) => void;
+  loadedDocuments: LoadedDocument[];
+  addLoadedDocument: (doc: LoadedDocument) => void;
+  removeLoadedDocument: (id: string) => void;
+  clearLoadedDocuments: () => void;
 }
 
 const ChatContext = createContext<ChatContextValue | null>(null);
 
 export interface SerializedChatResult {
   clientMessageId?: string;
+  chartLibrary: "shadcn" | "rosencharts";
   chartType: string;
   chartTitle: string;
   chartData: unknown;
@@ -80,6 +89,7 @@ function serializeMessage(
         chartType = o.chartType;
         chartTitle = o.title ?? "Chart";
         chartData = o.data;
+        // chartType is full key (e.g. "shadcn:bar") — will be parsed for result
       }
     }
   }
@@ -94,13 +104,17 @@ function serializeMessage(
   };
   const result: SerializedChatResult | undefined =
     msg.role === "assistant" && chartType && chartTitle !== undefined
-      ? {
-          clientMessageId: msg.id,
-          chartType,
-          chartTitle,
-          chartData: chartData ?? [],
-          feedback: feedback ?? "nofeedback",
-        }
+      ? (() => {
+          const { chartLibrary, chartType: type } = fromChartKey(chartType);
+          return {
+            clientMessageId: msg.id,
+            chartLibrary,
+            chartType: type,
+            chartTitle,
+            chartData: chartData ?? [],
+            feedback: feedback ?? "nofeedback",
+          };
+        })()
       : undefined;
   return { message, result };
 }
@@ -141,6 +155,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     clearFiles,
     attachedChartContext,
     setAttachedChartContext,
+    loadedDocuments,
+    addLoadedDocument,
+    removeLoadedDocument,
+    clearLoadedDocuments,
     selectedChartKey,
     chartFeedbackMap,
     conversationId,
@@ -225,7 +243,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         const chart = extractChartFromToolPart(p);
         if (chart) {
           processedToolCalls.current.add(toolCallId);
-          addChartFromTool(chart as { chartType: import("@/components/rosencharts").ChartTypeKey; title: string; data: unknown });
+          addChartFromTool(chart);
         }
       }
     }
@@ -237,8 +255,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       const trimmed = input.trim();
       const hasFiles = attachedFiles.some((f) => f.parsedContent);
       const hasChart = !!attachedChartContext;
+      const hasLoadedDocs = loadedDocuments.length > 0;
 
-      if (!trimmed && !hasFiles && !hasChart) return;
+      if (!trimmed && !hasFiles && !hasChart && !hasLoadedDocs) return;
 
       let messageText = trimmed;
 
@@ -251,6 +270,12 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           (f) => `[Attached file: ${f.name}]\n${f.parsedContent}`
         );
         contextParts.push(...fileParts);
+      }
+      if (hasLoadedDocs) {
+        const docParts = loadedDocuments.map(
+          (d) => `[Loaded document: ${d.name}]\n${d.content}`
+        );
+        contextParts.push(...docParts);
       }
       if (hasChart) {
         const chartCtx = `[Attached chart: ${attachedChartContext.title}]\nChart type: ${attachedChartContext.chartType}\nData:\n${JSON.stringify(attachedChartContext.data, null, 2)}`;
@@ -294,12 +319,14 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       setInput("");
       clearFiles();
       setAttachedChartContext(null);
+      // Keep loadedDocuments for subsequent messages in same conversation
     },
     [
       input,
       chat,
       attachedFiles,
       attachedChartContext,
+      loadedDocuments,
       setInput,
       clearFiles,
       selectedChartKey,
@@ -314,11 +341,12 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     chat.setMessages([]);
     chat.clearError();
     clearConversation();
+    clearLoadedDocuments();
     setInput("");
     clearFiles();
     setAttachedChartContext(null);
     syncedMessageIds.current.clear();
-  }, [chat, clearConversation, setInput, clearFiles, setAttachedChartContext]);
+  }, [chat, clearConversation, clearLoadedDocuments, setInput, clearFiles, setAttachedChartContext]);
 
   return (
     <ChatContext.Provider
@@ -338,6 +366,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         clearFiles,
         attachedChartContext,
         setAttachedChartContext,
+        loadedDocuments,
+        addLoadedDocument,
+        removeLoadedDocument,
+        clearLoadedDocuments,
       }}
     >
       {children}

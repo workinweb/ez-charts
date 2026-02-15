@@ -2,8 +2,7 @@
 
 import { Suspense, useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getChartTypeByName } from "@/components/rosencharts";
-import type { ChartTypeKey } from "@/components/rosencharts";
+import { renderChart } from "@/lib/chart-render";
 import { useChartByIdWithStatus, useChartsMutations } from "@/hooks/use-charts";
 import { useChartsStore } from "@/stores/charts-store";
 import { useChatbotStore } from "@/stores/chatbot-store";
@@ -77,8 +76,9 @@ function EditChartContent() {
   const [activeTab, setActiveTab] = useState<EditorTab>("data");
   const [dirty, setDirty] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [incompatibleTypeTarget, setIncompatibleTypeTarget] =
-    useState<ChartTypeKey | null>(null);
+  const [incompatibleTypeTarget, setIncompatibleTypeTarget] = useState<string | null>(
+    null
+  );
 
   /* Sync working state from sourceChart */
   const prevChartIdRef = useRef<string | null>(null);
@@ -112,11 +112,11 @@ function EditChartContent() {
   /* ── Live preview ────────────────────────────────────────────────── */
   const previewEl = useMemo(() => {
     if (!data || !chartType) return null;
-    return getChartTypeByName(
-      data as Parameters<typeof getChartTypeByName>[0],
-      chartType,
-      { withTooltip, withAnimation, className: "min-h-[320px] w-full" },
-    );
+    return renderChart(data, chartType, {
+      withTooltip,
+      withAnimation,
+      className: "min-h-[320px] w-full",
+    });
   }, [data, chartType, withTooltip, withAnimation]);
 
   /* ── Save handler ────────────────────────────────────────────────── */

@@ -7,12 +7,10 @@ import {
   ScatterChart as ScatterIcon,
   type LucideIcon,
 } from "lucide-react";
-import type { ChartTypeKey } from "@/components/rosencharts";
-
 export interface UserChart {
   id: string;
   title: string;
-  chartType: ChartTypeKey;
+  chartType: string;
   data: unknown;
   source: string;
   date: string;
@@ -24,7 +22,7 @@ export interface UserChart {
   withAnimation?: boolean;
 }
 
-export function chartTypeToIcon(chartType: ChartTypeKey): {
+export function chartTypeToIcon(chartType: string): {
   icon: LucideIcon;
   iconColor: string;
   iconBg: string;
@@ -53,6 +51,15 @@ export function chartTypeToIcon(chartType: ChartTypeKey): {
   }
   if (chartType.includes("scatter")) {
     return { icon: ScatterIcon, iconColor: style, iconBg: "bg-[#e87c5c]/20" };
+  }
+  if (chartType.includes("shadcn:area")) {
+    return { icon: TrendingUp, iconColor: style, iconBg: "bg-[#94B49F]/30" };
+  }
+  if (chartType.includes("shadcn:radar")) {
+    return { icon: Grid3X3, iconColor: style, iconBg: "bg-[#6C5DD3]/20" };
+  }
+  if (chartType.includes("shadcn:radial")) {
+    return { icon: PieChartIcon, iconColor: style, iconBg: "bg-[#6CB4EE]/30" };
   }
   return { icon: TrendingUp, iconColor: style, iconBg: "bg-[#6C5DD3]/30" };
 }

@@ -7,6 +7,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
+  ArrowLeft,
   BarChart3,
   ChevronDown,
   FileSpreadsheet,
@@ -32,8 +33,11 @@ import { useChatbotStore } from "@/stores/chatbot-store";
 import { useSectionStore } from "@/stores/section-store";
 import { useChatContext } from "./chat-context";
 import { TypewriterText } from "./typewriter-text";
-import { chartTypes } from "@/components/rosencharts";
-import type { ChartTypeKey } from "@/components/rosencharts";
+import {
+  CHART_LIBRARIES,
+  getChartTypesByLibrary,
+  type ChartLibraryId,
+} from "@/lib/chart-registry";
 import { ErrorMessage } from "./error-message";
 import { ChatSettingsView } from "./chat-settings-view";
 import { Textarea } from "@/components/ui/textarea";
@@ -67,8 +71,12 @@ function getDisplayText(msg: {
   const fileSection = raw.slice(idx + sep.length);
   const fileNames: string[] = [];
   const fileRe = /\[Attached file: ([^\]]+)\]/g;
+  const docRe = /\[Loaded document: ([^\]]+)\]/g;
   let m: RegExpExecArray | null;
   while ((m = fileRe.exec(fileSection)) !== null) {
+    fileNames.push(m[1] ?? "");
+  }
+  while ((m = docRe.exec(fileSection)) !== null) {
     fileNames.push(m[1] ?? "");
   }
 
@@ -77,7 +85,7 @@ function getDisplayText(msg: {
     fileNames.length === 1
       ? ` (${fileNames[0]})`
       : ` (+ ${fileNames.length} files: ${fileNames.slice(0, 3).join(", ")}${fileNames.length > 3 ? "…" : ""})`;
-  return userPart ? `${userPart}${fileRef}` : `Analyzed${fileRef}`;
+  return userPart ? `${userPart}${fileRef}` : `With context${fileRef}`;
 }
 
 /** Check if message has a completed createChart tool result */
@@ -141,6 +149,8 @@ export function ChatSidebarContent() {
     removeFile,
     attachedChartContext,
     setAttachedChartContext,
+    loadedDocuments,
+    removeLoadedDocument,
   } = useChatContext();
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -171,10 +181,14 @@ export function ChatSidebarContent() {
     messageHasPendingChartTool(lastMsg);
   const hasParsing = attachedFiles.some((f) => f.parsing);
   const hasChartContext = !!attachedChartContext;
+  const hasLoadedDocs = loadedDocuments.length > 0;
 
   const [chartPopoverOpen, setChartPopoverOpen] = useState(false);
+  const [chartSelectorLibrary, setChartSelectorLibrary] = useState<ChartLibraryId | null>(
+    null
+  );
 
-  const toggleChartSelection = (key: ChartTypeKey) => {
+  const toggleChartSelection = (key: string) => {
     toggleSelectedChartKey(key);
     setChartPopoverOpen(false);
   };
@@ -439,6 +453,29 @@ export function ChatSidebarContent() {
             </div>
           )}
 
+          {/* Loaded document chips */}
+          {loadedDocuments.length > 0 && (
+            <div className="mb-2 flex flex-wrap gap-1.5">
+              {loadedDocuments.map((d) => (
+                <div
+                  key={d.id}
+                  className="flex items-center gap-1.5 rounded-lg bg-[#94B49F]/20 px-2.5 py-1.5 text-[11px] text-sidebar-foreground/80"
+                >
+                  <FileText className="size-3 shrink-0" />
+                  <span className="max-w-[120px] truncate">{d.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeLoadedDocument(d.id)}
+                    className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-sidebar-foreground/10"
+                    title="Remove from chat context"
+                  >
+                    <X className="size-2.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Attached file chips */}
           {attachedFiles.length > 0 && (
             <div className="mb-2 flex flex-wrap gap-1.5">
@@ -490,7 +527,8 @@ export function ChatSidebarContent() {
                   if (
                     input.trim() ||
                     attachedFiles.some((f) => f.parsedContent) ||
-                    hasChartContext
+                    hasChartContext ||
+                    hasLoadedDocs
                   ) {
                     handleSubmit();
                   }
@@ -499,7 +537,7 @@ export function ChatSidebarContent() {
               placeholder={
                 hasChartContext
                   ? "Ask for help improving this chart…"
-                  : attachedFiles.length > 0
+                  : attachedFiles.length > 0 || hasLoadedDocs
                     ? "Describe what chart to create from the data…"
                     : "What would you like to create?"
               }
@@ -515,7 +553,8 @@ export function ChatSidebarContent() {
                 hasParsing ||
                 (!input.trim() &&
                   !attachedFiles.some((f) => f.parsedContent) &&
-                  !hasChartContext)
+                  !hasChartContext &&
+                  !hasLoadedDocs)
               }
               className="shrink-0 rounded-full bg-[#BCBDEA] text-white hover:bg-[#A098E5] disabled:opacity-50"
             >
@@ -586,7 +625,13 @@ export function ChatSidebarContent() {
             Discuss
           </Button> */}
 
-          <Popover open={chartPopoverOpen} onOpenChange={setChartPopoverOpen}>
+          <Popover
+            open={chartPopoverOpen}
+            onOpenChange={(open) => {
+              setChartPopoverOpen(open);
+              if (!open) setChartSelectorLibrary(null);
+            }}
+          >
             <PopoverTrigger asChild>
               <Button
                 variant="ghost"
@@ -595,8 +640,9 @@ export function ChatSidebarContent() {
               >
                 <BarChart3 className="size-3" />
                 {selectedChartKey
-                  ? (chartTypes.find((c) => c.key === selectedChartKey)
-                      ?.label ?? "Charts")
+                  ? (getChartTypesByLibrary().rosencharts
+                      .concat(getChartTypesByLibrary().shadcn)
+                      .find((c) => c.key === selectedChartKey)?.label ?? "Charts")
                   : "Charts"}
                 <ChevronDown className="size-2.5 opacity-50" />
               </Button>
@@ -604,31 +650,72 @@ export function ChatSidebarContent() {
             <PopoverContent
               align="end"
               side="top"
-              className="flex w-52 flex-col gap-1.5 rounded-2xl border-0 bg-white p-2 shadow-xl"
+              className="flex w-56 max-h-[380px] flex-col gap-0 rounded-2xl border-0 bg-white p-0 shadow-xl overflow-hidden"
             >
-              {chartTypes.map(({ key, label, icon: Icon }) => {
-                const isSelected = selectedChartKey === key;
-                return (
+              {chartSelectorLibrary === null ? (
+                <div className="flex flex-col">
+                  <div className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+                    Select library
+                  </div>
+                  {CHART_LIBRARIES.map((lib) => {
+                    const LibIcon = lib.icon;
+                    const typesCount = getChartTypesByLibrary()[lib.id].length;
+                    return (
+                      <button
+                        key={lib.id}
+                        type="button"
+                        onClick={() => setChartSelectorLibrary(lib.id)}
+                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-sidebar-foreground transition-colors hover:bg-[#BCBDEA]/20"
+                      >
+                        <LibIcon className="size-4 shrink-0" strokeWidth={1.7} />
+                        <span className="flex-1 text-left">{lib.label}</span>
+                        <span className="text-[11px] text-sidebar-foreground/50">
+                          {typesCount} charts
+                        </span>
+                        <ChevronDown className="size-3 -rotate-90" />
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="flex flex-col overflow-y-auto max-h-[340px]">
                   <button
-                    key={key}
                     type="button"
-                    onClick={() => toggleChartSelection(key)}
-                    className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-[12px] font-medium transition-colors hover:bg-[#BCBDEA]/20 hover:text-sidebar-foreground ${
-                      isSelected
-                        ? "bg-[#BCBDEA]/20 text-sidebar-foreground"
-                        : "text-sidebar-foreground/70"
-                    }`}
+                    onClick={() => setChartSelectorLibrary(null)}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-[12px] text-sidebar-foreground/70 hover:bg-sidebar-foreground/5 hover:text-sidebar-foreground"
                   >
-                    <Icon className="size-3.5 shrink-0" strokeWidth={1.7} />
-                    <span className="min-w-0 flex-1 truncate text-left">
-                      {label}
-                    </span>
-                    {isSelected && (
-                      <Check className="size-3.5 shrink-0 text-[#6C5DD3]" />
-                    )}
+                    <ArrowLeft className="size-3.5" />
+                    Back to libraries
                   </button>
-                );
-              })}
+                  <div className="border-t border-sidebar-border/50 px-2 pb-2 pt-1">
+                    {getChartTypesByLibrary()[chartSelectorLibrary].map(
+                      ({ key, label, icon: Icon }) => {
+                        const isSelected = selectedChartKey === key;
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => toggleChartSelection(key)}
+                            className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-[12px] font-medium transition-colors hover:bg-[#BCBDEA]/20 hover:text-sidebar-foreground ${
+                              isSelected
+                                ? "bg-[#BCBDEA]/20 text-sidebar-foreground"
+                                : "text-sidebar-foreground/70"
+                            }`}
+                          >
+                            <Icon className="size-3.5 shrink-0" strokeWidth={1.7} />
+                            <span className="min-w-0 flex-1 truncate text-left">
+                              {label}
+                            </span>
+                            {isSelected && (
+                              <Check className="size-3.5 shrink-0 text-[#6C5DD3]" />
+                            )}
+                          </button>
+                        );
+                      }
+                    )}
+                  </div>
+                </div>
+              )}
             </PopoverContent>
           </Popover>
         </div>

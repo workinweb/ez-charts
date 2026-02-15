@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
-import { DonutChart } from "@/components/rosencharts";
-import type { PieChartItem } from "@/components/rosencharts";
+import { DonutChart } from "@/components/charts/rosencharts";
+import type { PieChartItem } from "@/components/charts/rosencharts";
 
 const COLORS = [
   "#2dd4a8",

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-/** Supported chart type keys — matches rosencharts getChartTypeByName */
+/** Supported chart type keys — rosencharts + shadcn */
 export const CHART_TYPE_KEYS = [
   "horizontal-bar",
   "horizontal-bar-gradient",
@@ -22,6 +22,12 @@ export const CHART_TYPE_KEYS = [
   "benchmark",
   "treemap",
   "scatter",
+  "shadcn:bar",
+  "shadcn:area",
+  "shadcn:line",
+  "shadcn:pie",
+  "shadcn:radar",
+  "shadcn:radial",
 ] as const;
 
 export type ChartTypeKey = (typeof CHART_TYPE_KEYS)[number];

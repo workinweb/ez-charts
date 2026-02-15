@@ -4,6 +4,7 @@ import { usePaginatedQuery, useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { convexChartToUserChart } from "@/lib/chart-utils";
+import { fromChartKey } from "@/lib/chart-keys";
 import type { UserChart } from "@/lib/charts-data";
 import { useChartsStore } from "@/stores/charts-store";
 
@@ -97,15 +98,21 @@ export function useChartsMutations() {
     create: async (input: {
       title: string;
       chartType: string;
+      chartLibrary?: "shadcn" | "rosencharts";
       data: unknown;
       source?: string;
       favorited?: boolean;
       withTooltip?: boolean;
       withAnimation?: boolean;
     }) => {
+      const { chartLibrary, chartType } =
+        input.chartLibrary !== undefined
+          ? { chartLibrary: input.chartLibrary, chartType: input.chartType }
+          : fromChartKey(input.chartType);
       return createMutation({
         title: input.title,
-        chartType: input.chartType,
+        chartLibrary,
+        chartType,
         data: input.data,
         source: input.source ?? "Manual",
         favorited: input.favorited,
@@ -118,15 +125,20 @@ export function useChartsMutations() {
       patch: {
         title?: string;
         chartType?: string;
+        chartLibrary?: "shadcn" | "rosencharts";
         data?: unknown;
         withTooltip?: boolean;
         withAnimation?: boolean;
       }
     ) => {
-      await updateMutation({
-        id,
-        ...patch,
-      });
+      const { chartType: patchType, ...rest } = patch;
+      const updates: Record<string, unknown> = { id, ...rest };
+      if (patchType !== undefined) {
+        const parsed = fromChartKey(patchType);
+        updates.chartLibrary = parsed.chartLibrary;
+        updates.chartType = parsed.chartType;
+      }
+      await updateMutation(updates as Parameters<typeof updateMutation>[0]);
     },
     remove: async (id: Id<"charts">) => {
       await removeMutation({ id });

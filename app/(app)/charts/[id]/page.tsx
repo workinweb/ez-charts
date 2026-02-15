@@ -3,7 +3,7 @@
 import { useParams, notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Presentation, Copy, Pencil } from "lucide-react";
-import { getChartTypeByName } from "@/components/rosencharts";
+import { renderChart } from "@/lib/chart-render";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useChartByIdWithStatus, useChartsMutations } from "@/hooks/use-charts";
 import { Button } from "@/components/ui/button";
@@ -27,8 +27,8 @@ export default function ChartDetailPage() {
     );
   }
 
-  const chartEl = getChartTypeByName(
-    chart.data as Parameters<typeof getChartTypeByName>[0],
+  const chartEl = renderChart(
+    chart.data,
     chart.chartType,
     {
       withTooltip: chart.withTooltip ?? true,

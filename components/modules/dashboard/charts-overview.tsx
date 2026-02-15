@@ -3,8 +3,8 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
-import { BarChartHorizontal } from "@/components/rosencharts";
-import type { HorizontalBarData } from "@/components/rosencharts";
+import { BarChartHorizontal } from "@/components/charts/rosencharts";
+import type { HorizontalBarData } from "@/components/charts/rosencharts";
 
 export function ChartsOverview() {
   const { stats, isLoading } = useDashboardStats();

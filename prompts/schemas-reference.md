@@ -133,3 +133,16 @@ interface ScatterChartItem {
 | benchmark | BenchmarkChartItem[] |
 | treemap | TreeMapChartItem[] |
 | scatter | ScatterChartItem[] |
+
+## Shadcn Charts
+
+See [shadcn-charts.md](./shadcn-charts.md) for full reference.
+
+| Chart Key | Data Type |
+|-----------|-----------|
+| shadcn:bar | [{ month, desktop, mobile, ... }] |
+| shadcn:area | [{ month, desktop, mobile, ... }] |
+| shadcn:line | [{ month, desktop, mobile, ... }] |
+| shadcn:pie | [{ name, value }] |
+| shadcn:radar | [{ subject, A, B, ... }] |
+| shadcn:radial | [{ name, value }] |

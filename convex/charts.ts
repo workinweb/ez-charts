@@ -117,25 +117,14 @@ export const dashboardStats = query({
       monthlyData.push({ month: monthNames[d.getMonth()], charts: count });
     }
 
-    // Chart types distribution (normalize to display names)
-    const chartTypeMap: Record<string, string> = {
-      "bar-vertical": "Bar",
-      "bar-horizontal": "Bar",
-      "line": "Line",
-      "line-curved": "Line",
-      "area": "Area",
-      "pie": "Pie",
-      "donut": "Donut",
-      "scatter": "Scatter",
-      "treemap": "Treemap",
-      "breakdown": "Breakdown",
-      "fillable-donut": "Donut",
-      "half-donut": "Donut",
-    };
+    // Chart types distribution: library + type (e.g. "Shadcn · Bar", "Rosencharts · Bar")
     const typeCounts: Record<string, number> = {};
     for (const c of charts) {
-      const key = chartTypeMap[c.chartType] ?? c.chartType ?? "Other";
-      const display = key.charAt(0).toUpperCase() + key.slice(1);
+      const lib = c.chartLibrary ?? (c.chartType?.startsWith("shadcn:") ? "shadcn" : "rosencharts");
+      const type = c.chartType?.startsWith("shadcn:") ? c.chartType.slice(7) : c.chartType;
+      const display = lib === "shadcn"
+        ? `Shadcn · ${type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, " ")}`
+        : `Rosencharts · ${type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, " ") || "Bar"}`;
       typeCounts[display] = (typeCounts[display] ?? 0) + 1;
     }
     const chartTypes = Object.entries(typeCounts)
@@ -175,10 +164,13 @@ export const dashboardStats = query({
 
 // ─── Mutations ──────────────────────────────────────────────────────────────
 
+const chartLibraryValidator = v.union(v.literal("shadcn"), v.literal("rosencharts"));
+
 /** Create a new chart. */
 export const create = mutation({
   args: {
     title: v.string(),
+    chartLibrary: chartLibraryValidator,
     chartType: v.string(),
     data: v.any(),
     source: v.string(),
@@ -193,6 +185,7 @@ export const create = mutation({
     return ctx.db.insert("charts", {
       userId: identity.subject,
       title: args.title,
+      chartLibrary: args.chartLibrary,
       chartType: args.chartType,
       data: args.data,
       source: args.source,
@@ -211,6 +204,7 @@ export const update = mutation({
   args: {
     id: v.id("charts"),
     title: v.optional(v.string()),
+    chartLibrary: v.optional(chartLibraryValidator),
     chartType: v.optional(v.string()),
     data: v.optional(v.any()),
     source: v.optional(v.string()),
@@ -263,10 +257,13 @@ export const duplicate = mutation({
       throw new Error("Chart not found");
     }
     const now = Date.now();
+    const library = chart.chartLibrary ?? (chart.chartType?.startsWith("shadcn:") ? "shadcn" : "rosencharts");
+    const type = chart.chartType?.startsWith("shadcn:") ? chart.chartType.slice(7) : chart.chartType;
     return ctx.db.insert("charts", {
       userId: identity.subject,
       title: `${chart.title} (copy)`,
-      chartType: chart.chartType,
+      chartLibrary: library,
+      chartType: type,
       data: chart.data,
       source: chart.source,
       favorited: false,
