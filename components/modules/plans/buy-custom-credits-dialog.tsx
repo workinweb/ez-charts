@@ -8,8 +8,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
-import { ArrowRight, Coins } from "lucide-react";
+import { useMutation, useQuery } from "convex/react";
+import { ArrowRight, Coins, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const CREDITS_PER_DOLLAR = 40;
@@ -24,18 +26,42 @@ export function BuyCustomCreditsDialog({
   onOpenChange,
 }: BuyCustomCreditsDialogProps) {
   const [creditsInput, setCreditsInput] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const credits = Math.max(0, parseInt(creditsInput, 10) || 0);
   const priceDollars = credits / CREDITS_PER_DOLLAR;
   const canContinue = credits >= 1;
 
+  const settings = useQuery(api.userSettings.get, open ? {} : "skip");
+  const planTier = (settings?.planTier ?? "free") as "free" | "pro" | "max";
+  const recordPurchase = useMutation(api.creditPurchases.record);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
-    if (open) setCreditsInput("");
+    if (open) {
+      setCreditsInput("");
+      setError(null);
+    }
   }, [open]);
 
-  function handleContinue() {
+  async function handleContinue() {
     if (!canContinue) return;
-    // TODO: Wire up payment flow
-    onOpenChange(false);
+    setError(null);
+    setIsSubmitting(true);
+    try {
+      await recordPurchase({
+        credits,
+        planTier,
+        amountCents: Math.round(priceDollars * 100),
+        currency: "usd",
+        source: "one_time",
+      });
+      onOpenChange(false);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to add credits");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -77,6 +103,12 @@ export function BuyCustomCreditsDialog({
             />
           </div>
 
+          {error && (
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-[13px] text-red-600">
+              {error}
+            </p>
+          )}
+
           <div
             className={cn(
               "flex items-center justify-between rounded-2xl bg-[#E9EEF0]/80 px-4 py-3.5 ring-1 ring-[#3D4035]/6",
@@ -103,11 +135,17 @@ export function BuyCustomCreditsDialog({
 
           <Button
             onClick={handleContinue}
-            disabled={!canContinue}
+            disabled={!canContinue || isSubmitting}
             className="w-full gap-2 rounded-xl bg-[#6C5DD3] py-2.5 text-[15px] font-semibold text-white hover:bg-[#5a4dbf] disabled:opacity-50"
           >
-            Continue
-            <ArrowRight className="size-4" />
+            {isSubmitting ? (
+              <Loader2 className="size-5 animate-spin" />
+            ) : (
+              <>
+                Continue
+                <ArrowRight className="size-4" />
+              </>
+            )}
           </Button>
         </div>
       </DialogContent>

@@ -142,6 +142,40 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_created", ["createdAt"]),
 
+  // ── Credit Purchases ────────────────────────────────────────────────────
+  // Records when a user buys credits (one-time or via plan upgrade).
+  // Linked to user for purchase history and analytics.
+  creditPurchases: defineTable({
+    userId: v.string(),
+    /** Credits purchased/added */
+    credits: v.number(),
+    /** Plan tier at time of purchase (free | pro | max) */
+    planTier: v.union(
+      v.literal("free"),
+      v.literal("pro"),
+      v.literal("max"),
+    ),
+    /** Price paid in smallest currency unit (cents for USD). Optional for promos. */
+    amountCents: v.optional(v.number()),
+    /** Currency code, e.g. "usd" */
+    currency: v.optional(v.string()),
+    /** Payment provider reference (Stripe payment intent ID, etc.) for idempotency */
+    paymentId: v.optional(v.string()),
+    /** How the purchase was made */
+    source: v.optional(
+      v.union(
+        v.literal("subscription"),
+        v.literal("one_time"),
+        v.literal("plan_upgrade"),
+        v.literal("promo"),
+      ),
+    ),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_created", ["userId", "createdAt"])
+    .index("by_payment_id", ["paymentId"]),
+
   // ── Stripe (prepared for future) ────────────────────────────────────────
   // Subscription and payment records. Uncomment when integrating Stripe.
   // subscriptions: defineTable({

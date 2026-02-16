@@ -13,6 +13,7 @@ import type * as betterAuth_auth from "../betterAuth/auth.js";
 import type * as betterAuth_sendEmail from "../betterAuth/sendEmail.js";
 import type * as charts from "../charts.js";
 import type * as chat from "../chat.js";
+import type * as creditPurchases from "../creditPurchases.js";
 import type * as documents from "../documents.js";
 import type * as http from "../http.js";
 import type * as planLimits from "../planLimits.js";
@@ -32,6 +33,7 @@ declare const fullApi: ApiFromModules<{
   "betterAuth/sendEmail": typeof betterAuth_sendEmail;
   charts: typeof charts;
   chat: typeof chat;
+  creditPurchases: typeof creditPurchases;
   documents: typeof documents;
   http: typeof http;
   planLimits: typeof planLimits;
