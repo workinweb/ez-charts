@@ -84,6 +84,8 @@ export default defineSchema({
     dashboardCardOrder: v.optional(v.array(v.string())),
     /** Whether to auto-save documents from chat */
     saveDocumentsOnDb: v.optional(v.boolean()),
+    /** Chart data editor style: table (shadcn-like) or items (expandable cards) */
+    chartDataEditorMode: v.optional(v.union(v.literal("table"), v.literal("items"))),
     /** Credits available for AI usage (Free: 100, Pro: 500, Max: 1000) */
     credits: v.optional(v.number()),
     /** Plan tier: free | pro | max */

@@ -2,6 +2,8 @@
 
 import { Suspense, useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { api } from "@/convex/_generated/api";
+import { useQuery } from "convex/react";
 import { renderChart } from "@/lib/chart-render";
 import { useChartByIdWithStatus, useChartsMutations } from "@/hooks/use-charts";
 import { useChartsStore } from "@/stores/charts-store";
@@ -44,6 +46,7 @@ function EditChartContent() {
 
   const mutations = useChartsMutations();
   const removeUnsavedChart = useChartsStore((s) => s.removeUnsavedChart);
+  const userSettings = useQuery(api.userSettings.get);
   const {
     setAttachedChartContext,
     setSelectedChartKey,
@@ -221,6 +224,9 @@ function EditChartContent() {
   /* ── Editor shape ────────────────────────────────────────────────── */
   const editorShape = chartType ? getEditorShape(chartType) : null;
 
+  /* ── Chart data editor mode (from Account → Editor preferences) ───── */
+  const chartDataEditorMode = (userSettings?.chartDataEditorMode ?? "table") as "table" | "items";
+
   /* No chart and not create mode → redirect when chart not found */
   useEffect(() => {
     if (!isCreateMode && chartMissing) router.replace("/charts");
@@ -285,6 +291,7 @@ function EditChartContent() {
               withAnimation={withAnimation}
               onTooltipChange={(v) => edit(setWithTooltip)(v)}
               onAnimationChange={(v) => edit(setWithAnimation)(v)}
+              chartDataEditorMode={chartDataEditorMode}
             />
           </div>
         </div>

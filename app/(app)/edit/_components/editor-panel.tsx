@@ -6,13 +6,22 @@ import type { EditorTab, EditorShape } from "./editor-types";
 import { DataEditor } from "./data-editor";
 import { StyleEditor } from "./style-editor";
 import { SettingsEditor } from "./settings-editor";
-import { ShadcnDataEditor } from "./shadcn/shadcn-data-editor";
+import { ShadcnDataEditor, ShadcnItemsDataEditor } from "./shadcn";
+import { RosenchartsTableDataEditor } from "./rosencharts";
 import { ShadcnStyleEditor } from "./shadcn/shadcn-style-editor";
 
 const tabs: { id: EditorTab; label: string; icon: React.ElementType }[] = [
   { id: "data", label: "Data", icon: Database },
   { id: "style", label: "Colors", icon: Paintbrush },
   { id: "settings", label: "Settings", icon: Settings2 },
+];
+
+const ROSENCHARTS_TABULAR_SHAPES: EditorShape[] = [
+  "keyValue",
+  "bar-multi",
+  "pie",
+  "bar-image",
+  "scatter",
 ];
 
 interface EditorPanelProps {
@@ -26,6 +35,7 @@ interface EditorPanelProps {
   withAnimation: boolean;
   onTooltipChange: (v: boolean) => void;
   onAnimationChange: (v: boolean) => void;
+  chartDataEditorMode: "table" | "items";
 }
 
 const isShadcnChart = (chartType: string) => chartType.startsWith("shadcn:");
@@ -41,8 +51,15 @@ export function EditorPanel({
   withAnimation,
   onTooltipChange,
   onAnimationChange,
+  chartDataEditorMode,
 }: EditorPanelProps) {
   const useShadcnEditors = isShadcnChart(chartType);
+  const useTableForRosencharts =
+    chartDataEditorMode === "table" &&
+    editorShape &&
+    ROSENCHARTS_TABULAR_SHAPES.includes(editorShape);
+  const useTableForShadcn = chartDataEditorMode === "table";
+
   return (
     <div className="order-2 flex min-w-0 flex-col gap-4 sm:gap-5">
       {/* Tab switcher */}
@@ -72,8 +89,22 @@ export function EditorPanel({
       <div className="min-h-0 min-w-0 flex-1 overflow-auto rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[28px] sm:p-5 lg:rounded-[40px] lg:p-6">
         {activeTab === "data" &&
           (useShadcnEditors ? (
-            <ShadcnDataEditor
-              chartType={chartType}
+            useTableForShadcn ? (
+              <ShadcnDataEditor
+                chartType={chartType}
+                data={data}
+                onChange={onDataChange}
+              />
+            ) : (
+              <ShadcnItemsDataEditor
+                chartType={chartType}
+                data={data}
+                onChange={onDataChange}
+              />
+            )
+          ) : useTableForRosencharts && editorShape ? (
+            <RosenchartsTableDataEditor
+              shape={editorShape}
               data={data}
               onChange={onDataChange}
             />

@@ -40,12 +40,18 @@ const planTierValidator = v.union(
   v.literal("max"),
 );
 
+const chartDataEditorModeValidator = v.union(
+  v.literal("table"),
+  v.literal("items"),
+);
+
 /** Upsert user settings. Creates the row if it doesn't exist. */
 export const upsert = mutation({
   args: {
     dashboardCardOrder: v.optional(v.array(v.string())),
     saveDocumentsOnDb: v.optional(v.boolean()),
     planTier: v.optional(planTierValidator),
+    chartDataEditorMode: v.optional(chartDataEditorModeValidator),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -74,6 +80,9 @@ export const upsert = mutation({
       updates.credits = CREDITS_BY_PLAN[args.planTier];
       updates.renewDate = nextRenewDate();
     }
+    if (args.chartDataEditorMode !== undefined) {
+      updates.chartDataEditorMode = args.chartDataEditorMode;
+    }
 
     if (existing) {
       await ctx.db.patch(existing._id, updates);
@@ -85,6 +94,7 @@ export const upsert = mutation({
       dashboardCardOrder: args.dashboardCardOrder,
       saveDocumentsOnDb: args.saveDocumentsOnDb,
       planTier,
+      chartDataEditorMode: args.chartDataEditorMode,
       credits: CREDITS_BY_PLAN[planTier],
       renewDate: nextRenewDate(),
       updatedAt: Date.now(),

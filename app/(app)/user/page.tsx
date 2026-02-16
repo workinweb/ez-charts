@@ -45,7 +45,7 @@ import {
   RotateCcw,
   User,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function ResendVerificationButton({ email }: { email: string }) {
   const [loading, setLoading] = useState(false);
@@ -175,12 +175,28 @@ export default function UserPage() {
 
   const dbCardOrder = savedSettings?.dashboardCardOrder ?? null;
   const dbSaveDocuments = savedSettings?.saveDocumentsOnDb ?? false;
+  const dbChartDataEditorMode = (savedSettings?.chartDataEditorMode ??
+    "table") as "table" | "items";
   const canSaveDocuments = TIER_LIMITS[planTier].canSaveDocuments;
+
+  const [chartDataEditorMode, setChartDataEditorMode] = useState<
+    "table" | "items"
+  >(dbChartDataEditorMode);
+
+  useEffect(() => {
+    if (savedSettings?.chartDataEditorMode) {
+      setChartDataEditorMode(
+        savedSettings.chartDataEditorMode as "table" | "items",
+      );
+    }
+  }, [savedSettings?.chartDataEditorMode]);
+
   const hasUnsavedChanges =
     savedSettings !== undefined &&
     (JSON.stringify(dbCardOrder ?? DASHBOARD_CARD_IDS) !==
       JSON.stringify(cardOrder) ||
-      (canSaveDocuments && dbSaveDocuments !== saveDocumentsOnDb));
+      (canSaveDocuments && dbSaveDocuments !== saveDocumentsOnDb) ||
+      dbChartDataEditorMode !== chartDataEditorMode);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -372,44 +388,89 @@ export default function UserPage() {
                     </p>
                   </div>
                 </label>
-
-                {hasUnsavedChanges && (
-                  <div className="mt-6 flex items-center gap-3">
-                    <Button
-                      onClick={async () => {
-                        setSaving(true);
-                        setSaved(false);
-                        try {
-                          await upsertSettings({
-                            dashboardCardOrder: cardOrder,
-                            ...(canSaveDocuments && {
-                              saveDocumentsOnDb,
-                            }),
-                          });
-                          setSaved(true);
-                          setTimeout(() => setSaved(false), 2000);
-                        } catch {
-                          // Error handling - could add toast
-                        } finally {
-                          setSaving(false);
-                        }
-                      }}
-                      disabled={saving}
-                      className="gap-2 rounded-xl bg-[#6C5DD3] px-4 py-2 text-[14px] font-semibold text-white hover:bg-[#5a4dbf] disabled:opacity-50"
-                    >
-                      {saving ? (
-                        <Loader2 className="size-4 animate-spin" />
-                      ) : saved ? (
-                        <Check className="size-4" />
-                      ) : null}
-                      {saving ? "Saving…" : saved ? "Saved" : "Save changes"}
-                    </Button>
-                    <p className="text-[13px] text-[#3D4035]/50">
-                      Your preferences are saved locally until you click Save.
-                    </p>
-                  </div>
-                )}
               </section>
+
+              {/* Editor preferences */}
+              <section className="rounded-[28px] bg-white/80 p-6 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
+                <h2 className="text-[18px] font-semibold text-[#3D4035]">
+                  Editor preferences
+                </h2>
+                <p className="mt-1 mb-6 text-[13px] text-[#3D4035]/50">
+                  Choose how chart data is edited across the app.
+                </p>
+
+                <div className="space-y-2">
+                  <p className="text-[15px] font-medium text-[#3D4035]">
+                    Data editor style
+                  </p>
+                  <p className="text-[13px] text-[#3D4035]/50 mb-3">
+                    Spreadsheet shows a table layout; Cards show expandable
+                    rows.
+                  </p>
+                  <div className="flex gap-2 rounded-lg bg-black/[0.03] p-1 w-fit">
+                    <button
+                      type="button"
+                      onClick={() => setChartDataEditorMode("table")}
+                      className={cn(
+                        "rounded-md px-4 py-2 text-[13px] font-medium transition-colors",
+                        chartDataEditorMode === "table"
+                          ? "bg-white shadow-sm text-[#6C5DD3]"
+                          : "text-[#3D4035]/60 hover:text-[#3D4035]",
+                      )}
+                    >
+                      Spreadsheet
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setChartDataEditorMode("items")}
+                      className={cn(
+                        "rounded-md px-4 py-2 text-[13px] font-medium transition-colors",
+                        chartDataEditorMode === "items"
+                          ? "bg-white shadow-sm text-[#6C5DD3]"
+                          : "text-[#3D4035]/60 hover:text-[#3D4035]",
+                      )}
+                    >
+                      Cards
+                    </button>
+                  </div>
+                </div>
+              </section>
+
+              <div className="flex items-center gap-3">
+                  <Button
+                    onClick={async () => {
+                      setSaving(true);
+                      setSaved(false);
+                      try {
+                        await upsertSettings({
+                          dashboardCardOrder: cardOrder,
+                          chartDataEditorMode,
+                          ...(canSaveDocuments && {
+                            saveDocumentsOnDb,
+                          }),
+                        });
+                        setSaved(true);
+                        setTimeout(() => setSaved(false), 2000);
+                      } catch {
+                        // Error handling - could add toast
+                      } finally {
+                        setSaving(false);
+                      }
+                    }}
+                  disabled={saving || !hasUnsavedChanges}
+                    className="gap-2 rounded-xl bg-[#6C5DD3] px-4 py-2 text-[14px] font-semibold text-white hover:bg-[#5a4dbf] disabled:opacity-50"
+                  >
+                    {saving ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : saved ? (
+                      <Check className="size-4" />
+                    ) : null}
+                    {saving ? "Saving…" : saved ? "Saved" : "Save changes"}
+                </Button>
+                <p className="text-[13px] text-[#3D4035]/50">
+                  Your preferences are saved locally until you click Save.
+                </p>
+              </div>
             </>
           )}
         </div>
