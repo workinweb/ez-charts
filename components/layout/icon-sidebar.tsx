@@ -22,9 +22,9 @@ interface SidebarIcon {
 }
 
 const mainIcons: SidebarIcon[] = [
-  { icon: LayoutGrid, label: "Dashboard", sectionKey: "dashboard" },
+  { icon: LayoutDashboard, label: "Dashboard", sectionKey: "dashboard" },
   { icon: FileText, label: "Documents", sectionKey: "documents" },
-  { icon: LayoutDashboard, label: "Layout", sectionKey: "layout" },
+  { icon: LayoutGrid, label: "Layout", sectionKey: "layout" },
   { icon: Users, label: "Team", sectionKey: "team" },
   { icon: Link2, label: "Links", sectionKey: "links" },
   { icon: Bookmark, label: "Saved", sectionKey: "saved" },

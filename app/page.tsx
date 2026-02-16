@@ -1,36 +1,30 @@
-import Link from "next/link";
+import { AIChatSection } from "@/components/landing/sections/ai-chat-section";
+import { ChartLibrariesSection } from "@/components/landing/sections/chart-libraries-section";
+import { CTASection } from "@/components/landing/sections/cta-section";
+import { FeaturesSection } from "@/components/landing/sections/features-section";
+import { FooterSection } from "@/components/landing/sections/footer-section";
 import { HeroSection } from "@/components/landing/sections/hero-section";
-import { BarChart3 } from "lucide-react";
+import { ManualStudioSection } from "@/components/landing/sections/manual-studio-section";
+import { LandingNavbar } from "@/components/landing/sections/navbar-section";
+import { PricingSection } from "@/components/landing/sections/pricing-section";
+import { TemplatesSection } from "@/components/landing/sections/templates-section";
+import { TrustedBySection } from "@/components/landing/sections/trusted-by-section";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <header className="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-[18px] font-semibold text-[#3D4035]"
-        >
-          <BarChart3 className="size-8 text-[#6C5DD3]" />
-          Charts AI
-        </Link>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/sign-in"
-            className="rounded-xl px-4 py-2 text-[14px] font-medium text-[#3D4035]/70 hover:text-[#3D4035]"
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/ezcharts"
-            className="rounded-xl bg-[#6C5DD3] px-4 py-2 text-[14px] font-semibold text-white hover:bg-[#5a4dbf]"
-          >
-            Get started
-          </Link>
-        </div>
-      </header>
-
+    <div className="min-h-screen bg-[#F2F4F7] text-[#1A1A1A] antialiased overflow-x-hidden">
+      <LandingNavbar />
       <main>
         <HeroSection />
+        <TrustedBySection />
+        <FeaturesSection />
+        <AIChatSection />
+        <ManualStudioSection />
+        <TemplatesSection />
+        <ChartLibrariesSection />
+        <PricingSection />
+        <CTASection />
+        <FooterSection />
       </main>
     </div>
   );

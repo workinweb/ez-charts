@@ -46,7 +46,7 @@ export function ShadcnPieChart({
           cx="50%"
           cy="50%"
           innerRadius={0}
-          outerRadius="80%"
+          outerRadius="70%"
           paddingAngle={2}
           label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
           isAnimationActive={withAnimation}
