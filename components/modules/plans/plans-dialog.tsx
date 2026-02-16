@@ -26,7 +26,7 @@ const PLANS: {
 }[] = [
   { tier: "free", label: "Free", credits: 100, price: "$0" },
   { tier: "pro", label: "Pro", credits: 250, price: "$4.99/mo" },
-  { tier: "max", label: "Max", credits: 700, price: "$8.99/mo" },
+  { tier: "max", label: "Max", credits: 600, price: "$9.99/mo" },
 ];
 
 interface PlansDialogProps {

@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { Coffee, Zap, Building2, Check } from "lucide-react";
+import { Check, Coffee, Crown, Zap } from "lucide-react";
 import { TIER_DOC, TIER_LIMITS, type PlanTier } from "@/lib/tier-limits";
 
 const PRICES: Record<PlanTier, string> = {
   free: "$0",
   pro: "$4.99",
-  max: "$8.99",
+  max: "$9.99",
 };
 
 function formatLimit(n: number): string {
@@ -13,7 +13,7 @@ function formatLimit(n: number): string {
 }
 
 const TIERS: PlanTier[] = ["free", "pro", "max"];
-const ICONS = { free: Coffee, pro: Zap, max: Building2 } as const;
+const ICONS = { free: Coffee, pro: Zap, max: Crown } as const;
 
 export function PricingSection() {
   return (

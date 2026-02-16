@@ -142,7 +142,7 @@ export const applyDowngradeSelection = mutation({
       d.setMonth(d.getMonth() + 1);
       return d.getTime();
     })();
-    const CREDITS = { free: 100, pro: 250, max: 700 } as const;
+    const CREDITS = { free: 100, pro: 250, max: 600 } as const;
 
     if (settings) {
       await ctx.db.patch(settings._id, {

@@ -26,6 +26,8 @@ import {
   Bookmark,
   ChevronDown,
   Coins,
+  Coffee,
+  Crown,
   Home,
   LayoutGrid,
   LogOut,
@@ -34,12 +36,16 @@ import {
   Plus,
   Share,
   User,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { TIER_LIMITS } from "@/lib/tier-limits";
+
+const PLAN_ICONS = { free: Coffee, pro: Zap, max: Crown } as const;
 
 const navItems = [
   { label: "Home", href: "/ezcharts", icon: Home },
@@ -56,22 +62,19 @@ function AppNavbarInner() {
   const [createChartConfirmOpen, setCreateChartConfirmOpen] = useState(false);
   const [plansDialogOpen, setPlansDialogOpen] = useState(false);
 
-  const settings = useQuery(
-    api.userSettings.get,
-    session?.user ? {} : "skip"
-  );
+  const settings = useQuery(api.userSettings.get, session?.user ? {} : "skip");
   const planTier = (settings?.planTier ?? "free") as "free" | "pro" | "max";
   const showUpgradeButton = planTier !== "max";
 
   const credits = settings?.credits ?? 100;
-  const maxCredits =
-    planTier === "max" ? 1000 : planTier === "pro" ? 500 : 100;
+  const maxCredits = TIER_LIMITS[planTier].credits;
 
   // Read last-edited chart ID from the Zustand store
   const lastEditedChartId = useChartsStore((s) => s.lastEditedChartId);
   const setLastEditedChartId = useChartsStore((s) => s.setLastEditedChartId);
 
-  const chartFromUrl = pathname === "/ezcharts/edit" ? searchParams.get("chart") : null;
+  const chartFromUrl =
+    pathname === "/ezcharts/edit" ? searchParams.get("chart") : null;
 
   // Sync URL → store when the URL has a chart param
   useEffect(() => {
@@ -148,34 +151,16 @@ function AppNavbarInner() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        {/* Icon buttons — hide on small mobile */}
-        <div className="ml-1 hidden items-center gap-0.5 sm:flex">
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            aria-label="Share"
-            title="Share"
-            className="rounded-lg text-foreground/40 hover:text-foreground/70"
-          >
-            <Share className="size-3.5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            aria-label="Bookmarks"
-            title="Bookmarks"
-            className="rounded-lg text-foreground/40 hover:text-foreground/70"
-          >
-            <Bookmark className="size-3.5" />
-          </Button>
-        </div>
       </div>
 
       {/* Center — tabs — hide on small mobile */}
       <div className="hidden items-center gap-1 sm:flex">
-        <span className="rounded-lg bg-foreground/8 px-3 py-1 text-[12px] font-medium text-foreground/70">
-          Dashboard
+        <span className="flex items-center gap-1.5 rounded-lg bg-foreground/8 px-3 py-1 text-[12px] font-medium text-foreground/70">
+          {(() => {
+            const TierIcon = PLAN_ICONS[planTier];
+            return <TierIcon className="size-3.5 shrink-0" />;
+          })()}
+          {planTier.charAt(0).toUpperCase() + planTier.slice(1)}
         </span>
 
         <div className="mx-2 h-4 w-px bg-border" />
@@ -247,16 +232,6 @@ function AppNavbarInner() {
 
       {/* Right */}
       <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          aria-label="More options"
-          title="More options"
-          className="rounded-lg text-foreground/40"
-        >
-          <MoreHorizontal className="size-3.5" />
-        </Button>
-
         {showUpgradeButton && (
           <Button
             size="xs"

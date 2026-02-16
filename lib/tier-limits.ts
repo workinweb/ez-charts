@@ -20,7 +20,7 @@ export const TIER_LIMITS = {
     canSaveDocuments: true,
   },
   max: {
-    credits: 700,
+    credits: 600,
     maxCharts: Infinity,
     maxSlides: Infinity,
     maxDocuments: Infinity,
@@ -60,7 +60,7 @@ export const TIER_DOC: Record<
   max: {
     tagline: "Go wild.",
     bullets: [
-      "700 credits per month",
+      "600 credits per month",
       "Unlimited charts and slide decks",
       "Unlimited documents",
     ],

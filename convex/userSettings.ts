@@ -11,7 +11,7 @@ const DEFAULT_DASHBOARD_CARD_ORDER = [
   "recent-slide-decks",
 ];
 
-const CREDITS_BY_PLAN = { free: 100, pro: 250, max: 700 } as const;
+const CREDITS_BY_PLAN = { free: 100, pro: 250, max: 600 } as const;
 
 /** Full date 1 month from now — next renewal date. Set on creation or tier change. */
 function nextRenewDate(): number {
