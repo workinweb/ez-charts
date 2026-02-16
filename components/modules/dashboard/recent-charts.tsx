@@ -81,7 +81,7 @@ export function RecentCharts() {
                     {chart.date}
                   </p>
                   <Link
-                    href={`/charts/${chart.id}`}
+                    href={`/ezcharts/charts/${chart.id}`}
                     className="mt-1 inline-block text-[13px] font-semibold text-[#6C5DD3] hover:underline"
                   >
                     Open

@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/(auth)/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, BarChart3 } from "lucide-react";
+import Image from "next/image";
+import { Loader2 } from "lucide-react";
 import { GoogleIcon } from "@/components/icons/google-icon";
 
 export default function SignUpPage() {
@@ -47,7 +48,7 @@ export default function SignUpPage() {
         return;
       }
 
-      router.push("/");
+      router.push("/ezcharts");
       router.refresh();
     } catch {
       setError("An unexpected error occurred. Please try again.");
@@ -62,7 +63,7 @@ export default function SignUpPage() {
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/",
+        callbackURL: "/ezcharts",
       });
     } catch {
       setError("Google sign-up failed. Please try again.");
@@ -71,17 +72,23 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="w-full max-w-[400px]">
-      <div className="rounded-[28px] bg-white p-8 shadow-sm ring-1 ring-black/[0.04] sm:rounded-[32px] sm:p-10">
-        <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="flex size-12 items-center justify-center rounded-2xl bg-[#6C5DD3]/10">
-            <BarChart3 className="size-6 text-[#6C5DD3]" />
+    <div className="w-full max-w-[420px]">
+      <div className="rounded-[24px] bg-white p-10 shadow-lg shadow-black/5 ring-1 ring-black/[0.04] sm:rounded-[28px] sm:p-12">
+        <div className="mb-10 flex flex-col items-center gap-4">
+          <div className="relative size-[75px] shrink-0">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
           <div className="text-center">
-            <h1 className="text-[22px] font-semibold text-[#3D4035]">
+            <h1 className="text-[24px] font-semibold text-[#3D4035]">
               Create your account
             </h1>
-            <p className="mt-1 text-[14px] text-[#3D4035]/60">
+            <p className="mt-2 text-[15px] text-[#3D4035]/60">
               Start building charts with AI
             </p>
           </div>
@@ -93,32 +100,32 @@ export default function SignUpPage() {
           variant="outline"
           disabled={googleLoading || loading}
           onClick={handleGoogleSignUp}
-          className="mb-6 w-full gap-3 rounded-xl border-border/60 text-[14px] font-medium text-[#3D4035] hover:bg-black/[0.02] disabled:opacity-50"
+          className="h-12 w-full gap-3 rounded-xl border-[#E0E0E0] bg-white py-6 text-[15px] font-medium text-[#3D4035] hover:bg-[#FAFAFA] disabled:opacity-50"
         >
           {googleLoading ? (
-            <Loader2 className="size-4 animate-spin" />
+            <Loader2 className="size-5 animate-spin" />
           ) : (
-            <GoogleIcon className="size-4" />
+            <GoogleIcon className="size-5" />
           )}
-          Continue with Google
+          Google
         </Button>
 
-        <div className="relative mb-6">
+        <div className="relative my-8">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-border/40" />
+            <div className="w-full border-t border-[#E5E5E5]" />
           </div>
-          <div className="relative flex justify-center text-[12px]">
-            <span className="bg-white px-3 text-[#3D4035]/40">
-              or sign up with email
+          <div className="relative flex justify-center">
+            <span className="bg-white px-4 text-[11px] font-medium uppercase tracking-wider text-[#3D4035]/50">
+              Or continue with email
             </span>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
             <label
               htmlFor="name"
-              className="text-[13px] font-medium text-[#3D4035]/70"
+              className="text-[13px] font-medium text-[#3D4035]/80"
             >
               Name
             </label>
@@ -130,33 +137,33 @@ export default function SignUpPage() {
               onChange={(e) => setName(e.target.value)}
               required
               autoComplete="name"
-              className="rounded-xl border-border/60 text-[14px]"
+              className="h-11 rounded-xl border-[#E0E0E0] text-[14px]"
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             <label
               htmlFor="email"
-              className="text-[13px] font-medium text-[#3D4035]/70"
+              className="text-[13px] font-medium text-[#3D4035]/80"
             >
-              Email
+              Email address
             </label>
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder="name@company.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
-              className="rounded-xl border-border/60 text-[14px]"
+              className="h-11 rounded-xl border-[#E0E0E0] text-[14px]"
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             <label
               htmlFor="password"
-              className="text-[13px] font-medium text-[#3D4035]/70"
+              className="text-[13px] font-medium text-[#3D4035]/80"
             >
               Password
             </label>
@@ -169,14 +176,14 @@ export default function SignUpPage() {
               required
               autoComplete="new-password"
               minLength={8}
-              className="rounded-xl border-border/60 text-[14px]"
+              className="h-11 rounded-xl border-[#E0E0E0] text-[14px]"
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             <label
               htmlFor="confirm-password"
-              className="text-[13px] font-medium text-[#3D4035]/70"
+              className="text-[13px] font-medium text-[#3D4035]/80"
             >
               Confirm password
             </label>
@@ -189,7 +196,7 @@ export default function SignUpPage() {
               required
               autoComplete="new-password"
               minLength={8}
-              className="rounded-xl border-border/60 text-[14px]"
+              className="h-11 rounded-xl border-[#E0E0E0] text-[14px]"
             />
           </div>
 
@@ -202,17 +209,17 @@ export default function SignUpPage() {
           <Button
             type="submit"
             disabled={loading || googleLoading}
-            className="mt-2 w-full rounded-xl bg-[#6C5DD3] text-[14px] font-semibold text-white hover:bg-[#5a4dbf] disabled:opacity-50"
+            className="mt-2 h-12 w-full rounded-xl bg-[#6C5DD3] py-6 text-[15px] font-semibold text-white hover:bg-[#5a4dbf] disabled:opacity-50"
           >
             {loading ? (
-              <Loader2 className="size-4 animate-spin" />
+              <Loader2 className="size-5 animate-spin" />
             ) : (
               "Create account"
             )}
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-[13px] text-[#3D4035]/60">
+        <p className="mt-8 text-center text-[14px] text-[#3D4035]/60">
           Already have an account?{" "}
           <Link
             href="/sign-in"

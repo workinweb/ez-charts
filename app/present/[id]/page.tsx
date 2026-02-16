@@ -154,7 +154,7 @@ export default function SlideViewPage() {
             asChild
             className="gap-2 rounded-xl text-[#3D4035]/60 hover:text-[#3D4035]"
           >
-            <Link href="/slides">
+            <Link href="/ezcharts/slides">
               <ArrowLeft className="size-4" />
               <span className="hidden sm:inline">Back to slides</span>
             </Link>
@@ -276,7 +276,7 @@ export default function SlideViewPage() {
                         asChild
                         className="mt-2"
                       >
-                        <Link href="/slides" className="gap-2">
+                        <Link href="/ezcharts/slides" className="gap-2">
                           <ArrowLeft className="size-4" />
                           Back to slides
                         </Link>

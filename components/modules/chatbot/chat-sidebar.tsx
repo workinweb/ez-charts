@@ -319,7 +319,7 @@ export function ChatSidebarContent() {
                         typeof window !== "undefined" &&
                         window.location.pathname !== "/"
                       )
-                        router.push("/");
+                        router.push("/ezcharts");
                     }}
                     className="inline font-medium text-[#6C5DD3] underline-offset-2 hover:underline hover:text-[#5a4dbf]"
                   >

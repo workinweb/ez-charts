@@ -63,12 +63,12 @@ export function IconSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { activeSection, setActiveSection } = useSectionStore();
-  const isOnHome = pathname === "/";
+  const isOnHome = pathname === "/ezcharts" || pathname === "/ezcharts/";
 
   const handleIconClick = (sectionKey: SectionKey) => {
     setActiveSection(sectionKey);
     if (!isOnHome) {
-      router.push("/");
+      router.push("/ezcharts");
     }
   };
 

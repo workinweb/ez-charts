@@ -26,10 +26,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
-  { label: "Dashboard", href: "/" },
-  { label: "Favorites", href: "/favorites" },
-  { label: "Charts", href: "/charts" },
-  { label: "Slides", href: "/slides" },
+  { label: "Dashboard", href: "/ezcharts" },
+  { label: "Favorites", href: "/ezcharts/favorites" },
+  { label: "Charts", href: "/ezcharts/charts" },
+  { label: "Slides", href: "/ezcharts/slides" },
 ];
 
 const toolIcons: {
@@ -49,7 +49,7 @@ const toolIcons: {
 ];
 
 function isLinkActive(href: string, pathname: string): boolean {
-  if (href === "/") return pathname === "/";
+  if (href === "/ezcharts") return pathname === "/ezcharts" || pathname === "/ezcharts/";
   return pathname === href || pathname.startsWith(href + "/");
 }
 

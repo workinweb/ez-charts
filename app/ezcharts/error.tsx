@@ -14,7 +14,7 @@ export default function AppError({
       error={error}
       reset={reset}
       variant="app"
-      homeHref="/"
+      homeHref="/ezcharts"
       homeLabel="Go to Dashboard"
     />
   );

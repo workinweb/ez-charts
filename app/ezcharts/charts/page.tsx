@@ -65,7 +65,7 @@ export default function ChartsPage() {
             count={filtered.length}
             countLabel="charts"
             addButton={
-              <Link href="/edit">
+              <Link href="/ezcharts/edit">
                 <Button
                   size="sm"
                   className="gap-2 rounded-xl bg-[#6C5DD3] text-[12px] font-semibold text-white hover:bg-[#5a4dbf]"

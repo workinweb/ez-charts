@@ -95,7 +95,7 @@ export function NewSection() {
       setSaveDialogOpen(false);
       setChartToSave(null);
       setSaveName("");
-      router.push(`/charts/${newId}`);
+      router.push(`/ezcharts/charts/${newId}`);
     } finally {
       setSaving(false);
     }
@@ -134,7 +134,7 @@ export function NewSection() {
                   asChild
                   className="gap-2 text-[#3D4035]/70 hover:text-[#3D4035]"
                 >
-                  <Link href={`/edit?chart=${displayChart.id}`}>
+                  <Link href={`/ezcharts/edit?chart=${displayChart.id}`}>
                     <Pencil className="size-3.5" />
                     Edit
                   </Link>
@@ -229,7 +229,7 @@ export function NewSection() {
                       aria-label="Edit chart"
                       title="Edit chart"
                     >
-                      <Link href={`/edit?chart=${chart.id}`}>
+                      <Link href={`/ezcharts/edit?chart=${chart.id}`}>
                         <Pencil className="size-3.5" />
                       </Link>
                     </Button>

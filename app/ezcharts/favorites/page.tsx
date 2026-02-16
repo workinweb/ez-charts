@@ -66,7 +66,7 @@ export default function FavoritesPage() {
                   <>
                     Charts you mark with a heart will appear here. Browse{" "}
                     <Link
-                      href="/charts"
+                      href="/ezcharts/charts"
                       className="font-semibold text-[#6C5DD3] hover:underline"
                     >
                       Charts

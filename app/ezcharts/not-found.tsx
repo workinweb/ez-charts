@@ -4,7 +4,7 @@ export default function AppNotFound() {
   return (
     <NotFoundContent
       variant="app"
-      homeHref="/"
+      homeHref="/ezcharts"
       homeLabel="Go to Dashboard"
       subtitle="This chart, slide, or page doesn't exist or has been moved."
     />

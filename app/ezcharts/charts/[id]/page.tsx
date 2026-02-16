@@ -50,7 +50,7 @@ export default function ChartDetailPage() {
               asChild
               className="gap-2 text-[#3D4035]/70 hover:text-[#3D4035]"
             >
-              <Link href="/charts">
+              <Link href="/ezcharts/charts">
                 <ArrowLeft className="size-4" />
                 Back to charts
               </Link>
@@ -66,7 +66,7 @@ export default function ChartDetailPage() {
               title="Edit chart"
               className="gap-2 text-[#3D4035]/70 hover:text-[#3D4035]"
             >
-              <Link href={`/edit?chart=${id}`}>
+              <Link href={`/ezcharts/edit?chart=${id}`}>
                 <Pencil className="size-3.5" />
                 Edit
               </Link>

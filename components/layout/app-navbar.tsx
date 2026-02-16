@@ -42,8 +42,8 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
 const navItems = [
-  { label: "Home", href: "/", icon: Home },
-  { label: "Examples", href: "/examples", icon: LayoutGrid },
+  { label: "Home", href: "/ezcharts", icon: Home },
+  { label: "Examples", href: "/ezcharts/examples", icon: LayoutGrid },
 ] as const;
 
 function AppNavbarInner() {
@@ -71,7 +71,7 @@ function AppNavbarInner() {
   const lastEditedChartId = useChartsStore((s) => s.lastEditedChartId);
   const setLastEditedChartId = useChartsStore((s) => s.setLastEditedChartId);
 
-  const chartFromUrl = pathname === "/edit" ? searchParams.get("chart") : null;
+  const chartFromUrl = pathname === "/ezcharts/edit" ? searchParams.get("chart") : null;
 
   // Sync URL → store when the URL has a chart param
   useEffect(() => {
@@ -81,18 +81,18 @@ function AppNavbarInner() {
   }, [chartFromUrl, setLastEditedChartId]);
 
   const editingChartId = chartFromUrl ?? lastEditedChartId;
-  const isEditingChart = pathname === "/edit" && !!chartFromUrl;
+  const isEditingChart = pathname === "/ezcharts/edit" && !!chartFromUrl;
   const editingChart = useChartById(editingChartId ?? undefined);
 
   const currentLabel =
-    pathname === "/edit" && editingChartId
+    pathname === "/ezcharts/edit" && editingChartId
       ? `Editing: ${editingChart?.title ?? "Chart"}`
-      : pathname === "/edit"
+      : pathname === "/ezcharts/edit"
         ? "Create chart"
         : (navItems.find(
             (n) =>
               n.href === pathname ||
-              (n.href !== "/" && pathname?.startsWith(n.href)),
+              (n.href !== "/ezcharts" && pathname?.startsWith(n.href)),
           )?.label ?? "Home page");
 
   return (
@@ -129,7 +129,7 @@ function AppNavbarInner() {
             <DropdownMenuSeparator className="my-1" />
             <DropdownMenuItem asChild>
               <Link
-                href="/user"
+                href="/ezcharts/user"
                 className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-foreground/80 hover:bg-foreground/5 hover:text-foreground focus:bg-foreground/5"
               >
                 <User className="size-3.5 text-foreground/50" />
@@ -217,7 +217,7 @@ function AppNavbarInner() {
             ) : (
               <DropdownMenuItem asChild>
                 <Link
-                  href="/edit"
+                  href="/ezcharts/edit"
                   className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-foreground/80 hover:bg-foreground/5 hover:text-foreground focus:bg-foreground/5"
                 >
                   <Plus className="size-3.5 text-foreground/50" />
@@ -230,7 +230,7 @@ function AppNavbarInner() {
                 <DropdownMenuSeparator className="my-1" />
                 <DropdownMenuItem asChild>
                   <Link
-                    href={`/edit?chart=${editingChartId}`}
+                    href={`/ezcharts/edit?chart=${editingChartId}`}
                     className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-foreground/80 hover:bg-foreground/5 hover:text-foreground focus:bg-foreground/5"
                   >
                     <Pencil className="size-3.5 text-foreground/50" />
@@ -286,7 +286,7 @@ function AppNavbarInner() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                router.push("/edit");
+                router.push("/ezcharts/edit");
                 setCreateChartConfirmOpen(false);
               }}
               className="bg-[#6C5DD3] text-white hover:bg-[#5a4dbf]"

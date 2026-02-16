@@ -140,7 +140,7 @@ function EditChartContent() {
         setSaved(true);
         setSelectedId(newId);
         prevChartIdRef.current = newId;
-        router.replace(`/edit?chart=${newId}`);
+        router.replace(`/ezcharts/edit?chart=${newId}`);
         return;
       }
       if (!selectedId) return;
@@ -159,7 +159,7 @@ function EditChartContent() {
         setSaved(true);
         setSelectedId(newId);
         prevChartIdRef.current = newId;
-        router.replace(`/edit?chart=${newId}`);
+        router.replace(`/ezcharts/edit?chart=${newId}`);
       } else {
         await mutations.update(selectedId as any, {
           title,
@@ -229,7 +229,7 @@ function EditChartContent() {
 
   /* No chart and not create mode → redirect when chart not found */
   useEffect(() => {
-    if (!isCreateMode && chartMissing) router.replace("/charts");
+    if (!isCreateMode && chartMissing) router.replace("/ezcharts/charts");
   }, [isCreateMode, chartMissing, router]);
 
   if (!isCreateMode && !selectedId) return null;
@@ -260,7 +260,7 @@ function EditChartContent() {
             dirty={dirty}
             saved={saved}
             saving={saving}
-            onBack={() => router.replace("/charts")}
+            onBack={() => router.replace("/ezcharts/charts")}
             onReset={handleReset}
             onSave={handleSave}
             onSendToAI={handleSendToAI}

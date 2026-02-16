@@ -56,7 +56,7 @@ function ResendVerificationButton({ email }: { email: string }) {
       onClick={async () => {
         setLoading(true);
         setSent(false);
-        await authClient.sendVerificationEmail({ email, callbackURL: "/user" });
+        await authClient.sendVerificationEmail({ email, callbackURL: "/ezcharts/user" });
         setSent(true);
         setLoading(false);
       }}

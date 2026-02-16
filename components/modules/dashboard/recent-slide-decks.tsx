@@ -35,7 +35,7 @@ export function RecentSlideDecks() {
               No custom slide decks yet
             </p>
             <Link
-              href="/slides"
+              href="/ezcharts/slides"
               className="text-[13px] font-semibold text-[#6C5DD3] hover:underline"
             >
               Create your first deck →

@@ -58,7 +58,7 @@ export function SlidesOverview() {
 
       <div className="mt-4">
         <Link
-          href="/slides"
+          href="/ezcharts/slides"
           className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-white/20"
         >
           <Zap className="size-3.5" />

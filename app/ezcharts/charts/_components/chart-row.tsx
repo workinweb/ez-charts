@@ -56,7 +56,7 @@ export function ChartRow({
         <div className="flex items-center gap-0.5 sm:gap-1">
           {showEdit && (
             <Link
-              href={`/edit?chart=${chart.id}`}
+              href={`/ezcharts/edit?chart=${chart.id}`}
               className={cn(
                 controlButtonClass,
                 "hover:bg-[#6C5DD3]/10 hover:text-[#6C5DD3]",
@@ -120,7 +120,7 @@ export function ChartRow({
         </div>
 
         <Link
-          href={`/charts/${chart.id}`}
+          href={`/ezcharts/charts/${chart.id}`}
           className="flex flex-col items-end gap-0.5 text-right sm:flex-row sm:items-center sm:gap-2"
         >
           <p className="text-[13px] font-medium text-[#3D4035]/50">

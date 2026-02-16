@@ -5,7 +5,8 @@ import Link from "next/link";
 import { authClient } from "@/lib/(auth)/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { BarChart3, Loader2 } from "lucide-react";
+import Image from "next/image";
+import { Loader2 } from "lucide-react";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -42,8 +43,14 @@ export default function ForgotPasswordPage() {
     <div className="w-full max-w-[400px]">
       <div className="rounded-[28px] bg-white p-8 shadow-sm ring-1 ring-black/[0.04] sm:rounded-[32px] sm:p-10">
         <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="flex size-12 items-center justify-center rounded-2xl bg-[#6C5DD3]/10">
-            <BarChart3 className="size-6 text-[#6C5DD3]" />
+          <div className="relative size-[75px] shrink-0">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
           <div className="text-center">
             <h1 className="text-[22px] font-semibold text-[#3D4035]">
