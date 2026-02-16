@@ -46,11 +46,11 @@ export function HeroSection() {
                 </div>
               </Link>
               <Link
-                href="/ezcharts/edit"
+                href="/examples"
                 className="flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-8 py-4 text-base font-semibold text-slate-700 transition-all hover:bg-slate-50"
               >
                 <PlayCircle className="size-5 text-[#6C5DD3]" />
-                Open Studio
+                View examples
               </Link>
             </div>
 

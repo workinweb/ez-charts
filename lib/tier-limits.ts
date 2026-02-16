@@ -47,6 +47,8 @@ export const TIER_DOC: Record<
       "100 credits to spend on AI help",
       "Up to 10 saved charts and 2 slide decks",
       "Documents can be used in chat but are not saved to storage (upload disabled)",
+      "Export to PNG",
+      "Data presentations",
     ],
   },
   pro: {
@@ -55,6 +57,8 @@ export const TIER_DOC: Record<
       "250 credits per month",
       "Unlimited charts and slide decks",
       "Up to 15 documents saved to your account",
+      "Export to PNG",
+      "Data presentations",
     ],
   },
   max: {
@@ -63,6 +67,8 @@ export const TIER_DOC: Record<
       "600 credits per month",
       "Unlimited charts and slide decks",
       "Unlimited documents",
+      "Export to PNG",
+      "Data presentations",
     ],
   },
 };

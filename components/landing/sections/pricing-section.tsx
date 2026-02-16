@@ -47,6 +47,8 @@ export function PricingSection() {
                 : limits.maxDocuments === Infinity
                   ? "Unlimited documents saved"
                   : `Up to ${limits.maxDocuments} documents saved`,
+              "Export to PNG",
+              "Data presentations",
             ];
 
             return (

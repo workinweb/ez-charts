@@ -1,19 +1,19 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import type { SectionKey } from "@/stores/section-store";
+import { useSectionStore } from "@/stores/section-store";
 import {
-  LayoutGrid,
+  Bookmark,
   FileText,
   LayoutDashboard,
-  Users,
+  LayoutGrid,
   Link2,
-  Bookmark,
   SlidersHorizontal,
   Sparkles,
+  Users,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { useSectionStore } from "@/stores/section-store";
-import type { SectionKey } from "@/stores/section-store";
 
 interface SidebarIcon {
   icon: React.ElementType;
