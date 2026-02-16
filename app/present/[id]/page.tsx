@@ -26,18 +26,21 @@ export default function SlideViewPage() {
   // Support "auto-{chartId}" for single-chart presentation
   const isAutoPresent = id?.startsWith("auto-");
   const chartIdForAuto = isAutoPresent ? id!.replace(/^auto-/, "") : null;
-  const { slide: slideFromConvex, isLoading, isNotFound } = useSlideByIdWithStatus(
-    isAutoPresent ? undefined : id
-  );
-  const slide = isAutoPresent && chartIdForAuto
-    ? {
-        id: id!,
-        name: "Chart",
-        chartIds: [chartIdForAuto],
-        type: "custom" as const,
-        createdAt: "",
-      }
-    : slideFromConvex;
+  const {
+    slide: slideFromConvex,
+    isLoading,
+    isNotFound,
+  } = useSlideByIdWithStatus(isAutoPresent ? undefined : id);
+  const slide =
+    isAutoPresent && chartIdForAuto
+      ? {
+          id: id!,
+          name: "Chart",
+          chartIds: [chartIdForAuto],
+          type: "custom" as const,
+          createdAt: "",
+        }
+      : slideFromConvex;
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -247,33 +250,41 @@ export default function SlideViewPage() {
               )}
               <div className="rounded-[28px] bg-white/90 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
                 <div className="min-h-[360px] w-full">
-                {chartLoading ? (
-                  <div className="flex h-[360px] w-full flex-col items-center justify-center gap-3">
-                    <div className="size-8 animate-spin rounded-full border-2 border-[#6C5DD3]/20 border-t-[#6C5DD3]" />
-                    <p className="text-[14px] text-[#3D4035]/60">Loading chart…</p>
-                  </div>
-                ) : !currentChart ? (
-                  <div className="flex h-[360px] w-full flex-col items-center justify-center gap-3 text-center">
-                    <div className="flex size-14 items-center justify-center rounded-full bg-[#e87c5c]/10">
-                      <AlertCircle className="size-7 text-[#e87c5c]" />
+                  {chartLoading ? (
+                    <div className="flex h-[360px] w-full flex-col items-center justify-center gap-3">
+                      <div className="size-8 animate-spin rounded-full border-2 border-[#6C5DD3]/20 border-t-[#6C5DD3]" />
+                      <p className="text-[14px] text-[#3D4035]/60">
+                        Loading chart…
+                      </p>
                     </div>
-                    <h3 className="text-[16px] font-semibold text-[#3D4035]">
-                      Chart unavailable
-                    </h3>
-                    <p className="max-w-sm text-[14px] text-[#3D4035]/60">
-                      This chart could not be retrieved. It may have been deleted
-                      or no longer exists.
-                    </p>
-                    <Button variant="ghost" size="sm" asChild className="mt-2">
-                      <Link href="/slides" className="gap-2">
-                        <ArrowLeft className="size-4" />
-                        Back to slides
-                      </Link>
-                    </Button>
-                  </div>
-                ) : (
-                  chartEl
-                )}
+                  ) : !currentChart ? (
+                    <div className="flex h-[360px] w-full flex-col items-center justify-center gap-3 text-center">
+                      <div className="flex size-14 items-center justify-center rounded-full bg-[#e87c5c]/10">
+                        <AlertCircle className="size-7 text-[#e87c5c]" />
+                      </div>
+                      <h3 className="text-[16px] font-semibold text-[#3D4035]">
+                        Chart unavailable
+                      </h3>
+                      <p className="max-w-sm text-[14px] text-[#3D4035]/60">
+                        This chart could not be retrieved. It may have been
+                        deleted or no longer exists, or you don&apos;t have
+                        permission to view it.
+                      </p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        asChild
+                        className="mt-2"
+                      >
+                        <Link href="/slides" className="gap-2">
+                          <ArrowLeft className="size-4" />
+                          Back to slides
+                        </Link>
+                      </Button>
+                    </div>
+                  ) : (
+                    chartEl
+                  )}
                 </div>
               </div>
             </div>

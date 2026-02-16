@@ -23,20 +23,9 @@ export function BarChartVertical({
     return null;
   }
 
-  const minBars = 10;
-  const filledData = [
-    ...data,
-    // Add empty bars to make the chart look better for small datasets
-    ...Array.from({ length: Math.max(0, minBars - data.length) }, (_, i) => ({
-      key: `Empty ${i + 1}`,
-      value: 0,
-      color: "bg-gradient-to-b from-fuchsia-200 to-fuchsia-300",
-    })),
-  ];
-
-  // Scales
+  // Scales – use actual data so bars fill the full horizontal space (like vertical-multi)
   const xScale = scaleBand()
-    .domain(filledData.map((d) => d.key))
+    .domain(data.map((d) => d.key))
     .range([0, 100])
     .padding(0.3);
 
@@ -142,7 +131,7 @@ export function BarChartVertical({
         })}
 
         {/* Bars */}
-        {filledData.map((d, index) => {
+        {data.map((d, index) => {
           const barWidth = xScale.bandwidth();
           const barHeight = yScale(0) - yScale(d.value);
           const defaultColor =
