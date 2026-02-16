@@ -22,13 +22,19 @@ export function PricingSection() {
       className="scroll-mt-20 mx-4 mb-4 rounded-[3rem] bg-white py-24 my-20 shadow-sm"
     >
       <div className="mx-auto max-w-7xl px-6">
-        <div className="mb-16 text-center">
-          <h2 className="mb-4 text-3xl font-medium uppercase tracking-tight text-slate-900">
-            Pricing plans
-          </h2>
-          <p className="font-medium text-slate-500">
-            Start for free and scale as you grow.
+        <div className="mb-16 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <p className="max-w-sm pb-2 text-sm font-medium leading-relaxed text-slate-500">
+            Choose the plan that fits. Free to explore, Pro and Max when you
+            need more.
           </p>
+          <div className="max-w-xl text-right md:ml-auto">
+            <h2 className="text-3xl font-medium uppercase leading-tight tracking-tight text-slate-900 md:text-5xl">
+              Pricing plans <br />
+              <span className="text-slate-400">
+                Start for free and scale as you grow.
+              </span>
+            </h2>
+          </div>
         </div>
 
         <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">

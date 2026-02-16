@@ -38,7 +38,7 @@ export function ManualStudioSection() {
   }, [isAutomatic]);
 
   return (
-    <section className="mt-12 overflow-hidden rounded-t-[3rem] bg-[#111827] text-white">
+    <section className="translate-y-[-50px] overflow-hidden rounded-t-[3rem]  bg-[#111827] text-white">
       <div className="mx-auto max-w-7xl px-6 py-16">
         <div className="flex flex-col items-center gap-20 lg:flex-row-reverse">
           <div className="relative flex w-full flex-col gap-6 lg:w-1/2">
@@ -225,15 +225,19 @@ export function ManualStudioSection() {
                       Series colors
                     </p>
                     <div className="flex flex-wrap gap-3 rounded-xl border border-white/5 bg-[#111827] p-4">
-                      {["#6C5DD3", "#8B5CF6", "#0EA5E9", "#10B981", "#F59E0B"].map(
-                        (c) => (
-                          <div
-                            key={c}
-                            className="size-8 cursor-pointer rounded-full ring-2 ring-white/20 transition-transform hover:scale-110"
-                            style={{ backgroundColor: c }}
-                          />
-                        ),
-                      )}
+                      {[
+                        "#6C5DD3",
+                        "#8B5CF6",
+                        "#0EA5E9",
+                        "#10B981",
+                        "#F59E0B",
+                      ].map((c) => (
+                        <div
+                          key={c}
+                          className="size-8 cursor-pointer rounded-full ring-2 ring-white/20 transition-transform hover:scale-110"
+                          style={{ backgroundColor: c }}
+                        />
+                      ))}
                     </div>
                   </div>
                 </div>

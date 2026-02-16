@@ -3,7 +3,7 @@ import { MessageSquare, RefreshCw, Palette } from "lucide-react";
 
 export function AIChatSection() {
   return (
-    <section className="overflow-hidden bg-white py-24">
+    <section className="overflow-hidden bg-white py-24 pb-36">
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex flex-col items-center gap-20 lg:flex-row">
           <div className="relative lg:w-1/2">
@@ -22,7 +22,12 @@ export function AIChatSection() {
                 <div className="flex justify-start">
                   <div className="flex max-w-[95%] gap-4">
                     <div className="relative size-10 shrink-0 overflow-hidden rounded-full border-2 border-white bg-white shadow-lg">
-                      <Image src="/logo.png" alt="" fill className="object-contain p-1.5" />
+                      <Image
+                        src="/logo.png"
+                        alt=""
+                        fill
+                        className="object-contain p-1.5"
+                      />
                     </div>
                     <div className="w-full space-y-4">
                       <div className="rounded-[2rem] rounded-tl-sm border border-slate-100 bg-white p-6 shadow-sm">

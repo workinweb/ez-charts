@@ -24,11 +24,11 @@ interface SidebarIcon {
 const mainIcons: SidebarIcon[] = [
   { icon: LayoutDashboard, label: "Dashboard", sectionKey: "dashboard" },
   { icon: FileText, label: "Documents", sectionKey: "documents" },
-  { icon: LayoutGrid, label: "Layout", sectionKey: "layout" },
-  { icon: Users, label: "Team", sectionKey: "team" },
-  { icon: Link2, label: "Links", sectionKey: "links" },
-  { icon: Bookmark, label: "Saved", sectionKey: "saved" },
-  { icon: SlidersHorizontal, label: "Adjustments", sectionKey: "adjustments" },
+  // { icon: LayoutGrid, label: "Layout", sectionKey: "layout" },
+  // { icon: Users, label: "Team", sectionKey: "team" },
+  // { icon: Link2, label: "Links", sectionKey: "links" },
+  // { icon: Bookmark, label: "Saved", sectionKey: "saved" },
+  // { icon: SlidersHorizontal, label: "Adjustments", sectionKey: "adjustments" },
 ];
 
 const bottomIcons: SidebarIcon[] = [
@@ -74,8 +74,8 @@ export function IconSidebar() {
 
   return (
     <aside className="hidden h-full w-18 shrink-0 flex-col items-center gap-3 bg-background py-4 pl-3 rounded-l-3xl md:flex">
-      <div className="flex flex-1 flex-col items-center rounded-2xl bg-white/80 p-1.5 shadow-sm ring-1 ring-black/[0.04]">
-        <div className="flex flex-col items-center gap-0.5">
+      <div className="flex flex-1 flex-col items-center justify-center rounded-2xl bg-white/80 p-1.5 shadow-sm ring-1 ring-black/[0.04]">
+        <div className="flex flex-col items-center gap-1 ">
           {mainIcons.map((item) => (
             <IconBtn
               key={item.sectionKey}
