@@ -71,14 +71,12 @@ export const addMessage = mutation({
     const now = Date.now();
     const userId = identity.subject;
 
-    // Compute credits for assistant messages with token usage
+    // Compute credits for assistant messages — use OUTPUT tokens only to avoid
+    // charging for our system prompt and conversation history.
     let creditsCharged = 0;
     if (args.message.role === "assistant" && args.message.tokenUsage) {
-      const totalTokens =
-        args.message.tokenUsage.totalTokens ??
-        (args.message.tokenUsage.inputTokens ?? 0) +
-          (args.message.tokenUsage.outputTokens ?? 0);
-      creditsCharged = tokensToCredits(totalTokens);
+      const outputTokens = args.message.tokenUsage.outputTokens ?? 0;
+      creditsCharged = tokensToCredits(outputTokens);
 
       if (creditsCharged > 0) {
         const settings = await ctx.db

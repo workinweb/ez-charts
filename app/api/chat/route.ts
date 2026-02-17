@@ -82,7 +82,7 @@ export async function POST(req: Request) {
     const systemPrompt = CHART_SYSTEM_PROMPT + chartTypeHint;
 
     const result = streamText({
-      model: openai("gpt-4o"),
+      model: openai("gpt-4.1-nano"),
       messages: await convertToModelMessages(messages),
       system: systemPrompt,
       stopWhen: stepCountIs(2),

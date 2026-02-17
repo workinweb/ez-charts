@@ -6,7 +6,7 @@ export {
   DEFAULT_CREDITS,
   LONG_CREDITS,
   EXTRA_LARGE_CREDITS,
-  TOKENS_FOR_LONG,
-  TOKENS_FOR_EXTRA_LARGE,
+  OUTPUT_TOKENS_FOR_LONG,
+  OUTPUT_TOKENS_FOR_EXTRA_LARGE,
   tokensToCredits,
 } from "../convex/chatCreditsConfig";
