@@ -118,6 +118,20 @@ function messageHasPendingChartTool(msg: {
   );
 }
 
+/** Assistant is streaming but has no visible content yet (model generating tool call) */
+function assistantHasNoContentYet(msg: {
+  role?: string;
+  parts?: Array<{ type?: string; text?: string; state?: string }>;
+}): boolean {
+  if (msg.role !== "assistant") return false;
+  const parts = msg.parts ?? [];
+  const hasText = parts.some((p) => p?.type === "text" && (p.text?.length ?? 0) > 0);
+  const hasCompletedTool = parts.some(
+    (p) => typeof p?.type === "string" && p.type.startsWith("tool-") && p?.state === "output-available",
+  );
+  return !hasText && !hasCompletedTool;
+}
+
 const ACCEPTED_FILE_TYPES =
   ".csv,.xlsx,.xls,.pdf,.json,.txt,.tsv,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/pdf,application/json,text/plain,text/tab-separated-values";
 
@@ -179,6 +193,11 @@ export function ChatSidebarContent() {
     isLoading &&
     lastMsg?.role === "assistant" &&
     messageHasPendingChartTool(lastMsg);
+  // Assistant is responding but no content yet (model generating tool call) — show loading to avoid blank pause
+  const isAssistantPreparing =
+    isLoading &&
+    lastMsg?.role === "assistant" &&
+    assistantHasNoContentYet(lastMsg);
   const hasParsing = attachedFiles.some((f) => f.parsing);
   const hasChartContext = !!attachedChartContext;
   const hasLoadedDocs = loadedDocuments.length > 0;
@@ -387,7 +406,7 @@ export function ChatSidebarContent() {
                 </div>
               )}
 
-            {isToolCallingChart && (
+            {(isToolCallingChart || isAssistantPreparing) && (
               <div className="space-y-2">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
@@ -406,7 +425,9 @@ export function ChatSidebarContent() {
                 <div className="flex items-center gap-2 rounded-xl bg-[#BCBDEA]/15 px-3 py-2.5 ring-1 ring-[#6C5DD3]/20">
                   <Loader2 className="size-3.5 shrink-0 animate-spin text-[#6C5DD3]" />
                   <span className="text-[13px] text-sidebar-foreground/90">
-                    Gathering chart data…
+                    {isToolCallingChart
+                      ? "Creating chart…"
+                      : "Preparing your response…"}
                   </span>
                 </div>
               </div>

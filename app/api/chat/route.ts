@@ -45,6 +45,7 @@ export async function POST(req: Request) {
     // ── Step 1: Guardrail ──────────────────────────────────────────
     const { output: guardrail } = await generateText({
       model: openai("gpt-5-nano"),
+      providerOptions: { openai: { reasoningEffort: "minimal" } },
       output: Output.object({
         schema: z.object({
           isRelevant: z
@@ -83,6 +84,7 @@ export async function POST(req: Request) {
 
     const result = streamText({
       model: openai("gpt-5-nano"),
+      providerOptions: { openai: { reasoningEffort: "minimal" } },
       messages: await convertToModelMessages(messages),
       system: systemPrompt,
       stopWhen: stepCountIs(2),
