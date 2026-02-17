@@ -44,7 +44,7 @@ export async function POST(req: Request) {
 
     // ── Step 1: Guardrail ──────────────────────────────────────────
     const { output: guardrail } = await generateText({
-      model: openai("gpt-4o-mini"),
+      model: openai("gpt-5-nano"),
       output: Output.object({
         schema: z.object({
           isRelevant: z
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
     const systemPrompt = CHART_SYSTEM_PROMPT + chartTypeHint;
 
     const result = streamText({
-      model: openai("gpt-4.1-nano"),
+      model: openai("gpt-5-nano"),
       messages: await convertToModelMessages(messages),
       system: systemPrompt,
       stopWhen: stepCountIs(2),
