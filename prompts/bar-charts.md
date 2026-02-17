@@ -13,7 +13,7 @@ interface HorizontalBarData {
   id?: string;      // Optional unique id
   key: string;     // Category label (e.g. "Technology", "North Region")
   value: number;   // Numeric value
-  color?: string;  // Optional: Tailwind class e.g. "bg-purple-400"
+  color?: string;  // Optional: Tailwind "bg-purple-400" or hex "#6C5DD3" — set per bar to change colors
 }
 ```
 
@@ -39,7 +39,7 @@ interface GradientBarData {
   id?: string;
   key: string;
   value: number;
-  color?: string;  // Tailwind gradient e.g. "bg-gradient-to-r from-pink-300 to-pink-400"
+  color?: string;  // To change colors: Tailwind gradient e.g. "bg-gradient-to-r from-pink-300 to-pink-400"
 }
 ```
 
@@ -66,7 +66,7 @@ interface MultiBarData {
   id?: string;
   key: string;           // Category label
   values: number[];      // Array of values (one bar per value)
-  multipleColors?: string[];  // Optional per-bar colors
+  multipleColors?: string[];  // To change colors: one per value, e.g. ["bg-blue-400", "bg-green-400", "bg-amber-400"]
   image?: string;        // Optional: URL for leading icon (e.g. flag)
 }
 ```
@@ -92,7 +92,7 @@ interface ImageBarData {
   id?: string;
   key: string;
   value: number;
-  color?: string;
+  color?: string;  // To change colors: Tailwind or hex per bar
   image: string;  // URL to image (SVG or PNG)
 }
 ```
@@ -134,7 +134,7 @@ interface VerticalBarData {
   id?: string;
   key: string;    // X-axis label
   value: number;
-  color?: string;
+  color?: string;  // To change colors: Tailwind "bg-purple-400" or hex per bar
 }
 ```
 

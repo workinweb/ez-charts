@@ -20,8 +20,9 @@ export interface ShadcnRadarDataPoint {
   [dimension: string]: string | number;
 }
 
-/** Radial: name + value */
+/** Radial: name + value + optional fill */
 export interface ShadcnRadialDataPoint {
   name: string;
   value: number;
+  fill?: string;
 }

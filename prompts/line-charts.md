@@ -18,7 +18,7 @@ interface LineChartDataPoint {
 interface LineDataSeries {
   id?: string;
   data: LineChartDataPoint[];
-  color?: string | { line: string; point: string };
+  color?: string | { line: string; point: string };  // To change colors: "stroke-violet-400" or { line: "stroke-violet-400", point: "text-violet-300" }
 }
 ```
 
@@ -50,7 +50,7 @@ interface LineDataSeries {
 interface LineDataSeries {
   id?: string;
   data: Array<{ date: string | Date; value: number }>;
-  color?: string | { line: string; point: string };  // Tailwind classes
+  color?: string | { line: string; point: string };  // To change colors per series: "stroke-violet-400" or { line: "stroke-violet-400", point: "text-violet-300" }
 }
 ```
 

@@ -13,8 +13,8 @@ interface PieChartItem {
   id?: string;
   name: string;    // Segment label
   value: number;   // Numeric value (proportion)
-  colorFrom?: string;  // Optional Tailwind: "text-pink-400"
-  colorTo?: string;   // Optional gradient end
+  colorFrom?: string;  // To change colors: Tailwind "text-pink-400" (gradient start)
+  colorTo?: string;   // To change colors: Tailwind "text-pink-600" (gradient end)
   logo?: string;     // Optional image URL (for pie-image)
 }
 ```

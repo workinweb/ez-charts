@@ -8,7 +8,7 @@ This folder contains context documents for the AI to generate accurate chart dat
 - **`line-charts.md`** — Single line, multi-line, curved line
 - **`pie-charts.md`** — Pie, donut, half-donut, fillable charts
 - **`other-charts.md`** — Breakdown, benchmark, treemap, scatter
-- **`schemas-reference.md`** — Quick TypeScript interface reference and chart-key → schema mapping
+- **`schemas-reference.md`** — Quick TypeScript interface reference, chart-key → schema mapping, and **how to change colors** for all chart types
 
 ## Usage
 

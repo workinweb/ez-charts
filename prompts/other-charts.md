@@ -13,7 +13,7 @@ interface BreakdownChartItem {
   id?: string;
   key: string;    // Segment label
   value: number;  // Proportion value
-  color?: string; // Optional: Tailwind gradient e.g. "from-fuchsia-300/80 to-fuchsia-400/80"
+  color?: string; // To change colors: Tailwind gradient e.g. "from-fuchsia-300/80 to-fuchsia-400/80"
 }
 ```
 
@@ -47,8 +47,8 @@ interface BenchmarkChartItem {
   id?: string;
   key: string;
   value: number;
-  colorFrom?: string;
-  colorTo?: string;
+  colorFrom?: string;  // To change colors: Tailwind gradient start
+  colorTo?: string;   // To change colors: Tailwind gradient end
 }
 ```
 
@@ -77,8 +77,8 @@ interface TreeMapChartItem {
   id?: string;
   name: string;   // Parent category
   subtopics: [Record<string, number>, ...Record<string, number>[]];  // At least one object
-  colorFrom?: string;
-  colorTo?: string;
+  colorFrom?: string;  // To change colors: gradient start per parent
+  colorTo?: string;   // To change colors: gradient end per parent
 }
 ```
 
@@ -116,7 +116,7 @@ interface ScatterChartItem {
   xValue: number;
   yValue: number;
   name: string;   // Point label
-  color?: string;
+  color?: string;  // To change colors: Tailwind or hex per point
 }
 ```
 

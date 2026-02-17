@@ -2,6 +2,37 @@
 
 Shadcn charts are built on Recharts and use a different data shape than Rosencharts.
 
+## Changing Colors
+
+| Chart Type | How to Set Colors |
+|------------|-------------------|
+| **shadcn:bar, shadcn:area, shadcn:line, shadcn:radar** | Wrap data with `_seriesColors`. Keys = series names (desktop, mobile, etc.). Values = hex: `"#6C5DD3"`. See below. |
+| **shadcn:pie** | Add `fill` to each item: `{ name: "Tech", value: 548, fill: "#6C5DD3" }` |
+| **shadcn:radial** | Add `fill` to each item: `{ name: "Tech", value: 548, fill: "#6C5DD3" }` |
+
+**Cartesian (bar, area, line, radar) — wrap data to set series colors:**
+```json
+{
+  "_data": [
+    { "month": "January", "desktop": 186, "mobile": 80 },
+    { "month": "February", "desktop": 305, "mobile": 200 }
+  ],
+  "_seriesColors": { "desktop": "#6C5DD3", "mobile": "#2dd4a8" }
+}
+```
+
+**Pie / Radial — per-item fill:**
+```json
+[
+  { "name": "Technology", "value": 548, "fill": "#6C5DD3" },
+  { "name": "Utilities", "value": 412, "fill": "#2dd4a8" }
+]
+```
+
+**Suggested palette:** `#6C5DD3`, `#BCBDEA`, `#5574e8`, `#2dd4a8`, `#e87c5c`
+
+---
+
 ## Chart Types
 
 | Chart Key | Description |
@@ -33,9 +64,9 @@ Shadcn charts are built on Recharts and use a different data shape than Rosencha
 
 ```typescript
 [
-  { name: "Technology", value: 548 },
-  { name: "Utilities", value: 412 },
-  { name: "Materials", value: 287 },
+  { name: "Technology", value: 548, fill?: string },  // fill = hex to change slice color
+  { name: "Utilities", value: 412, fill?: string },
+  { name: "Materials", value: 287, fill?: string },
 ]
 ```
 

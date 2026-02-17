@@ -97,24 +97,22 @@ export async function POST(req: Request) {
             if (chartType === "horizontal-bar-image") {
               processedData = (data as Array<Record<string, unknown>>).map(
                 (item) => {
-                  const key = (item.key as string) ?? (item.name as string) ?? "";
+                  const key =
+                    (item.key as string) ?? (item.name as string) ?? "";
                   return {
                     ...item,
-                    image:
-                      (item.image as string) ??
-                      generateChartImageUrl(key),
+                    image: (item.image as string) ?? generateChartImageUrl(key),
                   };
                 },
               );
             } else if (chartType === "pie-image") {
               processedData = (data as Array<Record<string, unknown>>).map(
                 (item) => {
-                  const name = (item.name as string) ?? (item.key as string) ?? "";
+                  const name =
+                    (item.name as string) ?? (item.key as string) ?? "";
                   return {
                     ...item,
-                    logo:
-                      (item.logo as string) ??
-                      generateChartImageUrl(name),
+                    logo: (item.logo as string) ?? generateChartImageUrl(name),
                   };
                 },
               );
@@ -130,7 +128,17 @@ export async function POST(req: Request) {
       },
     });
 
-    return result.toUIMessageStreamResponse();
+    return result.toUIMessageStreamResponse({
+      messageMetadata: ({ part }) => {
+        if (part.type === "finish" && part.totalUsage) {
+          return {
+            inputTokens: part.totalUsage.inputTokens,
+            outputTokens: part.totalUsage.outputTokens,
+            totalTokens: part.totalUsage.totalTokens,
+          };
+        }
+      },
+    });
   } catch (error) {
     console.error("Error in chat route:", error);
     return NextResponse.json(

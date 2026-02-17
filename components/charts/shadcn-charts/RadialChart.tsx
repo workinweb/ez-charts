@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/chart";
 
 export interface ShadcnRadialChartProps {
-  data: { name: string; value: number }[];
+  data: { name: string; value: number; fill?: string }[];
   config: ChartConfig;
   className?: string;
   withTooltip?: boolean;
@@ -34,7 +34,7 @@ export function ShadcnRadialChart({
   const max = Math.max(...data.map((d) => d.value), 1);
   const dataWithFill = data.map((item, i) => ({
     ...item,
-    fill: DEFAULT_COLORS[i % DEFAULT_COLORS.length],
+    fill: item.fill ?? DEFAULT_COLORS[i % DEFAULT_COLORS.length],
     full: max,
   }));
   return (

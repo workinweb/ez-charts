@@ -113,6 +113,12 @@ export default defineSchema({
     content: v.string(),
     /** Optional metadata (attached files, chart context, etc.) */
     metadata: v.optional(v.any()),
+    /** Token usage for AI responses (assistant messages only) */
+    inputTokens: v.optional(v.number()),
+    outputTokens: v.optional(v.number()),
+    totalTokens: v.optional(v.number()),
+    /** Credits charged for this message (from tokensToCredits) */
+    creditsCharged: v.optional(v.number()),
     createdAt: v.number(),
   })
     .index("by_conversation", ["conversationId"])

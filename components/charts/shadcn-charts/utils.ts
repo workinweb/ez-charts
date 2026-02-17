@@ -37,12 +37,17 @@ export function inferCartesianConfig(
   return config;
 }
 
-/** Infer chartConfig from pie/radial data */
-export function inferPieConfig(data: { name: string; value: number }[]): Record<string, { label: string; color: string }> {
+/** Infer chartConfig from pie/radial data. Uses item.fill when present for custom colors. */
+export function inferPieConfig(
+  data: { name: string; value: number; fill?: string }[],
+): Record<string, { label: string; color: string }> {
   const config: Record<string, { label: string; color: string }> = {};
   const colors = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
   data.forEach((item, i) => {
-    config[item.name] = { label: item.name, color: colors[i % colors.length] };
+    config[item.name] = {
+      label: item.name,
+      color: item.fill ?? colors[i % colors.length],
+    };
   });
   return config;
 }

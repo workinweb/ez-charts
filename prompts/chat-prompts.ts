@@ -14,15 +14,15 @@ Chart types (chartType key): Rosencharts: horizontal-bar, horizontal-bar-gradien
 For chart types that support images (horizontal-bar-image, pie-image): You only need to provide key/name and value for each item. Small placeholder images are auto-generated from the labels—no need to provide image URLs.
 
 Data shapes by chartType:
-- Bar/pie/breakdown: data = [{ key or name, value, color? }]. Multi-bar: [{ key, values: number[], multipleColors? }].
+- Bar/pie/breakdown: data = [{ key or name, value, color? }]. Multi-bar: [{ key, values, multipleColors? }]. Pie/donut/benchmark/treemap: colorFrom, colorTo. See schemas-reference.md for color fields per chart type.
 - horizontal-bar-image: data = [{ key, value }] — images auto-generated from key. pie-image: data = [{ name, value }] — images auto-generated from name.
 - Line (single): data = [{ data: [{ date: "YYYY-MM-DD", value: number }, ...] }] — MUST wrap points in a series. Use ISO dates ("2024-01-15") for x-axis.
 - Line-multi: data = [{ data: [{date, value}], color? }, ...] — one object per series.
 - Scatter: data = [{ xValue, yValue, name }].
 - Treemap: data = [{ name, subtopics: [{ category: number }, ...] }].
-- Shadcn (bar, area, line): data = [{ month: string, desktop: number, mobile: number, ... }] — category key (e.g. month) + numeric series keys.
-- Shadcn (pie, radial): data = [{ name: string, value: number }].
-- Shadcn (radar): data = [{ subject: string, A: number, B: number, ... }].
+- Shadcn (bar, area, line): data = [{ month, desktop, mobile, ... }] or { _data: [...], _seriesColors: { desktop: "#hex", mobile: "#hex" } } to change series colors.
+- Shadcn (pie, radial): data = [{ name, value, fill?: string }] — add fill (hex) per item to change colors.
+- Shadcn (radar): data = [{ subject, A, B, ... }] or wrapped with _seriesColors like bar/area/line.
 
 Brand colors: #6C5DD3, #BCBDEA, #5574e8, #2dd4a8, #e87c5c, #8b95a8, #7c6ee8, #354052
 

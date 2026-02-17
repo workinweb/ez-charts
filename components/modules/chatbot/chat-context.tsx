@@ -47,6 +47,12 @@ export interface SerializedChatResult {
   feedback: "liked" | "disliked" | "nofeedback";
 }
 
+interface TokenUsage {
+  inputTokens?: number;
+  outputTokens?: number;
+  totalTokens?: number;
+}
+
 interface SerializedMessage {
   role: string;
   content: string;
@@ -54,6 +60,7 @@ interface SerializedMessage {
   chartTitle?: string;
   chartData?: unknown;
   feedback?: "liked" | "disliked";
+  tokenUsage?: TokenUsage;
 }
 
 /** Serialize a single message for Convex. Returns message + optional result for assistant+chart. */
@@ -67,6 +74,11 @@ function serializeMessage(
       state?: string;
       output?: unknown;
     }>;
+    metadata?: {
+      inputTokens?: number;
+      outputTokens?: number;
+      totalTokens?: number;
+    };
   },
   feedbackMap: Record<string, "liked" | "disliked">,
 ): { message: SerializedMessage; result?: SerializedChatResult } {
@@ -94,6 +106,19 @@ function serializeMessage(
     }
   }
   const feedback = msg.id ? feedbackMap[msg.id] : undefined;
+  const hasTokenUsage =
+    msg.metadata &&
+    (msg.metadata.totalTokens != null ||
+      msg.metadata.inputTokens != null ||
+      msg.metadata.outputTokens != null);
+  const tokenUsage: TokenUsage | undefined = hasTokenUsage
+    ? {
+        inputTokens: msg.metadata!.inputTokens,
+        outputTokens: msg.metadata!.outputTokens,
+        totalTokens: msg.metadata!.totalTokens,
+      }
+    : undefined;
+
   const message: SerializedMessage = {
     role: msg.role ?? "user",
     content: content.slice(0, 8000),
@@ -101,6 +126,7 @@ function serializeMessage(
     ...(chartTitle && { chartTitle }),
     ...(chartData !== undefined && { chartData }),
     ...(feedback && { feedback }),
+    ...(tokenUsage && { tokenUsage }),
   };
   const result: SerializedChatResult | undefined =
     msg.role === "assistant" && chartType && chartTitle !== undefined

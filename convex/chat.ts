@@ -1,11 +1,21 @@
 import { v } from "convex/values";
 import { mutation } from "./_generated/server";
+import { tokensToCredits } from "./chatCreditsConfig";
+
 /**
  * Chat mutations — like chart creation: create at start, update continuously.
  * conversationId: null = new conversation; exists = append to it.
  */
 
 const chartLibraryValidator = v.union(v.literal("shadcn"), v.literal("rosencharts"));
+
+const tokenUsageValidator = v.optional(
+  v.object({
+    inputTokens: v.optional(v.number()),
+    outputTokens: v.optional(v.number()),
+    totalTokens: v.optional(v.number()),
+  }),
+);
 
 const messageValidator = v.object({
   role: v.string(),
@@ -14,6 +24,7 @@ const messageValidator = v.object({
   chartTitle: v.optional(v.string()),
   chartData: v.optional(v.any()),
   feedback: v.optional(v.union(v.literal("liked"), v.literal("disliked"))),
+  tokenUsage: tokenUsageValidator,
 });
 
 const resultValidator = v.object({
@@ -58,15 +69,52 @@ export const addMessage = mutation({
     if (!conv || conv.userId !== identity.subject) return null;
 
     const now = Date.now();
+    const userId = identity.subject;
+
+    // Compute credits for assistant messages with token usage
+    let creditsCharged = 0;
+    if (args.message.role === "assistant" && args.message.tokenUsage) {
+      const totalTokens =
+        args.message.tokenUsage.totalTokens ??
+        (args.message.tokenUsage.inputTokens ?? 0) +
+          (args.message.tokenUsage.outputTokens ?? 0);
+      creditsCharged = tokensToCredits(totalTokens);
+
+      if (creditsCharged > 0) {
+        const settings = await ctx.db
+          .query("userSettings")
+          .withIndex("by_user", (q) => q.eq("userId", userId))
+          .unique();
+
+        const currentCredits = settings?.credits ?? 0;
+        if (currentCredits < creditsCharged) {
+          throw new Error(
+            `Insufficient credits. Need ${creditsCharged}, have ${currentCredits}.`,
+          );
+        }
+
+        if (settings) {
+          await ctx.db.patch(settings._id, {
+            credits: currentCredits - creditsCharged,
+            updatedAt: now,
+          });
+        }
+      }
+    }
+
     const msgId = await ctx.db.insert("chatMessages", {
       conversationId: args.conversationId,
-      userId: identity.subject,
+      userId,
       role: args.message.role,
       content: args.message.content,
       metadata:
         args.message.chartType || args.message.feedback
           ? { chartType: args.message.chartType, feedback: args.message.feedback }
           : undefined,
+      inputTokens: args.message.tokenUsage?.inputTokens,
+      outputTokens: args.message.tokenUsage?.outputTokens,
+      totalTokens: args.message.tokenUsage?.totalTokens,
+      creditsCharged: creditsCharged || undefined,
       createdAt: now,
     });
 

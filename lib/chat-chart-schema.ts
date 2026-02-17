@@ -42,10 +42,15 @@ export const createChartInputSchema = z.object({
     .describe("Chart type key (e.g. horizontal-bar, pie, line-multi, scatter)"),
   title: z.string().optional().describe("Chart title"),
   data: z
-    .array(z.record(z.string(), z.unknown()))
-    .min(1)
+    .union([
+      z.array(z.record(z.string(), z.unknown())).min(1),
+      z.object({
+        _data: z.array(z.record(z.string(), z.unknown())).min(1),
+        _seriesColors: z.record(z.string(), z.string()).optional(),
+      }),
+    ])
     .describe(
-      "Data array. Bar/pie/breakdown: [{key/name, value}]. Line: [{data:[{date, value}]}] wrapped. Line-multi: [{data:[...], color?}, ...]. Scatter: [{xValue, yValue, name}]. Treemap: [{name, subtopics}]",
+      "Data: array for most charts. Bar/pie/breakdown: [{key/name, value, color?}]. Pie/donut/benchmark: colorFrom, colorTo. Multi-bar: multipleColors[]. Line-multi: [{data:[...], color?}]. Scatter: [{xValue, yValue, name, color?}]. Shadcn bar/area/line/radar with custom colors: {_data:[...], _seriesColors:{desktop:\"#hex\", mobile:\"#hex\"}}. Shadcn pie/radial: [{name, value, fill?}]. See prompts/schemas-reference.md.",
     ),
 });
 

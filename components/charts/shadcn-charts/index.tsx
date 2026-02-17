@@ -132,7 +132,7 @@ export function getShadcnChartByName(
       );
     }
     case "shadcn:radial": {
-      const d = arr as { name: string; value: number }[];
+      const d = arr as { name: string; value: number; fill?: string }[];
       const config = inferPieConfig(d);
       return (
         <ShadcnRadialChart
