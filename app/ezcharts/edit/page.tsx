@@ -1,6 +1,13 @@
 "use client";
 
-import { Suspense, useState, useMemo, useCallback, useEffect, useRef } from "react";
+import {
+  Suspense,
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
@@ -58,7 +65,11 @@ function EditChartContent() {
 
   /* ── Chart selection ─────────────────────────────────────────────── */
   const [selectedId, setSelectedId] = useState<string | null>(chartId);
-  const { chart: sourceChart, isLoading: chartLoading, isNotFound: chartMissing } = useChartByIdWithStatus(selectedId ?? undefined);
+  const {
+    chart: sourceChart,
+    isLoading: chartLoading,
+    isNotFound: chartMissing,
+  } = useChartByIdWithStatus(selectedId ?? undefined);
 
   useEffect(() => {
     if (chartId && chartId !== selectedId) {
@@ -79,9 +90,9 @@ function EditChartContent() {
   const [activeTab, setActiveTab] = useState<EditorTab>("data");
   const [dirty, setDirty] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [incompatibleTypeTarget, setIncompatibleTypeTarget] = useState<string | null>(
-    null
-  );
+  const [incompatibleTypeTarget, setIncompatibleTypeTarget] = useState<
+    string | null
+  >(null);
 
   /* Sync working state from sourceChart */
   const prevChartIdRef = useRef<string | null>(null);
@@ -197,7 +208,15 @@ function EditChartContent() {
     setSelectedChartKey(chartType);
     setInput("Help me improve this chart");
     setChatSidebarView("chat");
-  }, [title, chartType, data, setAttachedChartContext, setSelectedChartKey, setInput, setChatSidebarView]);
+  }, [
+    title,
+    chartType,
+    data,
+    setAttachedChartContext,
+    setSelectedChartKey,
+    setInput,
+    setChatSidebarView,
+  ]);
 
   /* ── Reset handler ───────────────────────────────────────────────── */
   const handleReset = useCallback(() => {
@@ -225,7 +244,9 @@ function EditChartContent() {
   const editorShape = chartType ? getEditorShape(chartType) : null;
 
   /* ── Chart data editor mode (from Account → Editor preferences) ───── */
-  const chartDataEditorMode = (userSettings?.chartDataEditorMode ?? "table") as "table" | "items";
+  const chartDataEditorMode = (userSettings?.chartDataEditorMode ?? "table") as
+    | "table"
+    | "items";
 
   /* No chart and not create mode → redirect when chart not found */
   useEffect(() => {

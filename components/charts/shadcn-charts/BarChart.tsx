@@ -13,6 +13,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { toChartColorVar } from "@/lib/utils";
 
 /** Data: [{ month, desktop, mobile }] or any category + series keys */
 export interface ShadcnBarChartProps {
@@ -56,7 +57,7 @@ export function ShadcnBarChart({
           <Bar
             key={key}
             dataKey={key}
-            fill={`var(--color-${key})`}
+            fill={`var(--color-${toChartColorVar(key)})`}
             radius={[4, 4, 0, 0]}
             isAnimationActive={withAnimation}
           />

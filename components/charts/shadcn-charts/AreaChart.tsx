@@ -13,6 +13,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { toChartColorVar } from "@/lib/utils";
 
 export interface ShadcnAreaChartProps {
   data: Record<string, string | number>[];
@@ -56,8 +57,8 @@ export function ShadcnAreaChart({
             key={key}
             type="monotone"
             dataKey={key}
-            stroke={`var(--color-${key})`}
-            fill={`var(--color-${key})`}
+            stroke={`var(--color-${toChartColorVar(key)})`}
+            fill={`var(--color-${toChartColorVar(key)})`}
             fillOpacity={0.4}
             isAnimationActive={withAnimation}
           />
