@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Check, Coffee, Crown, Zap } from "lucide-react";
-import { TIER_DOC, TIER_LIMITS, type PlanTier } from "@/lib/tier-limits";
+import { TIER_DOC, TIER_LIMITS, type PlanTier } from "@/lib/tiers/tier-limits";
 
 const PRICES: Record<PlanTier, string> = {
   free: "$0",

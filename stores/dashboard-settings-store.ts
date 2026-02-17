@@ -4,6 +4,7 @@ import { create } from "zustand";
 
 export type DashboardCardId =
   | "charts-overview"
+  | "chat-stats"
   | "favorites-stats"
   | "slides-overview"
   | "chart-types-distribution"
@@ -13,6 +14,7 @@ export type DashboardCardId =
 
 export const DASHBOARD_CARD_IDS: DashboardCardId[] = [
   "charts-overview",
+  "chat-stats",
   "favorites-stats",
   "slides-overview",
   "chart-types-distribution",
@@ -23,6 +25,7 @@ export const DASHBOARD_CARD_IDS: DashboardCardId[] = [
 
 export const DASHBOARD_CARD_LABELS: Record<DashboardCardId, string> = {
   "charts-overview": "Charts Overview",
+  "chat-stats": "Chat Activity",
   "favorites-stats": "Favorites & Activity",
   "slides-overview": "Slides Overview",
   "chart-types-distribution": "Chart Types",
@@ -34,6 +37,7 @@ export const DASHBOARD_CARD_LABELS: Record<DashboardCardId, string> = {
 /** Grid column span (out of 12) for dashboard layout */
 export const DASHBOARD_CARD_SPAN: Record<DashboardCardId, number> = {
   "charts-overview": 6,
+  "chat-stats": 5,
   "favorites-stats": 3,
   "slides-overview": 3,
   "chart-types-distribution": 6,

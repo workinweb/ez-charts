@@ -7,7 +7,10 @@ import { tokensToCredits } from "./chatCreditsConfig";
  * conversationId: null = new conversation; exists = append to it.
  */
 
-const chartLibraryValidator = v.union(v.literal("shadcn"), v.literal("rosencharts"));
+const chartLibraryValidator = v.union(
+  v.literal("shadcn"),
+  v.literal("rosencharts"),
+);
 
 const tokenUsageValidator = v.optional(
   v.object({
@@ -107,7 +110,10 @@ export const addMessage = mutation({
       content: args.message.content,
       metadata:
         args.message.chartType || args.message.feedback
-          ? { chartType: args.message.chartType, feedback: args.message.feedback }
+          ? {
+              chartType: args.message.chartType,
+              feedback: args.message.feedback,
+            }
           : undefined,
       inputTokens: args.message.tokenUsage?.inputTokens,
       outputTokens: args.message.tokenUsage?.outputTokens,

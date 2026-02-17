@@ -15,6 +15,7 @@ import type * as charts from "../charts.js";
 import type * as chat from "../chat.js";
 import type * as chatCreditsConfig from "../chatCreditsConfig.js";
 import type * as creditPurchases from "../creditPurchases.js";
+import type * as creditUsage from "../creditUsage.js";
 import type * as documents from "../documents.js";
 import type * as http from "../http.js";
 import type * as planLimits from "../planLimits.js";
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   chat: typeof chat;
   chatCreditsConfig: typeof chatCreditsConfig;
   creditPurchases: typeof creditPurchases;
+  creditUsage: typeof creditUsage;
   documents: typeof documents;
   http: typeof http;
   planLimits: typeof planLimits;

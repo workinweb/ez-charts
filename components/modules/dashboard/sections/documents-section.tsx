@@ -23,7 +23,7 @@ import {
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
 import type { Id } from "@/convex/_generated/dataModel";
-import { TIER_LIMITS } from "@/lib/tier-limits";
+import { TIER_LIMITS } from "@/lib/tiers/tier-limits";
 import { cn } from "@/lib/utils";
 import {
   AlertDialog,

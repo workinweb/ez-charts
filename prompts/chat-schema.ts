@@ -50,7 +50,7 @@ export const createChartInputSchema = z.object({
       }),
     ])
     .describe(
-      "Data: array for most charts. Bar/pie/breakdown: [{key/name, value, color?}]. Pie/donut/benchmark: colorFrom, colorTo. Multi-bar: multipleColors[]. Line-multi: [{data:[...], color?}]. Scatter: [{xValue, yValue, name, color?}]. Shadcn bar/area/line/radar with custom colors: {_data:[...], _seriesColors:{desktop:\"#hex\", mobile:\"#hex\"}}. Shadcn pie/radial: [{name, value, fill?}]. See prompts/schemas-reference.md.",
+      "Data: array for most charts. Rosencharts: color, colorFrom/colorTo, multipleColors (Tailwind or hex). Shadcn: hex ONLY. Cartesian: {_data:[...], _seriesColors:{desktop:\"#hex\"}}. Pie/radial: fill per item. NEVER use color/colorFrom on Shadcn or fill on Rosencharts. See prompts/colors-rosencharts-vs-shadcn.md.",
     ),
 });
 

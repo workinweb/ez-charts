@@ -1,6 +1,16 @@
 # Shadcn Charts Reference
 
-Shadcn charts are built on Recharts and use a different data shape than Rosencharts.
+Shadcn charts are built on Recharts and use a different data shape **and color system** than Rosencharts.
+
+**DO NOT use Rosencharts color syntax for Shadcn:**
+- No `color`, `colorFrom`, `colorTo`, or `multipleColors` on data items
+- No Tailwind classes (e.g. `bg-purple-400`) — Shadcn requires **hex only**
+- Cartesian charts: use `_seriesColors` in a wrapped object, not `color` on items
+- Pie/radial: use `fill` (hex) per item, not `colorFrom`/`colorTo`
+
+See [colors-rosencharts-vs-shadcn.md](./colors-rosencharts-vs-shadcn.md) for full rules.
+
+---
 
 ## Changing Colors
 

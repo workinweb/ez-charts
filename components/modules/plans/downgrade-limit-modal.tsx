@@ -11,10 +11,16 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { api } from "@/convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
-import { TIER_LIMITS, type PlanTier } from "@/lib/tier-limits";
+import { TIER_LIMITS, type PlanTier } from "@/lib/tiers/tier-limits";
 import { cn } from "@/lib/utils";
 import type { Id } from "@/convex/_generated/dataModel";
-import { BarChart3, FileText, Presentation, Search, Loader2 } from "lucide-react";
+import {
+  BarChart3,
+  FileText,
+  Presentation,
+  Search,
+  Loader2,
+} from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
 
 type TabId = "charts" | "slides" | "documents";
@@ -65,13 +71,13 @@ export function DowngradeLimitModal({
       const visibleSlides = slides.filter((s) => s.blockedByTier !== true);
       const visibleDocs = documents.filter((d) => d.blockedByTier !== true);
       setSelectedCharts(
-        new Set(visibleCharts.slice(0, maxCharts).map((c) => c._id))
+        new Set(visibleCharts.slice(0, maxCharts).map((c) => c._id)),
       );
       setSelectedSlides(
-        new Set(visibleSlides.slice(0, maxSlides).map((s) => s._id))
+        new Set(visibleSlides.slice(0, maxSlides).map((s) => s._id)),
       );
       setSelectedDocs(
-        new Set(visibleDocs.slice(0, maxDocuments).map((d) => d._id))
+        new Set(visibleDocs.slice(0, maxDocuments).map((d) => d._id)),
       );
       setSearch("");
     }
@@ -84,7 +90,7 @@ export function DowngradeLimitModal({
     return charts.filter(
       (c) =>
         c.title.toLowerCase().includes(q) ||
-        c.source?.toLowerCase().includes(q)
+        c.source?.toLowerCase().includes(q),
     );
   }, [charts, search]);
   const filteredSlides = useMemo(() => {
@@ -97,8 +103,7 @@ export function DowngradeLimitModal({
     const q = search.toLowerCase();
     return documents.filter(
       (d) =>
-        d.name.toLowerCase().includes(q) ||
-        d.content.toLowerCase().includes(q)
+        d.name.toLowerCase().includes(q) || d.content.toLowerCase().includes(q),
     );
   }, [documents, search]);
 
@@ -173,13 +178,15 @@ export function DowngradeLimitModal({
             Choose what stays visible
           </DialogTitle>
           <p className="text-[14px] text-[#3D4035]/60">
-            Your {targetTierLabel} plan limits: {maxCharts} charts, {maxSlides} slide decks,{" "}
-            {maxDocuments} documents. Select which to keep accessible.
+            Your {targetTierLabel} plan limits: {maxCharts} charts, {maxSlides}{" "}
+            slide decks, {maxDocuments} documents. Select which to keep
+            accessible.
           </p>
         </DialogHeader>
 
         <p className="px-6 text-[13px] text-[#3D4035]/70 bg-amber-50/80 border-y border-amber-200/60 py-3">
-          Nothing will be erased. Items you don’t select will be hidden until you upgrade again.
+          Nothing will be erased. Items you don’t select will be hidden until
+          you upgrade again.
         </p>
 
         <div className="flex border-b border-[#3D4035]/10 px-6">
@@ -319,7 +326,8 @@ export function DowngradeLimitModal({
                   filteredDocuments.map((doc) => {
                     const id = doc._id;
                     const selected = selectedDocs.has(id);
-                    const disabled = !selected && selectedDocs.size >= maxDocuments;
+                    const disabled =
+                      !selected && selectedDocs.size >= maxDocuments;
                     return (
                       <li
                         key={id}

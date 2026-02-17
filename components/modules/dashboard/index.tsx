@@ -1,4 +1,5 @@
 export { ChartsOverview } from "./charts-overview";
+export { ChatStats } from "./chat-stats";
 export { FavoritesStats } from "./favorites-stats";
 export { ChartTypesDistribution } from "./chart-types-distribution";
 export { RecentCharts } from "./recent-charts";

@@ -4,7 +4,7 @@ import { Settings, Database } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
-import { TIER_LIMITS } from "@/lib/tier-limits";
+import { TIER_LIMITS } from "@/lib/tiers/tier-limits";
 import { cn } from "@/lib/utils";
 import { useChatbotStore } from "@/stores/chatbot-store";
 

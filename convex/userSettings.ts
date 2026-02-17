@@ -3,6 +3,7 @@ import { mutation, query } from "./_generated/server";
 
 const DEFAULT_DASHBOARD_CARD_ORDER = [
   "charts-overview",
+  "chat-stats",
   "favorites-stats",
   "slides-overview",
   "chart-types-distribution",

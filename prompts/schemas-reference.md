@@ -2,9 +2,24 @@
 
 Quick reference of all chart data interfaces. Import from `@/components/rosencharts/types` in code.
 
+## CRITICAL: Color System Differences
+
+Rosencharts and Shadcn use different color systems. **Never mix them.**
+
+| Library | Format | Fields |
+|---------|--------|--------|
+| Rosencharts | Tailwind (`bg-purple-400`) or hex | `color`, `colorFrom`/`colorTo`, `multipleColors` per item/series |
+| Shadcn | Hex only (`#6C5DD3`) | Cartesian: `{ _data, _seriesColors }`. Pie/radial: `fill` per item |
+
+**Shadcn:** DO NOT use Tailwind, `color`, `colorFrom`, or `colorTo`. Use `_seriesColors` or `fill` (hex) only.
+
+See [colors-rosencharts-vs-shadcn.md](./colors-rosencharts-vs-shadcn.md) for full DO/DON'T rules.
+
+---
+
 ## Changing Colors
 
-When the user asks to "change colors" or specify a color scheme, add the appropriate color fields to each data item or series.
+When the user asks to "change colors" or specify a color scheme, add the appropriate color fields using the **correct system for that chart library** (see above).
 
 ### Rosencharts — Tailwind classes or hex
 

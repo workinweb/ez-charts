@@ -43,7 +43,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { TIER_LIMITS } from "@/lib/tier-limits";
+import { TIER_LIMITS } from "@/lib/tiers/tier-limits";
 
 const PLAN_ICONS = { free: Coffee, pro: Zap, max: Crown } as const;
 
@@ -121,14 +121,22 @@ function AppNavbarInner() {
             align="start"
             className="min-w-[180px] rounded-xl border-0 bg-white p-1 shadow-xl"
           >
-            <div className="flex items-center gap-2 rounded-lg px-3 py-2">
-              <Coins className="size-3.5 text-[#6C5DD3]/70" />
-              <span className="text-[12px] font-medium text-foreground/70">
-                {credits}
-                <span className="text-foreground/40"> / {maxCredits}</span>{" "}
-                credits
-              </span>
-            </div>
+            <DropdownMenuItem asChild>
+              <Link
+                href="/ezcharts/credits"
+                className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground focus:bg-foreground/5"
+              >
+                <Coins className="size-3.5 text-[#6C5DD3]/70" />
+                <span>
+                  {credits}
+                  <span className="text-foreground/40">
+                    {" "}
+                    / {maxCredits}
+                  </span>{" "}
+                  credits
+                </span>
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator className="my-1" />
             <DropdownMenuItem asChild>
               <Link
@@ -143,6 +151,7 @@ function AppNavbarInner() {
             <DropdownMenuItem
               onSelect={async () => {
                 await authClient.signOut();
+                router.push("/");
               }}
               className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-red-600 hover:bg-red-50 hover:text-red-700 focus:bg-red-50"
             >

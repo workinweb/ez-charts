@@ -1,11 +1,11 @@
 import { aj } from "@/arcject/config";
-import { createChartInputSchema } from "@/lib/chat-chart-schema";
 import { generateChartImageUrl } from "@/lib/chart-image-utils";
 import {
   CHART_SYSTEM_PROMPT,
   GUARDRAIL_SYSTEM_PROMPT,
   REFUSAL_MESSAGE,
 } from "@/prompts/chat-prompts";
+import { createChartInputSchema } from "@/prompts/chat-schema";
 import { openai } from "@ai-sdk/openai";
 import {
   convertToModelMessages,

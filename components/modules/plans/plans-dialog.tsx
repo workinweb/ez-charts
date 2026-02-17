@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
 import { authClient } from "@/lib/(auth)/auth-client";
-import { TIER_DOC, TIER_LIMITS, type PlanTier } from "@/lib/tier-limits";
+import { TIER_DOC, TIER_LIMITS, type PlanTier } from "@/lib/tiers/tier-limits";
 import { cn } from "@/lib/utils";
 import { ArrowRight, Coins, Zap } from "lucide-react";
 import { useState } from "react";
@@ -40,7 +40,10 @@ export function PlansDialog({ open, onOpenChange }: PlansDialogProps) {
   const charts = useQuery(api.charts.list, session?.user ? {} : "skip");
   const slides = useQuery(api.slides.list, session?.user ? {} : "skip");
   const documents = useQuery(api.documents.list, session?.user ? {} : "skip");
-  const hasBlockedItems = useQuery(api.planLimits.hasBlockedItems, session?.user ? {} : "skip");
+  const hasBlockedItems = useQuery(
+    api.planLimits.hasBlockedItems,
+    session?.user ? {} : "skip",
+  );
   const upsertPlan = useMutation(api.userSettings.upsert);
   const [downgradeModal, setDowngradeModal] = useState<{
     open: boolean;
@@ -232,9 +235,7 @@ export function PlansDialog({ open, onOpenChange }: PlansDialogProps) {
 
       <DowngradeLimitModal
         open={downgradeModal.open}
-        onOpenChange={(o) =>
-          setDowngradeModal((p) => ({ ...p, open: o }))
-        }
+        onOpenChange={(o) => setDowngradeModal((p) => ({ ...p, open: o }))}
         targetTier={downgradeModal.targetTier}
         targetTierLabel={downgradeModal.targetLabel}
         onSuccess={() => onOpenChange(false)}

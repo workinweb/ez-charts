@@ -3,6 +3,7 @@
 import { DashboardHeader } from "@/components/layout/dashboard-header";
 import {
   ChartsOverview,
+  ChatStats,
   ChartTypesDistribution,
   FavoritesStats,
   RecentCharts,
@@ -20,6 +21,7 @@ import { cn } from "@/lib/utils";
 
 const CARD_COMPONENTS: Record<DashboardCardId, React.ComponentType> = {
   "charts-overview": ChartsOverview,
+  "chat-stats": ChatStats,
   "favorites-stats": FavoritesStats,
   "slides-overview": SlidesOverview,
   "chart-types-distribution": ChartTypesDistribution,
@@ -30,6 +32,7 @@ const CARD_COMPONENTS: Record<DashboardCardId, React.ComponentType> = {
 
 const SPAN_CLASS: Record<number, string> = {
   3: "xl:col-span-3",
+  5: "xl:col-span-5",
   6: "xl:col-span-6",
   12: "xl:col-span-2",
 };

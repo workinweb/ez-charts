@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { api } from "@/convex/_generated/api";
 import { authClient } from "@/lib/(auth)/auth-client";
-import { TIER_LIMITS } from "@/lib/tier-limits";
+import { TIER_LIMITS } from "@/lib/tiers/tier-limits";
 import { cn } from "@/lib/utils";
 import { useChatbotStore } from "@/stores/chatbot-store";
 import {
@@ -56,7 +56,10 @@ function ResendVerificationButton({ email }: { email: string }) {
       onClick={async () => {
         setLoading(true);
         setSent(false);
-        await authClient.sendVerificationEmail({ email, callbackURL: "/ezcharts/user" });
+        await authClient.sendVerificationEmail({
+          email,
+          callbackURL: "/ezcharts/user",
+        });
         setSent(true);
         setLoading(false);
       }}
@@ -437,35 +440,35 @@ export default function UserPage() {
               </section>
 
               <div className="flex items-center gap-3">
-                  <Button
-                    onClick={async () => {
-                      setSaving(true);
-                      setSaved(false);
-                      try {
-                        await upsertSettings({
-                          dashboardCardOrder: cardOrder,
-                          chartDataEditorMode,
-                          ...(canSaveDocuments && {
-                            saveDocumentsOnDb,
-                          }),
-                        });
-                        setSaved(true);
-                        setTimeout(() => setSaved(false), 2000);
-                      } catch {
-                        // Error handling - could add toast
-                      } finally {
-                        setSaving(false);
-                      }
-                    }}
+                <Button
+                  onClick={async () => {
+                    setSaving(true);
+                    setSaved(false);
+                    try {
+                      await upsertSettings({
+                        dashboardCardOrder: cardOrder,
+                        chartDataEditorMode,
+                        ...(canSaveDocuments && {
+                          saveDocumentsOnDb,
+                        }),
+                      });
+                      setSaved(true);
+                      setTimeout(() => setSaved(false), 2000);
+                    } catch {
+                      // Error handling - could add toast
+                    } finally {
+                      setSaving(false);
+                    }
+                  }}
                   disabled={saving || !hasUnsavedChanges}
-                    className="gap-2 rounded-xl bg-[#6C5DD3] px-4 py-2 text-[14px] font-semibold text-white hover:bg-[#5a4dbf] disabled:opacity-50"
-                  >
-                    {saving ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : saved ? (
-                      <Check className="size-4" />
-                    ) : null}
-                    {saving ? "Saving…" : saved ? "Saved" : "Save changes"}
+                  className="gap-2 rounded-xl bg-[#6C5DD3] px-4 py-2 text-[14px] font-semibold text-white hover:bg-[#5a4dbf] disabled:opacity-50"
+                >
+                  {saving ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : saved ? (
+                    <Check className="size-4" />
+                  ) : null}
+                  {saving ? "Saving…" : saved ? "Saved" : "Save changes"}
                 </Button>
                 <p className="text-[13px] text-[#3D4035]/50">
                   Your preferences are saved locally until you click Save.
