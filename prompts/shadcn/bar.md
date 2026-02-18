@@ -1,38 +1,39 @@
-# shadcn:bar
+# shadcn:bar — Vertical Bar Chart
 
-Vertical bar chart. Cartesian format.
+Cartesian format. Use plain array by default. Only wrap with `_data`/`_seriesColors` when the user explicitly requests custom colors.
 
-## Data format
+## Format 1 — Plain (default)
 
-Plain array (no colors):
 ```json
 [
-  { "month": "Jan", "series3": 45, "dded": 186, "xxa": 80, "ccc": 12 },
-  { "month": "Feb", "series3": 120, "dded": 305, "xxa": 200, "ccc": 0 },
-  { "month": "Mar", "series3": 85, "dded": 237, "xxa": 120, "ccc": 0 }
+  { "month": "Jan", "desktop": 186, "mobile": 80 },
+  { "month": "Feb", "desktop": 305, "mobile": 200 },
+  { "month": "Mar", "desktop": 237, "mobile": 120 }
 ]
 ```
 
-With colors — wrap with `_data` and `_seriesColors`:
+## Format 2 — With custom colors
+
+Only use this format if the user asks to color specific series.
+
 ```json
 {
   "_data": [
-    { "month": "Jan", "series3": 45, "dded": 186, "xxa": 80, "ccc": 12 },
-    { "month": "Feb", "series3": 120, "dded": 305, "xxa": 200, "ccc": 0 },
-    { "month": "Mar", "series3": 85, "dded": 237, "xxa": 120, "ccc": 0 }
+    { "month": "Jan", "desktop": 186, "mobile": 80 },
+    { "month": "Feb", "desktop": 305, "mobile": 200 },
+    { "month": "Mar", "desktop": 237, "mobile": 120 }
   ],
   "_seriesColors": {
-    "ccc": "#70f76e",
-    "series3": "#3f2bbf"
+    "desktop": "#3f2bbf"
   }
 }
 ```
 
 ## Rules
 
-- First string column = category (e.g. "month"). All other columns are numeric series.
-- `_seriesColors` is PARTIAL: only include the series the user wants colored. Unlisted series keep defaults.
-- Keys in `_seriesColors` = exact column names from the rows (e.g. "series3", "ccc", "dded").
-- HEX only (e.g. "#3f2bbf"). No Tailwind, no CSS vars, no `color` on row items.
-- NEVER add `color`, `colorFrom`, or `colorTo` to items — those are Rosencharts only.
-- When attached chart is a raw array and user asks to change colors: wrap with `_data` + `_seriesColors`.
+- First key in each row = category string (e.g. `"month"`). All other keys = numeric series.
+- All rows must have identical keys.
+- `_seriesColors` is partial — only list series the user wants colored. Omit the rest.
+- Keys in `_seriesColors` must exactly match numeric series keys in the rows.
+- Hex colors only (e.g. `"#3f2bbf"`). No Tailwind classes, no CSS variables.
+- Never add `color`, `fill`, `colorFrom`, or `colorTo` to row items.

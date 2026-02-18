@@ -1,29 +1,29 @@
 /**
  * Per-chart Zod schemas for Rosencharts.
+ * Optional-style fields use .nullable() so they're required in the schema
+ * (OpenAI strict mode) but the model can output null.
  */
 import { z } from "zod";
-
-// ─── Building blocks ──────────────────────────────────────────────────────
 
 const keyValueItem = z.object({
   key: z.string(),
   value: z.number(),
-  color: z.string().optional(),
+  color: z.string().nullable(),
 });
 
 const multiBarItem = z.object({
   key: z.string(),
   values: z.array(z.number()).min(1),
-  multipleColors: z.array(z.string()).optional(),
-  image: z.string().optional(),
+  multipleColors: z.array(z.string()).nullable(),
+  image: z.string().nullable(),
 });
 
 const pieItem = z.object({
   name: z.string(),
   value: z.number(),
-  colorFrom: z.string().optional(),
-  colorTo: z.string().optional(),
-  logo: z.string().optional(),
+  colorFrom: z.string().nullable(),
+  colorTo: z.string().nullable(),
+  logo: z.string().nullable(),
 });
 
 const linePoint = z.object({
@@ -33,21 +33,28 @@ const linePoint = z.object({
 
 const lineSeries = z.object({
   data: z.array(linePoint).min(1),
-  color: z.union([z.string(), z.object({ line: z.string(), point: z.string() })]).optional(),
+  color: z.union([
+    z.string(),
+    z.object({ line: z.string(), point: z.string() }),
+    z.null(),
+  ]),
 });
 
 const scatterPoint = z.object({
   xValue: z.number(),
   yValue: z.number(),
   name: z.string(),
-  color: z.string().optional(),
+  color: z.string().nullable(),
 });
+
+/** OpenAI-compatible: object with string keys and number values (avoids z.record propertyNames) */
+const treemapSubtopicsItem = z.object({}).loose();
 
 const treemapItem = z.object({
   name: z.string(),
-  subtopics: z.array(z.record(z.string(), z.number())).min(1),
-  colorFrom: z.string().optional(),
-  colorTo: z.string().optional(),
+  subtopics: z.array(treemapSubtopicsItem).min(1),
+  colorFrom: z.string().nullable(),
+  colorTo: z.string().nullable(),
 });
 
 // ─── Chart-specific schemas ───────────────────────────────────────────────
@@ -71,7 +78,13 @@ export const fillableSchema = z.array(pieItem).min(1);
 export const fillableDonutSchema = z.array(pieItem).min(1);
 
 export const breakdownSchema = z
-  .array(z.object({ key: z.string(), value: z.number(), color: z.string().optional() }))
+  .array(
+    z.object({
+      key: z.string(),
+      value: z.number(),
+      color: z.string().nullable(),
+    }),
+  )
   .min(1);
 export const breakdownThinSchema = breakdownSchema;
 
@@ -80,9 +93,9 @@ export const benchmarkSchema = z
     z.object({
       key: z.string(),
       value: z.number(),
-      colorFrom: z.string().optional(),
-      colorTo: z.string().optional(),
-    })
+      colorFrom: z.string().nullable(),
+      colorTo: z.string().nullable(),
+    }),
   )
   .min(1);
 
@@ -90,7 +103,7 @@ export const treemapSchema = z.array(treemapItem).min(1);
 export const scatterSchema = z.array(scatterPoint).min(1);
 
 /** Rosencharts chartType → schema map */
-export const ROSENCHARTS_SCHEMAS: Record<string, z.ZodType<unknown>> = {
+export const ROSENCHARTS_OUTPUT_SCHEMAS: Record<string, z.ZodType<unknown>> = {
   "horizontal-bar": horizontalBarSchema,
   "horizontal-bar-gradient": horizontalBarGradientSchema,
   "horizontal-bar-multi": horizontalBarMultiSchema,
@@ -98,17 +111,17 @@ export const ROSENCHARTS_SCHEMAS: Record<string, z.ZodType<unknown>> = {
   "horizontal-bar-thin": horizontalBarThinSchema,
   "vertical-bar": verticalBarSchema,
   "vertical-bar-multi": verticalBarMultiSchema,
-  "line": lineSchema,
+  line: lineSchema,
   "line-multi": lineMultiSchema,
-  "pie": pieSchema,
+  pie: pieSchema,
   "pie-image": pieImageSchema,
-  "donut": donutSchema,
+  donut: donutSchema,
   "half-donut": halfDonutSchema,
-  "fillable": fillableSchema,
+  fillable: fillableSchema,
   "fillable-donut": fillableDonutSchema,
-  "breakdown": breakdownSchema,
+  breakdown: breakdownSchema,
   "breakdown-thin": breakdownThinSchema,
-  "benchmark": benchmarkSchema,
-  "treemap": treemapSchema,
-  "scatter": scatterSchema,
+  benchmark: benchmarkSchema,
+  treemap: treemapSchema,
+  scatter: scatterSchema,
 };

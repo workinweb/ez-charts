@@ -1,15 +1,39 @@
-# shadcn:radar
+# shadcn:radar — Radar / Spider Chart
 
-Radar/spider chart. Same format as shadcn:bar but category key = "subject".
+Cartesian format. Same structure as shadcn:bar but the category key must be `"subject"`. Use plain array by default. Only wrap with `_data`/`_seriesColors` when the user explicitly requests custom colors.
 
-## Data format
+## Format 1 — Plain (default)
 
-Plain: `[{ subject, A, B, C, ... }]`
-With colors: `{ _data: [<rows>], _seriesColors: { "A": "#hex", "B": "#hex" } }`
+```json
+[
+  { "subject": "Speed", "teamA": 80, "teamB": 60 },
+  { "subject": "Strength", "teamA": 90, "teamB": 75 },
+  { "subject": "Endurance", "teamA": 70, "teamB": 85 }
+]
+```
+
+## Format 2 — With custom colors
+
+Only use this format if the user asks to color specific series.
+
+```json
+{
+  "_data": [
+    { "subject": "Speed", "teamA": 80, "teamB": 60 },
+    { "subject": "Strength", "teamA": 90, "teamB": 75 },
+    { "subject": "Endurance", "teamA": 70, "teamB": 85 }
+  ],
+  "_seriesColors": {
+    "teamA": "#3f2bbf"
+  }
+}
+```
 
 ## Rules
 
-- `_seriesColors` is PARTIAL: only include the dimensions the user wants colored.
-- Keys = exact dimension names (A, B, C...). HEX only.
-- NEVER add `color`/`colorFrom`/`colorTo` to items.
-- Attached raw array + color request → wrap with `_data` + `_seriesColors`.
+- Category key must be `"subject"`. All other keys = numeric series.
+- All rows must have identical keys.
+- `_seriesColors` is partial — only list series the user wants colored. Omit the rest.
+- Keys in `_seriesColors` must exactly match numeric series keys in the rows.
+- Hex colors only (e.g. `"#3f2bbf"`). No Tailwind classes, no CSS variables.
+- Never add `color`, `fill`, `colorFrom`, or `colorTo` to row items.

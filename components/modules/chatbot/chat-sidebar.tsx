@@ -43,15 +43,38 @@ import { ChatSettingsView } from "./chat-settings-view";
 import { ErrorMessage } from "./error-message";
 import { TypewriterText } from "./typewriter-text";
 
-/** Extract plain text from a UIMessage's parts array */
+/** Parse structured output (message, chartType, title, data) from JSON text */
+function parseStructuredOutput(text: string): {
+  message?: string;
+  chartType?: string;
+  title?: string;
+  data?: unknown;
+} | null {
+  try {
+    const parsed = JSON.parse(text) as Record<string, unknown>;
+    if (parsed && typeof parsed === "object") return parsed;
+  } catch {
+    /* partial/invalid JSON during streaming */
+  }
+  return null;
+}
+
+/** Extract plain text from a UIMessage's parts. For assistant: show only "message" from structured output. */
 function getMessageText(msg: {
+  role?: string;
   parts?: Array<{ type: string; text?: string }>;
 }): string {
   if (!msg.parts) return "";
-  return msg.parts
+  const texts = msg.parts
     .filter((p) => p.type === "text" && p.text)
-    .map((p) => p.text)
-    .join("");
+    .map((p) => p.text!);
+  const combined = texts.join("");
+  if (msg.role === "assistant") {
+    const structured = parseStructuredOutput(combined);
+    if (structured?.message !== undefined) return String(structured.message);
+    return ""; // During streaming or non-JSON: don't show raw JSON
+  }
+  return combined;
 }
 
 /** For user messages: show only the written text + file names, not the full attached data */
@@ -88,53 +111,18 @@ function getDisplayText(msg: {
   return userPart ? `${userPart}${fileRef}` : `With context${fileRef}`;
 }
 
-/** Check if message has a completed createChart tool result */
+/** Check if message has completed chart (structured output with chartType + data) */
 function messageHasCompletedChart(msg: {
   role?: string;
-  parts?: Array<{ type?: string; state?: string; output?: unknown }>;
+  parts?: Array<{ type?: string; text?: string }>;
 }): boolean {
   if (msg.role !== "assistant" || !msg.parts) return false;
-  return msg.parts.some(
-    (p) =>
-      p?.type === "tool-createChart" &&
-      p?.state === "output-available" &&
-      p?.output &&
-      typeof p.output === "object" &&
-      "chartType" in p.output &&
-      "data" in p.output,
-  );
-}
-
-/** Check if message has a createChart tool call in progress (input streaming or awaiting execution) */
-function messageHasPendingChartTool(msg: {
-  role?: string;
-  parts?: Array<{ type?: string; state?: string }>;
-}): boolean {
-  if (msg.role !== "assistant" || !msg.parts) return false;
-  return msg.parts.some(
-    (p) =>
-      p?.type === "tool-createChart" &&
-      (p?.state === "input-streaming" || p?.state === "input-available"),
-  );
-}
-
-/** Assistant is streaming but has no visible content yet (model generating tool call) */
-function assistantHasNoContentYet(msg: {
-  role?: string;
-  parts?: Array<{ type?: string; text?: string; state?: string }>;
-}): boolean {
-  if (msg.role !== "assistant") return false;
-  const parts = msg.parts ?? [];
-  const hasText = parts.some(
-    (p) => p?.type === "text" && (p.text?.length ?? 0) > 0,
-  );
-  const hasCompletedTool = parts.some(
-    (p) =>
-      typeof p?.type === "string" &&
-      p.type.startsWith("tool-") &&
-      p?.state === "output-available",
-  );
-  return !hasText && !hasCompletedTool;
+  const combined = msg.parts
+    .filter((p) => p?.type === "text" && p.text)
+    .map((p) => p.text!)
+    .join("");
+  const structured = parseStructuredOutput(combined);
+  return !!(structured?.chartType && structured.data !== undefined);
 }
 
 const ACCEPTED_FILE_TYPES =
@@ -195,18 +183,11 @@ export function ChatSidebarContent() {
     !isLoading &&
     lastMsg?.role === "assistant" &&
     messageHasCompletedChart(lastMsg);
-  const isToolCallingChart =
-    isLoading &&
-    lastMsg?.role === "assistant" &&
-    messageHasPendingChartTool(lastMsg);
-  // Assistant is responding but no content yet (model generating tool call) — show loading to avoid blank pause
-  const isAssistantPreparing =
-    isLoading &&
-    lastMsg?.role === "assistant" &&
-    assistantHasNoContentYet(lastMsg);
   const hasParsing = attachedFiles.some((f) => f.parsing);
   const hasChartContext = !!effectiveChartContext;
   const hasLoadedDocs = loadedDocuments.length > 0;
+
+  console.log("🚀 ~ ChatSidebarContent ~ messages:", messages);
 
   const [chartPopoverOpen, setChartPopoverOpen] = useState(false);
   const [chartSelectorLibrary, setChartSelectorLibrary] =
@@ -221,6 +202,7 @@ export function ChatSidebarContent() {
   const lastMessageText = messages.length
     ? getMessageText(messages[messages.length - 1]!)
     : "";
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -354,6 +336,48 @@ export function ChatSidebarContent() {
                   >
                     See it
                   </button>
+
+                  {/* Expandable to see the formatted response of the latest message part */}
+                  <details className="inline-block ml-2 align-middle">
+                    <summary className="cursor-pointer text-[12px] underline text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors">
+                      View raw response
+                    </summary>
+                    <div className="mt-2 p-2 bg-sidebar-foreground/5 rounded text-[12px] max-w-full overflow-auto">
+                      <pre className="whitespace-pre-wrap break-words text-sidebar-foreground/80">
+                        {(() => {
+                          // Find last assistant message with chart
+                          const latestMsgWithChart = messages
+                            .slice()
+                            .reverse()
+                            .find(
+                              (m) =>
+                                m.role === "assistant" &&
+                                messageHasCompletedChart(m),
+                            );
+                          if (
+                            latestMsgWithChart &&
+                            latestMsgWithChart.parts &&
+                            latestMsgWithChart.parts.length > 0
+                          ) {
+                            // Use only the text parts to re-combine
+                            const combined = latestMsgWithChart.parts
+                              .filter((p) => p?.type === "text" && p.text)
+                              .map((p) => p.text!)
+                              .join("");
+                            try {
+                              const parsed = JSON.parse(combined);
+                              // Display formatted as JSON
+                              return JSON.stringify(parsed, null, 2);
+                            } catch {
+                              // Fallback to raw text
+                              return combined;
+                            }
+                          }
+                          return "No structured chart data found.";
+                        })()}
+                      </pre>
+                    </div>
+                  </details>
                 </p>
                 <div className="mt-2 flex items-center gap-1">
                   <span className="mr-1 text-[11px] text-sidebar-foreground/50">
@@ -415,33 +439,6 @@ export function ChatSidebarContent() {
                   </div>
                 </div>
               )}
-
-            {(isToolCallingChart || isAssistantPreparing) && (
-              <div className="space-y-2">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src="/logo.png"
-                      alt="Logo"
-                      width={20}
-                      height={20}
-                      className="size-5 rounded-full object-cover"
-                    />
-                    <span className="text-[13px] font-semibold text-sidebar-foreground">
-                      EZ Charts
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 rounded-xl bg-[#BCBDEA]/15 px-3 py-2.5 ring-1 ring-[#6C5DD3]/20">
-                  <Loader2 className="size-3.5 shrink-0 animate-spin text-[#6C5DD3]" />
-                  <span className="text-[13px] text-sidebar-foreground/90">
-                    {isToolCallingChart
-                      ? "Creating chart…"
-                      : "Preparing your response…"}
-                  </span>
-                </div>
-              </div>
-            )}
 
             {error && <ErrorMessage error={error} />}
           </div>

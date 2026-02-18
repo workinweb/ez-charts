@@ -141,12 +141,15 @@ export function LineChart({
                 d={p.path!}
                 fill="none"
                 className={
-                  typeof p.color === "object"
-                    ? p.color.line
+                  typeof p.color === "object" && p.color
+                    ? p.color?.line
                     : "stroke-fuchsia-400"
                 }
                 style={{
-                  stroke: typeof p.color === "object" ? p.color.line : p.color,
+                  stroke:
+                    typeof p.color === "object" && p.color
+                      ? p.color?.line
+                      : p.color ?? undefined,
                 }}
                 strokeWidth="2"
                 vectorEffect="non-scaling-stroke"
@@ -171,13 +174,15 @@ export function LineChart({
                       fill="none"
                       stroke="currentColor"
                       className={
-                        typeof d.color === "object"
-                          ? d.color.point
+                        typeof d.color === "object" && d.color
+                          ? d.color?.point
                           : "text-fuchsia-300"
                       }
                       style={{
                         stroke:
-                          typeof d.color === "object" ? d.color.line : d.color,
+                          typeof d.color === "object" && d.color
+                            ? d.color?.line
+                            : d.color ?? undefined,
                       }}
                     />
                   ))}
@@ -242,13 +247,15 @@ export function LineChart({
                       fill="none"
                       stroke="currentColor"
                       className={
-                        typeof d.color === "object"
-                          ? d.color.point
+                        typeof d.color === "object" && d.color
+                          ? d.color?.point
                           : "text-fuchsia-300"
                       }
                       style={{
                         stroke:
-                          typeof d.color === "object" ? d.color.line : d.color,
+                          typeof d.color === "object" && d.color
+                            ? d.color?.line
+                            : d.color ?? undefined,
                       }}
                     />
                   ))}

@@ -4,6 +4,7 @@ import { createContext, useContext, useCallback, useEffect, useRef } from "react
 import { useChat } from "@ai-sdk/react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { generateChartImageUrl } from "@/lib/chart-image-utils";
 import type {
   AttachedChartContext,
   LoadedDocument,
@@ -71,6 +72,19 @@ interface SerializedMessage {
   tokenUsage?: TokenUsage;
 }
 
+/** Parse structured output from text (JSON with message, chartType, title, data) */
+function parseStructuredOutput(
+  text: string,
+): { message?: string; chartType?: string; title?: string; data?: unknown } | null {
+  try {
+    const parsed = JSON.parse(text) as Record<string, unknown>;
+    if (parsed && typeof parsed === "object") return parsed;
+  } catch {
+    /* partial/invalid JSON during streaming */
+  }
+  return null;
+}
+
 /** Serialize a single message for Convex. Returns message + optional result for assistant+chart. */
 function serializeMessage(
   msg: {
@@ -95,22 +109,20 @@ function serializeMessage(
   let chartTitle: string | undefined;
   let chartData: unknown;
   if (msg.parts) {
-    for (const p of msg.parts) {
-      if (p?.type === "text" && p.text) content += p.text;
-      else if (
-        p?.type === "tool-createChart" &&
-        p?.state === "output-available" &&
-        p?.output &&
-        typeof p.output === "object" &&
-        "chartType" in p.output &&
-        "data" in p.output
-      ) {
-        const o = p.output as { chartType: string; title?: string; data: unknown };
-        chartType = o.chartType;
-        chartTitle = o.title ?? "Chart";
-        chartData = o.data;
-        // chartType is full key (e.g. "shadcn:bar") — will be parsed for result
+    const combinedText = msg.parts
+      .filter((p) => p?.type === "text" && p.text)
+      .map((p) => p.text as string)
+      .join("");
+    const structured = parseStructuredOutput(combinedText);
+    if (structured) {
+      content = (structured.message as string) ?? "";
+      if (structured.chartType && structured.data !== undefined) {
+        chartType = structured.chartType;
+        chartTitle = (structured.title as string) ?? "Chart";
+        chartData = structured.data;
       }
+    } else {
+      content = combinedText;
     }
   }
   const feedback = msg.id ? feedbackMap[msg.id] : undefined;
@@ -153,22 +165,51 @@ function serializeMessage(
   return { message, result };
 }
 
-function extractChartFromToolPart(
-  part: { type?: string; state?: string; output?: unknown },
-): { chartType: string; title: string; data: unknown } | null {
-  if (
-    part?.type === "tool-createChart" &&
-    part?.state === "output-available" &&
-    part?.output &&
-    typeof part.output === "object" &&
-    "chartType" in part.output &&
-    "data" in part.output
-  ) {
-    const o = part.output as { chartType: string; title?: string; data: unknown };
+/** Process chart data: inject image/logo URLs for image-style charts */
+function processChartData(
+  chartType: string,
+  data: unknown,
+): Array<Record<string, unknown>> {
+  let processed = (data as Array<Record<string, unknown>>) ?? [];
+  if (chartType === "horizontal-bar-image") {
+    processed = processed.map((item) => {
+      const key = (item.key as string) ?? (item.name as string) ?? "";
+      return {
+        ...item,
+        image: (item.image as string) ?? generateChartImageUrl(key),
+      };
+    });
+  } else if (chartType === "pie-image") {
+    processed = processed.map((item) => {
+      const name = (item.name as string) ?? (item.key as string) ?? "";
+      return {
+        ...item,
+        logo: (item.logo as string) ?? generateChartImageUrl(name),
+      };
+    });
+  }
+  return processed;
+}
+
+/** Extract chart from structured output in a message */
+function extractChartFromMessage(msg: {
+  parts?: Array<{ type?: string; text?: string }>;
+}): { chartType: string; title: string; data: unknown } | null {
+  if (!msg.parts) return null;
+  const combinedText = msg.parts
+    .filter((p) => p?.type === "text" && p.text)
+    .map((p) => p.text as string)
+    .join("");
+  const structured = parseStructuredOutput(combinedText);
+  if (structured?.chartType && structured.data !== undefined) {
+    const processedData = processChartData(
+      structured.chartType,
+      structured.data,
+    );
     return {
-      chartType: o.chartType,
-      title: o.title ?? "Chart",
-      data: o.data,
+      chartType: structured.chartType,
+      title: (structured.title as string) ?? "Chart",
+      data: processedData,
     };
   }
   return null;
@@ -204,7 +245,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const addChartFromTool = useChartsStore((s) => s.addChartFromTool);
   const previewChartId = useChartsStore((s) => s.previewChartId);
   const unsavedCharts = useChartsStore((s) => s.unsavedCharts);
-  const processedToolCalls = useRef<Set<string>>(new Set());
+  const processedMessageIds = useRef<Set<string>>(new Set());
 
   /** Current chart from AI Builds history — the one user has selected (or latest). Used when no explicit attachedChartContext. */
   const currentChartFromHistory =
@@ -275,19 +316,15 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setConversationId,
   ]);
 
-  // Extract createChart tool results and add to charts store
+  // Extract chart from structured output (streamText with Output.object) and add to charts store
   useEffect(() => {
     for (const msg of chat.messages) {
-      if (msg.role !== "assistant" || !msg.parts) continue;
-      for (const part of msg.parts) {
-        const p = part as { type?: string; state?: string; output?: unknown; toolCallId?: string };
-        const toolCallId = p.toolCallId;
-        if (!toolCallId || processedToolCalls.current.has(toolCallId)) continue;
-        const chart = extractChartFromToolPart(p);
-        if (chart) {
-          processedToolCalls.current.add(toolCallId);
-          addChartFromTool(chart);
-        }
+      if (msg.role !== "assistant" || !msg.id) continue;
+      if (processedMessageIds.current.has(msg.id)) continue;
+      const chart = extractChartFromMessage(msg);
+      if (chart) {
+        processedMessageIds.current.add(msg.id);
+        addChartFromTool(chart);
       }
     }
   }, [chat.messages, addChartFromTool]);
@@ -393,6 +430,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     clearFiles();
     setAttachedChartContext(null);
     syncedMessageIds.current.clear();
+    processedMessageIds.current.clear();
   }, [chat, clearConversation, clearLoadedDocuments, setInput, clearFiles, setAttachedChartContext]);
 
   const effectiveChartContext: EffectiveChartContext | null = (() => {

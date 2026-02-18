@@ -1,8 +1,10 @@
 "use client";
 
+import { Paintbrush, RotateCcw } from "lucide-react";
 import { useCallback } from "react";
-import { Paintbrush } from "lucide-react";
 import type { EditorProps } from "./editor-types";
+
+const NON_COLOR_CHARTS = ["keyValue"];
 
 export function StyleEditor({ shape, data, onChange }: EditorProps) {
   const arr = Array.isArray(data) ? data : [];
@@ -16,10 +18,19 @@ export function StyleEditor({ shape, data, onChange }: EditorProps) {
     [arr, onChange],
   );
 
-  const hasColor = ["keyValue", "bar-image", "scatter"].includes(shape);
+  const isNonColorChart = NON_COLOR_CHARTS.includes(shape);
   const hasGradient = shape === "pie";
 
-  if (!hasColor && !hasGradient) {
+  const goToDefaults = useCallback(() => {
+    const next = arr.map((item: Record<string, unknown>) => {
+      const { color, colorFrom, colorTo, multipleColors, ...rest } =
+        item as Record<string, unknown>;
+      return rest;
+    });
+    onChange(next);
+  }, [arr, onChange]);
+
+  if (NON_COLOR_CHARTS.includes(shape)) {
     return (
       <div className="py-8 text-center">
         <Paintbrush className="mx-auto mb-2 size-8 text-[#3D4035]/15" />
@@ -32,9 +43,19 @@ export function StyleEditor({ shape, data, onChange }: EditorProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <h3 className="text-[13px] font-semibold tracking-wide text-[#3D4035]/60 uppercase">
-        Colors
-      </h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-[13px] font-semibold tracking-wide text-[#3D4035]/60 uppercase">
+          Colors
+        </h3>
+        <button
+          type="button"
+          onClick={goToDefaults}
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-medium text-[#3D4035]/60 transition hover:bg-black/[0.04] hover:text-[#3D4035]"
+        >
+          <RotateCcw className="size-3.5" />
+          Go to Defaults
+        </button>
+      </div>
 
       <div className="flex max-h-[40vh] flex-col gap-3 overflow-y-auto pr-1 sm:max-h-[45vh] md:max-h-[50vh] lg:max-h-[56vh]">
         {arr.map((item: Record<string, unknown>, idx: number) => {
@@ -50,7 +71,7 @@ export function StyleEditor({ shape, data, onChange }: EditorProps) {
                 {label}
               </span>
 
-              {hasColor && (
+              {!isNonColorChart && (
                 <div className="flex items-center gap-2">
                   <label className="text-[11px] text-[#3D4035]/40">Color</label>
                   <input

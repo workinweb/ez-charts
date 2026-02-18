@@ -149,8 +149,8 @@ export function LineChartCurved({
                 d={p.path!}
                 fill="none"
                 className={
-                  typeof p.color === "object"
-                    ? p.color.line
+                  typeof p.color === "object" && p.color
+                    ? p.color?.line
                     : "stroke-fuchsia-400"
                 }
                 style={{
@@ -179,13 +179,17 @@ export function LineChartCurved({
                       fill="none"
                       stroke="currentColor"
                       className={
-                        typeof d.color === "object"
-                          ? d.color.point
+                        typeof d.color === "object" && d.color
+                          ? d.color?.point
                           : "text-fuchsia-300"
                       }
                       style={{
                         stroke:
-                          typeof d.color === "string" ? d.color : undefined,
+                          typeof d.color === "object" && d.color
+                            ? d.color?.line
+                            : typeof d.color === "string"
+                              ? d.color
+                              : undefined,
                       }}
                     />
                   ))}
@@ -250,13 +254,15 @@ export function LineChartCurved({
                       fill="none"
                       stroke="currentColor"
                       className={
-                        typeof d.color === "object"
-                          ? d.color.point
+                        typeof d.color === "object" && d.color
+                          ? d.color?.point
                           : "text-fuchsia-300"
                       }
                       style={{
                         stroke:
-                          typeof d.color === "object" ? d.color.line : d.color,
+                          typeof d.color === "object" && d.color
+                            ? d.color?.line
+                            : d.color ?? undefined,
                       }}
                     />
                   ))}

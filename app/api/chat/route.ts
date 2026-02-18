@@ -1,13 +1,11 @@
 import { aj } from "@/arcject/config";
-import { generateChartImageUrl } from "@/lib/chart-image-utils";
 import { getChartPromptContent } from "@/lib/load-chart-prompt";
-import { CHART_DATA_SCHEMAS } from "@/prompts/chart-schemas";
 import {
   CHART_SYSTEM_PROMPT,
   GUARDRAIL_SYSTEM_PROMPT,
   REFUSAL_MESSAGE,
 } from "@/prompts/chat-prompts";
-import { CHART_TYPE_KEYS } from "@/prompts/chat-schema";
+import { buildOutputSchema } from "@/prompts/output-schemas";
 import { openai } from "@ai-sdk/openai";
 import {
   convertToModelMessages,
@@ -15,43 +13,11 @@ import {
   createUIMessageStreamResponse,
   generateText,
   Output,
-  stepCountIs,
   streamText,
-  tool,
+  zodSchema,
 } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-
-/** Fallback generic data schema when no specific chart type is selected */
-const GENERIC_DATA_SCHEMA = z.union([
-  z.array(z.record(z.string(), z.unknown())).min(1),
-  z.object({
-    _data: z.array(z.record(z.string(), z.unknown())).min(1),
-    _seriesColors: z.record(z.string(), z.string()).optional(),
-  }),
-]);
-
-/**
- * Build the createChart tool input schema dynamically.
- * When selectedChartKey is known, `data` uses the EXACT per-chart Zod schema
- * so the LLM sees the precise fields it must produce.
- */
-function buildCreateChartSchema(selectedChartKey?: string) {
-  const dataSchema = selectedChartKey
-    ? ((CHART_DATA_SCHEMAS[selectedChartKey] as z.ZodType<unknown>) ??
-      GENERIC_DATA_SCHEMA)
-    : GENERIC_DATA_SCHEMA;
-
-  return z.object({
-    chartType: z.enum(CHART_TYPE_KEYS).describe("Chart type key"),
-    title: z.string().optional().describe("Chart title"),
-    data: dataSchema.describe(
-      selectedChartKey
-        ? `Data for ${selectedChartKey}. Follow the exact schema.`
-        : "Data array — shape depends on chartType.",
-    ),
-  });
-}
 
 export const maxDuration = 30;
 
@@ -84,7 +50,7 @@ export async function POST(req: Request) {
           isRelevant: z
             .boolean()
             .describe(
-              "True if the user input is relevant to chart creation, data analysis, Aicharts platform, or greeting. False for completely unrelated or harmful content.",
+              "True if the user input is relevant to chart creation, data analysis, Ai charts platform, or greeting. False for completely unrelated or harmful content.",
             ),
           reasoning: z.string().describe("Brief explanation."),
         }),
@@ -108,66 +74,29 @@ export async function POST(req: Request) {
       return createUIMessageStreamResponse({ stream });
     }
 
-    // ── Step 2: Stream the AI response; chart config via createChart tool ──
+    // ── Step 2: Stream structured output (message, chartType, title, data) ──
     let chartContext = "";
     if (selectedChartKey && typeof selectedChartKey === "string") {
-      chartContext += `\n\nIMPORTANT: The user has pre-selected chart type "${selectedChartKey}". You MUST use chartType "${selectedChartKey}" when calling createChart.`;
+      chartContext += `\n\nIMPORTANT: The user has pre-selected chart type "${selectedChartKey}" so the data should be in the format of the ${selectedChartKey} chart. on the output schema the chart type should be ${selectedChartKey}`;
       const chartPrompt = getChartPromptContent(selectedChartKey);
 
       if (chartPrompt) {
-        chartContext += `\n\n--- Chart-specific schema and rules for ${selectedChartKey} ---\n\n${chartPrompt}`;
+        chartContext += `\n\n--- Chart example how to populate, and rules: This is for ${selectedChartKey} ---\n\n${chartPrompt}`;
       }
     }
+
     const systemPrompt = CHART_SYSTEM_PROMPT + chartContext;
 
-    const inputSchema = buildCreateChartSchema(selectedChartKey);
+    const outputSchema = zodSchema(buildOutputSchema(selectedChartKey));
 
     const result = streamText({
-      model: openai("gpt-5-nano"),
+      model: openai("gpt-5"),
       providerOptions: { openai: { reasoningEffort: "minimal" } },
       messages: await convertToModelMessages(messages),
+      output: Output.object({
+        schema: outputSchema,
+      }),
       system: systemPrompt,
-      stopWhen: stepCountIs(1),
-      tools: {
-        createChart: tool({
-          description:
-            "Create a chart with the given configuration. Call this to create the chart with the given data or the requested one.",
-          inputSchema,
-          execute: async ({ chartType, title, data }) => {
-            let processedData = data;
-
-            if (chartType === "horizontal-bar-image") {
-              processedData = (data as Array<Record<string, unknown>>).map(
-                (item) => {
-                  const key =
-                    (item.key as string) ?? (item.name as string) ?? "";
-                  return {
-                    ...item,
-                    image: (item.image as string) ?? generateChartImageUrl(key),
-                  };
-                },
-              );
-            } else if (chartType === "pie-image") {
-              processedData = (data as Array<Record<string, unknown>>).map(
-                (item) => {
-                  const name =
-                    (item.name as string) ?? (item.key as string) ?? "";
-                  return {
-                    ...item,
-                    logo: (item.logo as string) ?? generateChartImageUrl(name),
-                  };
-                },
-              );
-            }
-
-            return {
-              chartType,
-              title: title ?? "Chart",
-              data: processedData,
-            };
-          },
-        }),
-      },
     });
 
     return result.toUIMessageStreamResponse({
