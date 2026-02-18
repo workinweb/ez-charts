@@ -14,6 +14,12 @@ import { fromChartKey } from "@/lib/chart-keys";
 
 type UseChatReturn = ReturnType<typeof useChat>;
 
+/** Chart context that will be sent with the next message — from explicit attach or current AI Builds selection */
+export interface EffectiveChartContext extends AttachedChartContext {
+  /** True when from AI Builds history (no explicit attach) */
+  fromHistory?: boolean;
+}
+
 interface ChatContextValue {
   messages: UseChatReturn["messages"];
   status: UseChatReturn["status"];
@@ -30,6 +36,8 @@ interface ChatContextValue {
   clearFiles: () => void;
   attachedChartContext: ReturnType<typeof useChatbotStore.getState>["attachedChartContext"];
   setAttachedChartContext: (ctx: AttachedChartContext | null) => void;
+  /** Chart that will be sent with next message (explicit attach or current from AI Builds) */
+  effectiveChartContext: EffectiveChartContext | null;
   loadedDocuments: LoadedDocument[];
   addLoadedDocument: (doc: LoadedDocument) => void;
   removeLoadedDocument: (id: string) => void;
@@ -179,6 +187,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     addFiles,
     removeFile,
     clearFiles,
+    markFileSavedToDb,
     attachedChartContext,
     setAttachedChartContext,
     loadedDocuments,
@@ -193,7 +202,15 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     saveDocumentsOnDb,
   } = useChatbotStore();
   const addChartFromTool = useChartsStore((s) => s.addChartFromTool);
+  const previewChartId = useChartsStore((s) => s.previewChartId);
+  const unsavedCharts = useChartsStore((s) => s.unsavedCharts);
   const processedToolCalls = useRef<Set<string>>(new Set());
+
+  /** Current chart from AI Builds history — the one user has selected (or latest). Used when no explicit attachedChartContext. */
+  const currentChartFromHistory =
+    previewChartId
+      ? unsavedCharts.find((c) => c.id === previewChartId)
+      : unsavedCharts[unsavedCharts.length - 1] ?? null;
   const syncedMessageIds = useRef<Set<string>>(new Set());
   const syncInProgress = useRef(false);
 
@@ -280,7 +297,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       e?.preventDefault();
       const trimmed = input.trim();
       const hasFiles = attachedFiles.some((f) => f.parsedContent);
-      const hasChart = !!attachedChartContext;
+      const chartContext = attachedChartContext ?? (currentChartFromHistory
+        ? { title: currentChartFromHistory.title, chartType: currentChartFromHistory.chartType, data: currentChartFromHistory.data }
+        : null);
+      const hasChart = !!chartContext;
       const hasLoadedDocs = loadedDocuments.length > 0;
 
       if (!trimmed && !hasFiles && !hasChart && !hasLoadedDocs) return;
@@ -289,12 +309,12 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
       const contextParts: string[] = [];
       const filesToSave = hasFiles
-        ? attachedFiles.filter((f) => f.parsedContent)
+        ? attachedFiles.filter((f) => f.parsedContent && !f.savedToDb)
         : [];
       if (hasFiles) {
-        const fileParts = filesToSave.map(
-          (f) => `[Attached file: ${f.name}]\n${f.parsedContent}`
-        );
+        const fileParts = attachedFiles
+          .filter((f) => f.parsedContent)
+          .map((f) => `[Attached file: ${f.name}]\n${f.parsedContent}`);
         contextParts.push(...fileParts);
       }
       if (hasLoadedDocs) {
@@ -303,8 +323,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         );
         contextParts.push(...docParts);
       }
-      if (hasChart) {
-        const chartCtx = `[Attached chart: ${attachedChartContext.title}]\nChart type: ${attachedChartContext.chartType}\nData:\n${JSON.stringify(attachedChartContext.data, null, 2)}`;
+      if (hasChart && chartContext) {
+        const chartCtx = `[Attached chart: ${chartContext.title}]\nChart type: ${chartContext.chartType}\nData:\n${JSON.stringify(chartContext.data, null, 2)}`;
         contextParts.push(chartCtx);
       }
       if (contextParts.length > 0) {
@@ -331,35 +351,36 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
               content: af.parsedContent!,
               storageId,
             });
+            markFileSavedToDb(af.file);
           } catch {
             // Ignore per-file errors; chat continues
           }
         }
       }
 
-      const chartKey = selectedChartKey ?? (hasChart ? attachedChartContext!.chartType : undefined);
+      const chartKey = selectedChartKey ?? (hasChart ? chartContext!.chartType : undefined);
       chat.sendMessage(
         { text: messageText },
         chartKey ? { body: { selectedChartKey: chartKey } } : undefined,
       );
       setInput("");
-      clearFiles();
       setAttachedChartContext(null);
-      // Keep loadedDocuments for subsequent messages in same conversation
+      // Keep attachedFiles and loadedDocuments for subsequent messages; only clear when user removes or starts new chat
     },
     [
       input,
       chat,
       attachedFiles,
       attachedChartContext,
+      currentChartFromHistory,
       loadedDocuments,
       setInput,
-      clearFiles,
       selectedChartKey,
       setAttachedChartContext,
       saveDocumentsOnDb,
       documentsCreate,
       generateUploadUrl,
+      markFileSavedToDb,
     ],
   );
 
@@ -373,6 +394,17 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setAttachedChartContext(null);
     syncedMessageIds.current.clear();
   }, [chat, clearConversation, clearLoadedDocuments, setInput, clearFiles, setAttachedChartContext]);
+
+  const effectiveChartContext: EffectiveChartContext | null = (() => {
+    const ctx = attachedChartContext ?? (currentChartFromHistory
+      ? { title: currentChartFromHistory.title, chartType: currentChartFromHistory.chartType, data: currentChartFromHistory.data }
+      : null);
+    if (!ctx) return null;
+    return {
+      ...ctx,
+      fromHistory: !attachedChartContext && !!currentChartFromHistory,
+    };
+  })();
 
   return (
     <ChatContext.Provider
@@ -392,6 +424,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         clearFiles,
         attachedChartContext,
         setAttachedChartContext,
+        effectiveChartContext,
         loadedDocuments,
         addLoadedDocument,
         removeLoadedDocument,

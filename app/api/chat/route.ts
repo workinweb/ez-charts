@@ -38,13 +38,12 @@ const GENERIC_DATA_SCHEMA = z.union([
  */
 function buildCreateChartSchema(selectedChartKey?: string) {
   const dataSchema = selectedChartKey
-    ? (CHART_DATA_SCHEMAS[selectedChartKey] as z.ZodType<unknown>) ?? GENERIC_DATA_SCHEMA
+    ? ((CHART_DATA_SCHEMAS[selectedChartKey] as z.ZodType<unknown>) ??
+      GENERIC_DATA_SCHEMA)
     : GENERIC_DATA_SCHEMA;
 
   return z.object({
-    chartType: z
-      .enum(CHART_TYPE_KEYS)
-      .describe("Chart type key"),
+    chartType: z.enum(CHART_TYPE_KEYS).describe("Chart type key"),
     title: z.string().optional().describe("Chart title"),
     data: dataSchema.describe(
       selectedChartKey
@@ -131,10 +130,9 @@ export async function POST(req: Request) {
       tools: {
         createChart: tool({
           description:
-            "Create a chart with the given configuration. Call this when the user asks for a chart and you have the data ready.",
+            "Create a chart with the given configuration. Call this to create the chart with the given data or the requested one.",
           inputSchema,
           execute: async ({ chartType, title, data }) => {
-
             let processedData = data;
 
             // ── Shadcn Cartesian post-processing: fix color format ──

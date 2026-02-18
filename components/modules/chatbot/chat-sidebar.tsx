@@ -9,6 +9,7 @@ import {
 import {
   ArrowLeft,
   BarChart3,
+  Check,
   ChevronDown,
   FileSpreadsheet,
   FileText,
@@ -25,23 +26,22 @@ import {
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Check } from "lucide-react";
 
-import { useMutation } from "convex/react";
+import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
-import { useChatbotStore } from "@/stores/chatbot-store";
-import { useSectionStore } from "@/stores/section-store";
-import { useChatContext } from "./chat-context";
-import { TypewriterText } from "./typewriter-text";
 import {
   CHART_LIBRARIES,
   getChartTypesByLibrary,
   type ChartLibraryId,
 } from "@/lib/chart-registry";
-import { ErrorMessage } from "./error-message";
-import { ChatSettingsView } from "./chat-settings-view";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { useChatbotStore } from "@/stores/chatbot-store";
+import { useSectionStore } from "@/stores/section-store";
+import { useMutation } from "convex/react";
+import { useChatContext } from "./chat-context";
+import { ChatSettingsView } from "./chat-settings-view";
+import { ErrorMessage } from "./error-message";
+import { TypewriterText } from "./typewriter-text";
 
 /** Extract plain text from a UIMessage's parts array */
 function getMessageText(msg: {
@@ -125,9 +125,14 @@ function assistantHasNoContentYet(msg: {
 }): boolean {
   if (msg.role !== "assistant") return false;
   const parts = msg.parts ?? [];
-  const hasText = parts.some((p) => p?.type === "text" && (p.text?.length ?? 0) > 0);
+  const hasText = parts.some(
+    (p) => p?.type === "text" && (p.text?.length ?? 0) > 0,
+  );
   const hasCompletedTool = parts.some(
-    (p) => typeof p?.type === "string" && p.type.startsWith("tool-") && p?.state === "output-available",
+    (p) =>
+      typeof p?.type === "string" &&
+      p.type.startsWith("tool-") &&
+      p?.state === "output-available",
   );
   return !hasText && !hasCompletedTool;
 }
@@ -163,6 +168,7 @@ export function ChatSidebarContent() {
     removeFile,
     attachedChartContext,
     setAttachedChartContext,
+    effectiveChartContext,
     loadedDocuments,
     removeLoadedDocument,
   } = useChatContext();
@@ -199,13 +205,12 @@ export function ChatSidebarContent() {
     lastMsg?.role === "assistant" &&
     assistantHasNoContentYet(lastMsg);
   const hasParsing = attachedFiles.some((f) => f.parsing);
-  const hasChartContext = !!attachedChartContext;
+  const hasChartContext = !!effectiveChartContext;
   const hasLoadedDocs = loadedDocuments.length > 0;
 
   const [chartPopoverOpen, setChartPopoverOpen] = useState(false);
-  const [chartSelectorLibrary, setChartSelectorLibrary] = useState<ChartLibraryId | null>(
-    null
-  );
+  const [chartSelectorLibrary, setChartSelectorLibrary] =
+    useState<ChartLibraryId | null>(null);
 
   const toggleChartSelection = (key: string) => {
     toggleSelectedChartKey(key);
@@ -225,7 +230,11 @@ export function ChatSidebarContent() {
   const storedFeedback =
     lastMsgHasChart && lastMsg?.id ? chartFeedbackMap[lastMsg.id] : undefined;
   const currentFeedback =
-    storedFeedback === "liked" ? "up" : storedFeedback === "disliked" ? "down" : null;
+    storedFeedback === "liked"
+      ? "up"
+      : storedFeedback === "disliked"
+        ? "down"
+        : null;
 
   const handleChartFeedback = (value: "up" | "down") => {
     if (!lastMsg?.id || !lastMsgHasChart) return;
@@ -234,7 +243,8 @@ export function ChatSidebarContent() {
     setChartFeedbackStore(lastMsg.id, next);
     if (conversationId) {
       updateChartResultFeedback({
-        conversationId: conversationId as import("@/convex/_generated/dataModel").Id<"chatConversations">,
+        conversationId:
+          conversationId as import("@/convex/_generated/dataModel").Id<"chatConversations">,
         clientMessageId: lastMsg.id,
         feedback: next ?? "nofeedback",
       }).catch(() => {});
@@ -454,22 +464,26 @@ export function ChatSidebarContent() {
             }}
           />
 
-          {/* Attached chart context chip */}
-          {hasChartContext && attachedChartContext && (
+          {/* Chart context chip — from explicit attach or current AI Builds selection */}
+          {hasChartContext && effectiveChartContext && (
             <div className="mb-2 flex flex-wrap gap-1.5">
               <div className="flex items-center gap-1.5 rounded-lg bg-[#BCBDEA]/15 px-2.5 py-1.5 text-[11px] text-sidebar-foreground/70">
                 <BarChart3 className="size-3 shrink-0" />
                 <span className="max-w-[140px] truncate">
-                  Chart: {attachedChartContext.title}
+                  {effectiveChartContext.fromHistory
+                    ? `Editing: ${effectiveChartContext.title}`
+                    : `Chart: ${effectiveChartContext.title}`}
                 </span>
-                <button
-                  type="button"
-                  onClick={() => setAttachedChartContext(null)}
-                  className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-sidebar-foreground/10"
-                  title="Remove chart context"
-                >
-                  <X className="size-2.5" />
-                </button>
+                {!effectiveChartContext.fromHistory && (
+                  <button
+                    type="button"
+                    onClick={() => setAttachedChartContext(null)}
+                    className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-sidebar-foreground/10"
+                    title="Remove chart context"
+                  >
+                    <X className="size-2.5" />
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -669,9 +683,10 @@ export function ChatSidebarContent() {
               >
                 <BarChart3 className="size-3" />
                 {selectedChartKey
-                  ? (getChartTypesByLibrary().rosencharts
-                      .concat(getChartTypesByLibrary().shadcn)
-                      .find((c) => c.key === selectedChartKey)?.label ?? "Charts")
+                  ? (getChartTypesByLibrary()
+                      .rosencharts.concat(getChartTypesByLibrary().shadcn)
+                      .find((c) => c.key === selectedChartKey)?.label ??
+                    "Charts")
                   : "Charts"}
                 <ChevronDown className="size-2.5 opacity-50" />
               </Button>
@@ -696,7 +711,10 @@ export function ChatSidebarContent() {
                         onClick={() => setChartSelectorLibrary(lib.id)}
                         className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-sidebar-foreground transition-colors hover:bg-[#BCBDEA]/20"
                       >
-                        <LibIcon className="size-4 shrink-0" strokeWidth={1.7} />
+                        <LibIcon
+                          className="size-4 shrink-0"
+                          strokeWidth={1.7}
+                        />
                         <span className="flex-1 text-left">{lib.label}</span>
                         <span className="text-[11px] text-sidebar-foreground/50">
                           {typesCount} charts
@@ -731,7 +749,10 @@ export function ChatSidebarContent() {
                                 : "text-sidebar-foreground/70"
                             }`}
                           >
-                            <Icon className="size-3.5 shrink-0" strokeWidth={1.7} />
+                            <Icon
+                              className="size-3.5 shrink-0"
+                              strokeWidth={1.7}
+                            />
                             <span className="min-w-0 flex-1 truncate text-left">
                               {label}
                             </span>
@@ -740,7 +761,7 @@ export function ChatSidebarContent() {
                             )}
                           </button>
                         );
-                      }
+                      },
                     )}
                   </div>
                 </div>

@@ -9,6 +9,8 @@ export interface AttachedFile {
   parsedContent?: string;
   parsing: boolean;
   error?: string;
+  /** Set after successfully saving to DB; skip re-save on later sends */
+  savedToDb?: boolean;
 }
 
 export type ChatSidebarView = "chat" | "settings";
@@ -49,6 +51,7 @@ interface ChatbotState {
   addFiles: (files: FileList | File[]) => void;
   removeFile: (index: number) => void;
   clearFiles: () => void;
+  markFileSavedToDb: (file: File) => void;
   setAttachedChartContext: (context: AttachedChartContext | null) => void;
   addLoadedDocument: (doc: LoadedDocument) => void;
   removeLoadedDocument: (id: string) => void;
@@ -148,6 +151,13 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
     })),
 
   clearFiles: () => set({ attachedFiles: [] }),
+
+  markFileSavedToDb: (file) =>
+    set((s) => ({
+      attachedFiles: s.attachedFiles.map((f) =>
+        f.file === file ? { ...f, savedToDb: true } : f,
+      ),
+    })),
 
   setAttachedChartContext: (context) =>
     set({ attachedChartContext: context }),
