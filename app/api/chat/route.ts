@@ -113,6 +113,7 @@ export async function POST(req: Request) {
     if (selectedChartKey && typeof selectedChartKey === "string") {
       chartContext += `\n\nIMPORTANT: The user has pre-selected chart type "${selectedChartKey}". You MUST use chartType "${selectedChartKey}" when calling createChart.`;
       const chartPrompt = getChartPromptContent(selectedChartKey);
+
       if (chartPrompt) {
         chartContext += `\n\n--- Chart-specific schema and rules for ${selectedChartKey} ---\n\n${chartPrompt}`;
       }
@@ -126,7 +127,7 @@ export async function POST(req: Request) {
       providerOptions: { openai: { reasoningEffort: "minimal" } },
       messages: await convertToModelMessages(messages),
       system: systemPrompt,
-      stopWhen: stepCountIs(2),
+      stopWhen: stepCountIs(1),
       tools: {
         createChart: tool({
           description:
@@ -134,102 +135,6 @@ export async function POST(req: Request) {
           inputSchema,
           execute: async ({ chartType, title, data }) => {
             let processedData = data;
-
-            // ── Shadcn Cartesian post-processing: fix color format ──
-            const SHADCN_CARTESIAN = [
-              "shadcn:bar",
-              "shadcn:area",
-              "shadcn:line",
-              "shadcn:radar",
-            ];
-            if (
-              SHADCN_CARTESIAN.includes(chartType) &&
-              Array.isArray(data) &&
-              data.length > 0
-            ) {
-              // AI may have added "color" to items (Rosencharts style) — convert to _seriesColors wrapper
-              const first = data[0] as Record<string, unknown>;
-              const categoryKey =
-                chartType === "shadcn:radar"
-                  ? "subject"
-                  : Object.keys(first).find(
-                      (k) => typeof first[k] === "string" && k !== "color",
-                    );
-              const seriesKeys = Object.keys(first).filter(
-                (k) => typeof first[k] === "number" && k !== "color",
-              );
-
-              // Check if AI put "color" on items or put hex strings on non-standard keys
-              const hasColorProp = data.some(
-                (item: Record<string, unknown>) => "color" in item,
-              );
-              const hasSeriesColorProps =
-                seriesKeys.length > 0 &&
-                data.some((item: Record<string, unknown>) => {
-                  return Object.keys(item).some(
-                    (k) =>
-                      k !== "color" &&
-                      k !== "fill" &&
-                      k !== categoryKey &&
-                      typeof item[k] === "string" &&
-                      /^#[0-9a-fA-F]{3,8}$/.test(item[k] as string),
-                  );
-                });
-
-              if (hasColorProp || hasSeriesColorProps) {
-                const seriesColors: Record<string, string> = {};
-                const cleanRows: Record<string, unknown>[] = [];
-
-                for (const item of data as Record<string, unknown>[]) {
-                  const row: Record<string, unknown> = {};
-                  for (const [k, v] of Object.entries(item)) {
-                    if (k === "color" && typeof v === "string") {
-                      // AI put one "color" per row — assign to each series sequentially
-                      if (seriesKeys.length === 1) {
-                        seriesColors[seriesKeys[0]] = v;
-                      }
-                    } else {
-                      row[k] = v;
-                    }
-                  }
-                  cleanRows.push(row);
-                }
-
-                // If AI put separate color keys like "desktop_color": "#hex", try to match
-                if (
-                  Object.keys(seriesColors).length === 0 &&
-                  hasSeriesColorProps
-                ) {
-                  for (const item of data as Record<string, unknown>[]) {
-                    for (const [k, v] of Object.entries(item)) {
-                      if (
-                        k !== "color" &&
-                        k !== "fill" &&
-                        k !== categoryKey &&
-                        typeof v === "string" &&
-                        /^#[0-9a-fA-F]{3,8}$/.test(v)
-                      ) {
-                        // Key might be "seriesName" with a hex value, or a color key
-                        const matchedSeries = seriesKeys.find((sk) =>
-                          k.toLowerCase().includes(sk.toLowerCase()),
-                        );
-                        if (matchedSeries) {
-                          seriesColors[matchedSeries] = v;
-                        }
-                      }
-                    }
-                    break; // Only need first row for color extraction
-                  }
-                }
-
-                if (Object.keys(seriesColors).length > 0) {
-                  processedData = {
-                    _data: cleanRows,
-                    _seriesColors: seriesColors,
-                  };
-                }
-              }
-            }
 
             if (chartType === "horizontal-bar-image") {
               processedData = (data as Array<Record<string, unknown>>).map(
