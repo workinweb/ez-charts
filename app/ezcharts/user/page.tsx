@@ -6,6 +6,7 @@ import {
   PlansDialog,
 } from "@/components/modules/plans";
 import { UserSettingsSkeleton } from "@/components/skeletons/user-settings-skeleton";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { api } from "@/convex/_generated/api";
@@ -235,11 +236,7 @@ export default function UserPage() {
           {/* Profile card */}
           <section className="rounded-[28px] bg-white/80 p-6 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
             <div className="flex items-center gap-4">
-              <div className="flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-green-600">
-                <span className="text-[20px] font-bold text-white">
-                  {session?.user?.name?.charAt(0).toUpperCase() ?? "?"}
-                </span>
-              </div>
+              <UserAvatar size="lg" />
               <div className="min-w-0 flex-1">
                 <p className="text-[17px] font-semibold text-[#3D4035]">
                   {session?.user?.name ?? "User"}

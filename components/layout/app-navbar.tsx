@@ -19,6 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { authClient } from "@/lib/(auth)/auth-client";
 import { useChartById } from "@/hooks/use-charts";
 import { useChartsStore } from "@/stores/charts-store";
@@ -106,11 +107,7 @@ function AppNavbarInner() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="ml-1 flex items-center gap-1.5 rounded-lg px-1.5 py-1 transition-colors hover:bg-foreground/5 sm:ml-2">
-              <div className="flex size-5 items-center justify-center rounded-full bg-gradient-to-br from-[#BCBDEA] to-[#6C5DD3]">
-                <span className="text-[8px] font-bold text-white">
-                  {session?.user?.name?.charAt(0).toUpperCase() ?? "?"}
-                </span>
-              </div>
+              <UserAvatar size="sm" />
               <span className="text-[13px] font-semibold text-foreground/80">
                 {session?.user?.name ?? "User"}
               </span>
