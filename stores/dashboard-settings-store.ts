@@ -3,6 +3,7 @@
 import { create } from "zustand";
 
 export type DashboardCardId =
+  | "tier-limits"
   | "charts-overview"
   | "chat-stats"
   | "favorites-stats"
@@ -13,6 +14,7 @@ export type DashboardCardId =
   | "recent-slide-decks";
 
 export const DASHBOARD_CARD_IDS: DashboardCardId[] = [
+  "tier-limits",
   "charts-overview",
   "chat-stats",
   "favorites-stats",
@@ -24,6 +26,7 @@ export const DASHBOARD_CARD_IDS: DashboardCardId[] = [
 ];
 
 export const DASHBOARD_CARD_LABELS: Record<DashboardCardId, string> = {
+  "tier-limits": "Plan Limits",
   "charts-overview": "Charts Overview",
   "chat-stats": "Chat Activity",
   "favorites-stats": "Favorites & Activity",
@@ -36,6 +39,7 @@ export const DASHBOARD_CARD_LABELS: Record<DashboardCardId, string> = {
 
 /** Grid column span (out of 12) for dashboard layout */
 export const DASHBOARD_CARD_SPAN: Record<DashboardCardId, number> = {
+  "tier-limits": 5,
   "charts-overview": 6,
   "chat-stats": 5,
   "favorites-stats": 3,

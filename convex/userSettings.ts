@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
 const DEFAULT_DASHBOARD_CARD_ORDER = [
+  "tier-limits",
   "charts-overview",
   "chat-stats",
   "favorites-stats",

@@ -12,6 +12,8 @@ import { usePaginatedQuery, useQuery } from "convex/react";
 import {
   ArrowDown,
   ArrowUp,
+  ChevronDown,
+  ChevronUp,
   Coins,
   Loader2,
   Plus,
@@ -20,6 +22,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 const PAGE_SIZE = 20;
+const PREVIEW_LENGTH = 60;
 
 function formatDate(ts: number) {
   return new Date(ts).toLocaleDateString(undefined, {
@@ -35,6 +38,7 @@ export default function CreditsPage() {
   const { data: session } = authClient.useSession();
   const [buyCreditsOpen, setBuyCreditsOpen] = useState(false);
   const [plansDialogOpen, setPlansDialogOpen] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const settings = useQuery(api.userSettings.get, session?.user ? {} : "skip");
   const planTier = (settings?.planTier ?? "free") as "free" | "pro" | "max";
@@ -157,33 +161,74 @@ export default function CreditsPage() {
             </div>
           ) : (
             <>
-              {usagePage.map((msg) => (
-                <div
-                  key={msg._id}
-                  className="flex items-center justify-between gap-4 rounded-xl px-4 py-3 transition-colors hover:bg-[#6C5DD3]/8"
-                >
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-red-500/10">
-                      <ArrowDown className="size-4 text-red-600" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[14px] font-medium text-[#3D4035]">
-                        AI chat
-                      </p>
-                      <p className="truncate text-[12px] text-[#3D4035]/50">
-                        {msg.content?.slice(0, 60) || "Chart / response"}
-                        {msg.content && msg.content.length > 60 ? "…" : ""}
-                      </p>
-                      <p className="mt-0.5 text-[11px] text-[#3D4035]/40">
-                        {formatDate(msg.createdAt)}
-                      </p>
+              {usagePage.map((msg) => {
+                const content = msg.content?.trim() || "Chart / response";
+                const isLong = content.length > PREVIEW_LENGTH;
+                const isExpanded = expandedId === msg._id;
+                const displayText = isExpanded
+                  ? content
+                  : content.slice(0, PREVIEW_LENGTH) + (isLong ? "…" : "");
+
+                return (
+                  <div
+                    key={msg._id}
+                    className="rounded-xl px-4 py-3 transition-colors hover:bg-[#6C5DD3]/8"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex min-w-0 flex-1 items-start gap-3">
+                        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-red-500/10">
+                          <ArrowDown className="size-4 text-red-600" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[14px] font-medium text-[#3D4035]">
+                            AI chat
+                          </p>
+                          <p
+                            className={`text-[12px] text-[#3D4035]/50 ${
+                              isExpanded
+                                ? "whitespace-pre-wrap break-words"
+                                : "truncate"
+                            }`}
+                          >
+                            {displayText}
+                          </p>
+                          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5">
+                            <p className="text-[11px] text-[#3D4035]/40">
+                              {formatDate(msg.createdAt)}
+                            </p>
+                            {isLong && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setExpandedId((id) =>
+                                    id === msg._id ? null : msg._id
+                                  )
+                                }
+                                className="flex items-center gap-0.5 text-[11px] text-[#6C5DD3] hover:underline"
+                              >
+                                {isExpanded ? (
+                                  <>
+                                    <ChevronUp className="size-3" />
+                                    Show less
+                                  </>
+                                ) : (
+                                  <>
+                                    <ChevronDown className="size-3" />
+                                    Show full message
+                                  </>
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <span className="shrink-0 text-[14px] font-semibold tabular-nums text-red-600">
+                        −{msg.creditsCharged ?? 0}
+                      </span>
                     </div>
                   </div>
-                  <span className="shrink-0 text-[14px] font-semibold tabular-nums text-red-600">
-                    −{msg.creditsCharged ?? 0}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
 
               {/* Purchases (added) - interleave by date or show after */}
               {purchases?.map((p) => (

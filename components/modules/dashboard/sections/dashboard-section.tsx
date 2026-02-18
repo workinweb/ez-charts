@@ -10,6 +10,7 @@ import {
   SlidesOverview,
   DataSourcesBreakdown,
   RecentSlideDecks,
+  TierLimitsCard,
 } from "@/components/modules/dashboard";
 import { DashboardSectionSkeleton } from "@/components/modules/dashboard/dashboard-section-skeleton";
 import {
@@ -20,6 +21,7 @@ import type { DashboardCardId } from "@/stores/dashboard-settings-store";
 import { cn } from "@/lib/utils";
 
 const CARD_COMPONENTS: Record<DashboardCardId, React.ComponentType> = {
+  "tier-limits": TierLimitsCard,
   "charts-overview": ChartsOverview,
   "chat-stats": ChatStats,
   "favorites-stats": FavoritesStats,

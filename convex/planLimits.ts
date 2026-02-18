@@ -8,6 +8,57 @@ const planTierValidator = v.union(
   v.literal("max"),
 );
 
+const CREDITS_BY_PLAN = { free: 100, pro: 250, max: 600 } as const;
+
+/** Usage counts + limits for the authenticated user. For dashboard Tier Limits card. */
+export const tierUsage = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity)
+      return {
+        planTier: "free" as PlanTier,
+        chartsUsed: 0,
+        chartsLimit: TIER_LIMITS.free.maxCharts,
+        slidesUsed: 0,
+        slidesLimit: TIER_LIMITS.free.maxSlides,
+        documentsUsed: 0,
+        documentsLimit: TIER_LIMITS.free.maxDocuments,
+        creditsUsed: 100,
+        creditsLimit: CREDITS_BY_PLAN.free,
+      };
+    const userId = identity.subject;
+
+    const [charts, slides, documents, settings] = await Promise.all([
+      ctx.db.query("charts").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
+      ctx.db.query("slides").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
+      ctx.db.query("documents").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
+      ctx.db.query("userSettings").withIndex("by_user", (q) => q.eq("userId", userId)).unique(),
+    ]);
+
+    const planTier = (settings?.planTier ?? "free") as PlanTier;
+    const limits = TIER_LIMITS[planTier];
+    const creditsLimit = CREDITS_BY_PLAN[planTier];
+
+    const chartsUsed = charts.filter((c) => c.isVisible !== false && c.blockedByTier !== true).length;
+    const slidesUsed = slides.filter((s) => s.isVisible !== false && s.blockedByTier !== true).length;
+    const documentsUsed = documents.filter((d) => d.isVisible !== false && d.blockedByTier !== true).length;
+    const creditsUsed = settings?.credits ?? creditsLimit;
+
+    return {
+      planTier,
+      chartsUsed,
+      chartsLimit: limits.maxCharts,
+      slidesUsed,
+      slidesLimit: limits.maxSlides,
+      documentsUsed,
+      documentsLimit: limits.maxDocuments,
+      creditsUsed,
+      creditsLimit,
+    };
+  },
+});
+
 /** Check if user has any items blocked by tier (for upgrade flow). */
 export const hasBlockedItems = query({
   args: {},

@@ -38,13 +38,18 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useMutation, useQuery } from "convex/react";
 import {
+  BarChart3,
   Check,
+  Coins,
   CreditCard,
+  FileText,
   GripVertical,
   Loader2,
+  Presentation,
   RotateCcw,
   User,
 } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 function ResendVerificationButton({ email }: { email: string }) {
@@ -163,6 +168,7 @@ export default function UserPage() {
   const setSaveDocumentsOnDb = useChatbotStore((s) => s.setSaveDocumentsOnDb);
 
   const savedSettings = useQuery(api.userSettings.get);
+  const tierUsage = useQuery(api.planLimits.tierUsage);
   const upsertSettings = useMutation(api.userSettings.upsert);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -249,6 +255,60 @@ export default function UserPage() {
               </div>
               <User className="size-5 text-[#3D4035]/30" />
             </div>
+
+            {/* Tier usage summary */}
+            {tierUsage && (
+              <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 border-t border-[#3D4035]/8 pt-5">
+                <Link
+                  href="/ezcharts/charts"
+                  className="flex items-center gap-1.5 text-[13px] text-[#3D4035]/70 hover:text-[#6C5DD3]"
+                >
+                  <BarChart3 className="size-3.5 shrink-0" />
+                  <span className="tabular-nums">
+                    {tierUsage.chartsUsed}/
+                    {tierUsage.chartsLimit === Infinity
+                      ? "∞"
+                      : tierUsage.chartsLimit}{" "}
+                    charts
+                  </span>
+                </Link>
+                <Link
+                  href="/ezcharts/slides"
+                  className="flex items-center gap-1.5 text-[13px] text-[#3D4035]/70 hover:text-[#6C5DD3]"
+                >
+                  <Presentation className="size-3.5 shrink-0" />
+                  <span className="tabular-nums">
+                    {tierUsage.slidesUsed}/
+                    {tierUsage.slidesLimit === Infinity
+                      ? "∞"
+                      : tierUsage.slidesLimit}{" "}
+                    slides
+                  </span>
+                </Link>
+                <Link
+                  href="/ezcharts"
+                  className="flex items-center gap-1.5 text-[13px] text-[#3D4035]/70 hover:text-[#6C5DD3]"
+                >
+                  <FileText className="size-3.5 shrink-0" />
+                  <span className="tabular-nums">
+                    {tierUsage.documentsUsed}/
+                    {tierUsage.documentsLimit === Infinity
+                      ? "∞"
+                      : tierUsage.documentsLimit}{" "}
+                    docs
+                  </span>
+                </Link>
+                <Link
+                  href="/ezcharts/credits"
+                  className="flex items-center gap-1.5 text-[13px] text-[#3D4035]/70 hover:text-[#6C5DD3]"
+                >
+                  <Coins className="size-3.5 shrink-0" />
+                  <span className="tabular-nums">
+                    {tierUsage.creditsUsed}/{tierUsage.creditsLimit} credits
+                  </span>
+                </Link>
+              </div>
+            )}
           </section>
 
           {/* Plan & credits */}
