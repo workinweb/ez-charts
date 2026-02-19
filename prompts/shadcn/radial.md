@@ -1,33 +1,24 @@
 # shadcn:radial — Radial Bar Chart
 
-Same format as shadcn:pie. Array of named segments. Use `fill` per item only when the user explicitly requests custom colors.
+Same format as shadcn:pie. Each row = one segment.
 
-## Format 1 — Plain (default)
-
-```json
-[
-  { "name": "Tech", "value": 548, "fill": null },
-  { "name": "Utils", "value": 412, "fill": null },
-  { "name": "Health", "value": 320, "fill": null }
-]
-```
-
-## Format 2 — With custom colors
-
-Only set `fill` on segments the user wants colored. Leave others as `null`.
+## Format
 
 ```json
-[
-  { "name": "Tech", "value": 548, "fill": "#6C5DD3" },
-  { "name": "Utils", "value": 412, "fill": null },
-  { "name": "Health", "value": 320, "fill": "#2dd4a8" }
-]
+{
+  "_data": [
+    { "key": "name", "value": "Tech", "series": [{ "name": "value", "value": 548 }] },
+    { "key": "name", "value": "Utils", "series": [{ "name": "value", "value": 412 }] },
+    { "key": "name", "value": "Health", "series": [{ "name": "value", "value": 320 }] }
+  ],
+  "_seriesColors": null
+}
 ```
 
 ## Rules
 
-- Every item must have `name` (string) and `value` (number).
-- `fill` is required in the schema but can be `null` — use `null` to keep the default color.
-- Only set `fill` to a hex value for segments the user wants colored.
-- Hex colors only (e.g. `"#6C5DD3"`). No Tailwind classes, no CSS variables.
-- Never add `color`, `colorFrom`, or `colorTo` to items.
+- `key`: always `"name"` for pie/radial.
+- `value`: segment label.
+- `series`: exactly one item — `{ "name": "value", "value": number }`.
+- `_seriesColors`: JSON string or `null`. Use only when user requests custom colors.
+- Hex colors only.

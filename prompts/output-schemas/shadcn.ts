@@ -1,55 +1,75 @@
 import { z } from "zod";
 
-const shadcnCartesianRow = z
-  .record(z.string(), z.union([z.string(), z.number()]))
+const shadcnCartesianData = z
+  .object({
+    _data: z
+      .array(
+        z.object({
+          key: z.string(),
+          value: z.string(),
+          series: z.array(
+            z.object({
+              name: z.string(),
+              value: z.number(),
+            }),
+          ),
+        }),
+      )
+      .min(1)
+      .describe(
+        "Array of row objects. Each row: key (category name e.g. 'month'), value (category label), series (array of { name, value } for each series). Use key:'month' for bar/area/line, key:'subject' for radar.",
+      ),
+    _seriesColors: z
+      .string()
+      .nullable()
+      .describe(
+        'JSON string of per-series color overrides e.g. \'{"revenue":"#6C5DD3","profit":"#FF0000"}\'. Keys must match series key names in _data rows. Set to null if no colors needed.',
+      ),
+  })
   .describe(
-    "One data row. Must contain exactly one string category key (e.g. 'month', 'quarter') and one or more numeric keys for each series (e.g. 'revenue', 'profit'). All numeric key names must be consistent across every row.",
+    "Cartesian chart data. Always use this wrapped format. Set _seriesColors to null when no custom colors are needed.",
   );
 
-const shadcnCartesianData = z.union([
-  z
-    .array(shadcnCartesianRow)
-    .min(1)
-    .describe(
-      "Use this format when no custom colors are needed. Array of row objects.",
-    ),
-  z
-    .object({
-      _data: z
-        .array(shadcnCartesianRow)
-        .min(1)
-        .describe(
-          "Array of row objects. Each row must have one string category key and one or more numeric series keys.",
-        ),
-      _seriesColors: z
-        .record(z.string(), z.string())
-        .nullable()
-        .describe(
-          "Optional per-series color overrides. Keys MUST exactly match numeric series key names that appear in _data rows (e.g. if rows have 'revenue' and 'profit', valid keys are 'revenue' and/or 'profit'). Values are hex colors (e.g. '#6C5DD3'). Only include series you want to override — unlisted series use defaults. Set to null if no color overrides are needed.",
-        ),
-    })
-    .describe(
-      "Use this format only when custom per-series colors are required. _seriesColors keys must match series keys in _data.",
-    ),
-]);
-
-const shadcnPieItem = z.object({
-  name: z.string().describe("Segment label shown in the chart legend"),
-  value: z.number().describe("Numeric value for this segment"),
-  fill: z
-    .string()
-    .nullable()
-    .describe(
-      "Hex color for this segment (e.g. '#6C5DD3'). Set to null to use the default color.",
-    ),
-});
+/** Pie/Radial: same _data shape. Each row = one segment. key="name", value=segment label, series=[{name:"value", value:number}] */
+const shadcnPieWrapped = z
+  .object({
+    _data: z
+      .array(
+        z.object({
+          key: z.string().describe("Use 'name' for pie/radial segment label"),
+          value: z.string().describe("Segment label shown in the chart legend"),
+          series: z
+            .array(
+              z.object({
+                name: z.string().describe("Use 'value' for the numeric field"),
+                value: z.number().describe("Numeric value for this segment"),
+              }),
+            )
+            .min(1)
+            .describe("One item: { name: 'value', value: number }"),
+        }),
+      )
+      .min(1)
+      .describe(
+        "Array of segment rows. Each row: key:'name', value: label, series:[{name:'value', value}]",
+      ),
+    _seriesColors: z
+      .string()
+      .nullable()
+      .describe(
+        'JSON string of per-segment colors e.g. \'{"Technology":"#6C5DD3"}\'. Keys match segment labels. Set to null if no custom colors.',
+      ),
+  })
+  .describe(
+    "Pie/Radial chart data. Same wrapped format as Cartesian. Set _seriesColors to null when no custom colors.",
+  );
 
 export const shadcnBarSchema = shadcnCartesianData;
 export const shadcnAreaSchema = shadcnCartesianData;
 export const shadcnLineSchema = shadcnCartesianData;
 export const shadcnRadarSchema = shadcnCartesianData;
-export const shadcnPieSchema = z.array(shadcnPieItem).min(1);
-export const shadcnRadialSchema = z.array(shadcnPieItem).min(1);
+export const shadcnPieSchema = shadcnPieWrapped;
+export const shadcnRadialSchema = shadcnPieWrapped;
 
 export const SHADCN_OUTPUT_SCHEMAS: Record<string, z.ZodType<unknown>> = {
   "shadcn:bar": shadcnBarSchema,

@@ -1,39 +1,24 @@
 # shadcn:bar — Vertical Bar Chart
 
-Cartesian format. Use plain array by default. Only wrap with `_data`/`_seriesColors` when the user explicitly requests custom colors.
+Always use the canonical wrapped format. Use `key: "month"` for the category column.
 
-## Format 1 — Plain (default)
-
-```json
-[
-  { "month": "Jan", "desktop": 186, "mobile": 80 },
-  { "month": "Feb", "desktop": 305, "mobile": 200 },
-  { "month": "Mar", "desktop": 237, "mobile": 120 }
-]
-```
-
-## Format 2 — With custom colors
-
-Only use this format if the user asks to color specific series.
+## Format
 
 ```json
 {
   "_data": [
-    { "month": "Jan", "desktop": 186, "mobile": 80 },
-    { "month": "Feb", "desktop": 305, "mobile": 200 },
-    { "month": "Mar", "desktop": 237, "mobile": 120 }
+    { "key": "month", "value": "Jan", "series": [{ "name": "series1", "value": 212 }, { "name": "series2", "value": 134 }, { "name": "series3", "value": 78 }] },
+    { "key": "month", "value": "Feb", "series": [{ "name": "series1", "value": 265 }, { "name": "series2", "value": 188 }, { "name": "series3", "value": 96 }] },
+    { "key": "month", "value": "Mar", "series": [{ "name": "series1", "value": 241 }, { "name": "series2", "value": 153 }, { "name": "series3", "value": 89 }] }
   ],
-  "_seriesColors": {
-    "desktop": "#3f2bbf"
-  }
+  "_seriesColors": null
 }
 ```
 
 ## Rules
 
-- First key in each row = category string (e.g. `"month"`). All other keys = numeric series.
-- All rows must have identical keys.
-- `_seriesColors` is partial — only list series the user wants colored. Omit the rest.
-- Keys in `_seriesColors` must exactly match numeric series keys in the rows.
-- Hex colors only (e.g. `"#3f2bbf"`). No Tailwind classes, no CSS variables.
-- Never add `color`, `fill`, `colorFrom`, or `colorTo` to row items.
+- `key`: category column name, use `"month"` for bar/area/line.
+- `value`: category label (e.g. "Jan", "Feb").
+- `series`: array of `{ name, value }` — one per numeric series. All rows must have same series names.
+- `_seriesColors`: JSON string or `null`. Use `"{\"series1\":\"#6C5DD3\"}"` only when user requests custom colors.
+- Hex colors only (e.g. `#6C5DD3`). No Tailwind, no CSS variables.

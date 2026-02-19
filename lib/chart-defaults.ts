@@ -1,30 +1,42 @@
 /**
  * Default chart data for each chart type.
  * Used when creating new charts or switching to incompatible chart types.
+ * Shadcn uses canonical { _data, _seriesColors } format.
  */
+
+import { wrapShadcnData } from "./shadcn-chart-data";
 
 export const DEFAULT_CHART_TYPE = "shadcn:bar" as const;
 
-/** Default data for Shadcn Cartesian (bar, area, line) */
-export const SHADCN_CARTESIAN_DEFAULT = [
-  { month: "Jan", series1: 186, series2: 80, series3: 45 },
-  { month: "Feb", series1: 305, series2: 200, series3: 120 },
-  { month: "Mar", series1: 237, series2: 120, series3: 85 },
-];
+/** Default data for Shadcn Cartesian (bar, area, line) — canonical wrapped format */
+export const SHADCN_CARTESIAN_DEFAULT = wrapShadcnData(
+  [
+    { month: "Jan", series1: 186, series2: 80, series3: 45 },
+    { month: "Feb", series1: 305, series2: 200, series3: 120 },
+    { month: "Mar", series1: 237, series2: 120, series3: 85 },
+  ],
+  { chartType: "shadcn:bar" },
+);
 
-/** Default data for Shadcn pie/radial */
-export const SHADCN_PIE_DEFAULT = [
-  { name: "Technology", value: 548 },
-  { name: "Utilities", value: 412 },
-  { name: "Materials", value: 287 },
-];
+/** Default data for Shadcn pie/radial — canonical wrapped format */
+export const SHADCN_PIE_DEFAULT = wrapShadcnData(
+  [
+    { name: "Technology", value: 548 },
+    { name: "Utilities", value: 412 },
+    { name: "Materials", value: 287 },
+  ],
+  { chartType: "shadcn:pie" },
+);
 
-/** Default data for Shadcn radar */
-export const SHADCN_RADAR_DEFAULT = [
-  { subject: "Math", A: 120, B: 110, C: 90 },
-  { subject: "Chinese", A: 98, B: 130, C: 85 },
-  { subject: "English", A: 86, B: 130, C: 95 },
-];
+/** Default data for Shadcn radar — canonical wrapped format */
+export const SHADCN_RADAR_DEFAULT = wrapShadcnData(
+  [
+    { subject: "Math", A: 120, B: 110, C: 90 },
+    { subject: "Chinese", A: 98, B: 130, C: 85 },
+    { subject: "English", A: 86, B: 130, C: 95 },
+  ],
+  { chartType: "shadcn:radar" },
+);
 
 /** Default data for Rosencharts keyValue (horizontal-bar, gradient, thin, vertical-bar, breakdown, benchmark) */
 export const ROSENCHARTS_KEYVALUE_DEFAULT = [

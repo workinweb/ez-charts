@@ -4,7 +4,7 @@ import { useCallback, useMemo } from "react";
 import { Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { unwrapShadcnData } from "@/lib/shadcn-chart-data";
+import { unwrapShadcnData, wrapShadcnData } from "@/lib/shadcn-chart-data";
 import { FieldRow } from "../field-row";
 
 const SHADCN_CARTESIAN = ["shadcn:bar", "shadcn:area", "shadcn:line"];
@@ -38,13 +38,14 @@ export function ShadcnDataEditor({
   const updateRows = useCallback(
     (next: Record<string, string | number>[]) => {
       const wrapped = getWrappedIfNeeded(data);
-      if (wrapped) {
-        onChange({ ...wrapped, _data: next });
-      } else {
-        onChange(next);
-      }
+      onChange(
+        wrapShadcnData(next, {
+          chartType,
+          seriesColors: wrapped?._seriesColors,
+        }),
+      );
     },
-    [data, onChange],
+    [data, chartType, onChange],
   );
 
   const updateRow = useCallback(

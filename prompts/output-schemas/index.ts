@@ -9,7 +9,7 @@ import { SHADCN_OUTPUT_SCHEMAS } from "./shadcn";
 export { SHADCN_OUTPUT_SCHEMAS } from "./shadcn";
 
 /** OpenAI-compatible flexible object (avoids z.record propertyNames) */
-const flexibleObject = z.object({}).loose();
+const flexibleObject = z.object({}).nullable();
 
 /**
  * OpenAI strict mode does not support optional object properties.

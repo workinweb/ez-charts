@@ -1,39 +1,24 @@
 # shadcn:line — Line Chart
 
-Cartesian format. Identical structure to shadcn:bar. Use plain array by default. Only wrap with `_data`/`_seriesColors` when the user explicitly requests custom colors.
+Same structure as shadcn:bar. Always use the canonical wrapped format. Use `key: "month"` for the category column.
 
-## Format 1 — Plain (default)
-
-```json
-[
-  { "month": "Jan", "users": 186, "sessions": 80 },
-  { "month": "Feb", "users": 305, "sessions": 200 },
-  { "month": "Mar", "users": 237, "sessions": 120 }
-]
-```
-
-## Format 2 — With custom colors
-
-Only use this format if the user asks to color specific series.
+## Format
 
 ```json
 {
   "_data": [
-    { "month": "Jan", "users": 186, "sessions": 80 },
-    { "month": "Feb", "users": 305, "sessions": 200 },
-    { "month": "Mar", "users": 237, "sessions": 120 }
+    { "key": "month", "value": "Jan", "series": [{ "name": "users", "value": 186 }, { "name": "sessions", "value": 80 }] },
+    { "key": "month", "value": "Feb", "series": [{ "name": "users", "value": 305 }, { "name": "sessions", "value": 200 }] },
+    { "key": "month", "value": "Mar", "series": [{ "name": "users", "value": 237 }, { "name": "sessions", "value": 120 }] }
   ],
-  "_seriesColors": {
-    "users": "#3f2bbf"
-  }
+  "_seriesColors": null
 }
 ```
 
 ## Rules
 
-- First key in each row = category string (e.g. `"month"`). All other keys = numeric series.
-- All rows must have identical keys.
-- `_seriesColors` is partial — only list series the user wants colored. Omit the rest.
-- Keys in `_seriesColors` must exactly match numeric series keys in the rows.
-- Hex colors only (e.g. `"#3f2bbf"`). No Tailwind classes, no CSS variables.
-- Never add `color`, `fill`, `colorFrom`, or `colorTo` to row items.
+- `key`: `"month"` for bar/area/line.
+- `value`: category label.
+- `series`: array of `{ name, value }`. Same series names across all rows.
+- `_seriesColors`: JSON string or `null`. Use only when user requests custom colors.
+- Hex colors only.
