@@ -15,6 +15,6 @@
 
 ## Customization
 
-**Colors:** Add `colorFrom` + `colorTo` per item. Tailwind gradient. Rosencharts only. Do NOT use `fill` or `color` alone.
+**Colors:** Add `colorFrom` + `colorTo` per item. Format: HEX only (e.g. `"#6C5DD3"`, `"#4F46E5"`). Rosencharts only. Do NOT use `fill` or `color` alone.
 
 **Other props:** `key` = item label. `value` = metric (e.g. score).

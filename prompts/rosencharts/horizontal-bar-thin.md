@@ -14,6 +14,6 @@
 
 ## Customization
 
-**Colors:** Same as horizontal-bar — `color` per item, Tailwind or hex.
+**Colors:** Same as horizontal-bar — `color` per item. Format: HEX only (e.g. `"#6C5DD3"`).
 
 **Other props:** Same as horizontal-bar.

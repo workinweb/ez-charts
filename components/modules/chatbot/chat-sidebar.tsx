@@ -187,8 +187,6 @@ export function ChatSidebarContent() {
   const hasChartContext = !!effectiveChartContext;
   const hasLoadedDocs = loadedDocuments.length > 0;
 
-  console.log("🚀 ~ ChatSidebarContent ~ messages:", messages);
-
   const [chartPopoverOpen, setChartPopoverOpen] = useState(false);
   const [chartSelectorLibrary, setChartSelectorLibrary] =
     useState<ChartLibraryId | null>(null);
@@ -415,7 +413,9 @@ export function ChatSidebarContent() {
 
             {isLoading &&
               (messages.length === 0 ||
-                messages[messages.length - 1]?.role === "user") && (
+                messages[messages.length - 1]?.role === "user" ||
+                (messages[messages.length - 1]?.role === "assistant" &&
+                  !getMessageText(messages[messages.length - 1]!))) && (
                 <div className="space-y-2">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">

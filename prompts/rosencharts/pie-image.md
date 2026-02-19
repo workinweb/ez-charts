@@ -14,6 +14,6 @@
 
 ## Customization
 
-**Colors:** Same as pie — `colorFrom` + `colorTo` per item. Rosencharts only.
+**Colors:** Same as pie — `colorFrom` + `colorTo` per item. Format: HEX only (e.g. `"#EC4899"`). Rosencharts only.
 
 **Other props:** `name` used for label and auto-generated image. Optional: `logo` URL to override.

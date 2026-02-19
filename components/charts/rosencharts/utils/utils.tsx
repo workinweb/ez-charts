@@ -175,12 +175,13 @@ export type ChartTypeKey = (typeof chartTypes)[number]["key"];
 
 /** A group of chart type keys that can be freely swapped between. */
 export const interchangeGroups: ReadonlyArray<ReadonlyArray<ChartTypeKey>> = [
-  // ── key/value family  ↔  pie/name family ──────────────────────────
-  // Single‑value bar charts, breakdown, benchmark, pie, donut, fillable
+  // ── key/value family  ↔  pie/name family  ↔  image bar ────────────
+  // horizontal-bar-image is a horizontal bar with images; can switch from keyValue (add image: null)
   [
     "horizontal-bar",
     "horizontal-bar-gradient",
     "horizontal-bar-thin",
+    "horizontal-bar-image",
     "vertical-bar",
     "breakdown",
     "breakdown-thin",
@@ -197,8 +198,7 @@ export const interchangeGroups: ReadonlyArray<ReadonlyArray<ChartTypeKey>> = [
   // ── Line charts ───────────────────────────────────────────────────
   ["line", "line-multi"],
   // ── Standalone (no interchange) ───────────────────────────────────
-  // treemap, scatter, horizontal-bar-image each have unique shapes
-  // with no meaningful conversion, so they remain solo.
+  // treemap, scatter
 ];
 
 /** Lookup: chartTypeKey → set of all keys it can be converted to */
@@ -314,6 +314,22 @@ export function transformChartData(
       delete out.colorTo;
       delete out.logo;
       return out;
+    });
+  }
+
+  // keyValue → imageBar (add image: null for bars with images)
+  if (fromFamily === "keyValue" && toFamily === "imageBar") {
+    return arr.map((item: Record<string, unknown>) => ({
+      ...item,
+      image: (item.image as string) ?? null,
+    }));
+  }
+
+  // imageBar → keyValue (remove image; key/value kept)
+  if (fromFamily === "imageBar" && toFamily === "keyValue") {
+    return arr.map((item: Record<string, unknown>) => {
+      const { image, ...rest } = item as Record<string, unknown>;
+      return rest;
     });
   }
 

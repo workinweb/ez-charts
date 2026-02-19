@@ -14,6 +14,6 @@
 
 ## Customization
 
-**Colors:** Add `color` per item. Format: Tailwind (`"bg-purple-400"`) or hex (`"#6C5DD3"`). Rosencharts only — do NOT use `fill` or `_seriesColors`.
+**Colors:** Add `color` per item. Format: HEX only (e.g. `"#6C5DD3"`). Rosencharts only — do NOT use `fill` or `_seriesColors`.
 
 **Other props:** `key` = category label. `value` = numeric value. Both required.

@@ -7,13 +7,13 @@
 **Example:**
 ```json
 [
-  { "key": "Technology", "value": 38.1, "color": "bg-gradient-to-r from-pink-300 to-pink-400" },
-  { "key": "Banking", "value": 29.6, "color": "bg-gradient-to-r from-purple-300 to-purple-400" }
+  { "key": "Technology", "value": 38.1, "color": "#EC4899" },
+  { "key": "Banking", "value": 29.6, "color": "#A855F7" }
 ]
 ```
 
 ## Customization
 
-**Colors:** Add `color` per item. Format: Tailwind gradient `"bg-gradient-to-r from-X to-Y"` (e.g. `from-pink-300 to-pink-400`).
+**Colors:** Add `color` per item. Format: HEX only (e.g. `"#6C5DD3"`, `"#EC4899"`).
 
 **Other props:** Same as horizontal-bar.

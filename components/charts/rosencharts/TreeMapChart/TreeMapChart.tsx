@@ -51,10 +51,19 @@ export function TreeMapChart({
       name: "root",
       children: data.map((topic) => ({
         name: topic.name,
-        children: Object.entries(topic.subtopics[0]).map(([name, value]) => ({
-          name,
-          value,
-        })),
+        children: (() => {
+          const sub = topic.subtopics[0];
+          if (sub && "key" in sub && "value" in sub) {
+            return topic.subtopics.map((s: { key: string; value: number }) => ({
+              name: s.key,
+              value: s.value,
+            }));
+          }
+          return Object.entries(sub ?? {}).map(([name, value]) => ({
+            name,
+            value: typeof value === "number" ? value : 0,
+          }));
+        })(),
       })),
     }),
     [data],

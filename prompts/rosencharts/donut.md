@@ -15,6 +15,6 @@
 
 ## Customization
 
-**Colors:** Same as pie — `colorFrom` + `colorTo` per item. Rosencharts only. Do NOT use `fill`.
+**Colors:** Same as pie — `colorFrom` + `colorTo` per item. Format: HEX only (e.g. `"#EC4899"`). Rosencharts only. Do NOT use `fill`.
 
 **Other props:** Same as pie.

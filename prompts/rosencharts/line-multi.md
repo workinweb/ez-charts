@@ -12,20 +12,20 @@
       { "date": "2024-04-30", "value": 4 },
       { "date": "2024-05-01", "value": 5 }
     ],
-    "color": { "line": "stroke-violet-400", "point": "text-violet-300" }
+    "color": "#8B5CF6"
   },
   {
     "data": [
       { "date": "2024-04-30", "value": 3 },
       { "date": "2024-05-01", "value": 3.5 }
     ],
-    "color": { "line": "stroke-fuchsia-400", "point": "text-fuchsia-300" }
+    "color": "#D946EF"
   }
 ]
 ```
 
 ## Customization
 
-**Colors:** Add `color` per series. Same format as single line: `"stroke-X"` or `{ line: "stroke-X", point: "text-X" }`. Rosencharts only.
+**Colors:** Add `color` per series. Format: HEX only (e.g. `"#8B5CF6"`). Rosencharts only.
 
 **Other props:** Each series must have same date keys for alignment. Do NOT use `_seriesColors` or `fill`.

@@ -2,24 +2,36 @@
 
 **Use when:** Hierarchical data — parent categories with sub-items and values.
 
-**Schema:** `{ name, subtopics: [{ key: number }, ...], colorFrom?, colorTo? }` — at least one subtopics object. Keys in subtopics = sub-item names, values = sizes.
+**Schema:** `{ name, subtopics: [{ key, value }, ...], colorFrom?, colorTo? }` — each parent has an array of subtopics; each subtopic is `{ key: string, value: number }`.
 
 **Example:**
+
 ```json
 [
   {
     "name": "Tech",
-    "subtopics": [{ "Windows": 100, "MacOS": 120, "Linux": 110 }]
+    "subtopics": [
+      { "key": "Windows", "value": 100 },
+      { "key": "MacOS", "value": 120 },
+      { "key": "Linux", "value": 110 },
+      { "key": "Chrome OS", "value": 45 },
+      { "key": "Other", "value": 30 }
+    ]
   },
   {
     "name": "Financials",
-    "subtopics": [{ "Loans": 60, "Bonds": 80 }]
+    "subtopics": [
+      { "key": "Loans", "value": 60 },
+      { "key": "Bonds", "value": 80 },
+      { "key": "Equities", "value": 95 },
+      { "key": "Derivatives", "value": 40 }
+    ]
   }
 ]
 ```
 
 ## Customization
 
-**Colors:** Add `colorFrom` + `colorTo` per parent item. Tailwind gradient. Rosencharts only.
+**Colors:** Add `colorFrom` + `colorTo` per parent item. Format: HEX only (e.g. `"#6C5DD3"`). Rosencharts only.
 
-**Other props:** `name` = parent category. `subtopics` = array of one object: `{ subName: number }` pairs. Sub-values determine tile size.
+**Other props:** `name` = parent category. `subtopics` = array of `{ key, value }` — include multiple items for richer charts.

@@ -47,12 +47,14 @@ const scatterPoint = z.object({
   color: z.string().nullable(),
 });
 
-/** OpenAI-compatible: object with string keys and number values (avoids z.record propertyNames) */
-const treemapSubtopicsItem = z.object({}).loose();
+const treemapSubtopic = z.object({
+  key: z.string().describe("Sub-item label"),
+  value: z.number().describe("Sub-item size/value"),
+});
 
 const treemapItem = z.object({
   name: z.string(),
-  subtopics: z.array(treemapSubtopicsItem).min(1),
+  subtopics: z.array(treemapSubtopic).min(1),
   colorFrom: z.string().nullable(),
   colorTo: z.string().nullable(),
 });

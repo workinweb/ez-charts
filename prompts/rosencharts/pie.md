@@ -15,6 +15,6 @@
 
 ## Customization
 
-**Colors:** Add `colorFrom` + `colorTo` per item for gradient. Format: Tailwind `"text-pink-400"`, `"text-pink-600"`. Rosencharts only — do NOT use `fill` (Shadcn).
+**Colors:** Add `colorFrom` + `colorTo` per item for gradient. Format: HEX only (e.g. `"#EC4899"`, `"#BE185D"`). Rosencharts only — do NOT use `fill` (Shadcn).
 
 **Other props:** `name` = segment label. `value` = proportion (can sum to any total).

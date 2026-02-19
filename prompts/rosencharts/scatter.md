@@ -14,6 +14,6 @@
 
 ## Customization
 
-**Colors:** Add `color` per point. Tailwind or hex. Rosencharts only. Do NOT use `fill`.
+**Colors:** Add `color` per point. Format: HEX only (e.g. `"#6C5DD3"`). Rosencharts only. Do NOT use `fill`.
 
 **Other props:** `xValue`, `yValue` = numeric coordinates. `name` = point label for tooltip.

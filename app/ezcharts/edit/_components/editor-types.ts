@@ -24,6 +24,7 @@ export interface EditorProps {
   shape: EditorShape;
   data: unknown;
   onChange: (data: unknown) => void;
+  chartType?: string;
 }
 
 export function getEditorShape(chartType: string): EditorShape {

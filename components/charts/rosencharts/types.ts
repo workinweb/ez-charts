@@ -105,7 +105,7 @@ export interface BenchmarkChartItem {
 export interface TreeMapChartItem {
   id?: string;
   name: string;
-  subtopics: [Record<string, number>, ...Record<string, number>[]];
+  subtopics: Array<{ key: string; value: number }>;
   colorFrom?: string;
   colorTo?: string;
 }

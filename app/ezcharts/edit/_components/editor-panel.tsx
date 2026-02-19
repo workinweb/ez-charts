@@ -128,6 +128,7 @@ export function EditorPanel({
             editorShape && (
               <StyleEditor
                 shape={editorShape}
+                chartType={chartType}
                 data={data}
                 onChange={onDataChange}
               />

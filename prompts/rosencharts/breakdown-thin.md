@@ -14,6 +14,6 @@
 
 ## Customization
 
-**Colors:** Same as breakdown. Rosencharts only.
+**Colors:** Add `color` per item. Format: HEX (e.g. `"#6C5DD3"`). Rosencharts only.
 
 **Other props:** Same as breakdown.

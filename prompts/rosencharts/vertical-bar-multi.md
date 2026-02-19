@@ -14,6 +14,6 @@
 
 ## Customization
 
-**Colors:** Add `multipleColors` per item. Array of Tailwind/hex, one per value. Same as horizontal-bar-multi.
+**Colors:** Add `multipleColors` per item. Array of HEX, one per value. Same as horizontal-bar-multi.
 
 **Other props:** `key` = X-axis label. `values` = stacked/multi bars. Optional: `image` URL for leading icon per row.

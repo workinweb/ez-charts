@@ -87,6 +87,7 @@ export function PieChartImage({
       >
       {/* Slices */}
       {arcs.map((d: PieArcDatum<PieChartItem>, i) => {
+        const midAngle = (d.startAngle + d.endAngle) / 2;
         const isHexColor =
           d.data.colorFrom &&
           /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(d.data.colorFrom);
@@ -100,18 +101,46 @@ export function PieChartImage({
         if (!withTooltip) {
           return (
             <g key={i}>
-              <path
-                fill={isHexColor ? d.data.colorFrom : "currentColor"}
-                d={arcGenerator(d)!}
-                className={
-                  !isHexColor
-                    ? `${
+              <path fill={`url(#pieImageColors-${i})`} d={arcGenerator(d)!} />
+              <linearGradient
+                id={`pieImageColors-${i}`}
+                x1="0"
+                y1="0"
+                x2="1"
+                y2="0"
+                gradientTransform={`rotate(${
+                  (midAngle * 180) / Math.PI - 90
+                }, 0.5, 0.5)`}
+              >
+                {isHexColor ? (
+                  <>
+                    <stop offset="0%" stopColor={d.data.colorFrom} />
+                    <stop
+                      offset="100%"
+                      stopColor={d.data.colorTo || d.data.colorFrom}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <stop
+                      offset="0%"
+                      stopColor="currentColor"
+                      className={
                         d.data.colorFrom ||
                         defaultColors[i % data.length].colorFrom
-                      }`
-                    : ""
-                }
-              />
+                      }
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor="currentColor"
+                      className={
+                        d.data.colorTo ||
+                        defaultColors[i % data.length].colorTo
+                      }
+                    />
+                  </>
+                )}
+              </linearGradient>
               {angle >= MIN_ANGLE && d.data.logo && (
                 <g transform={`translate(${x}, ${y})`}>
                   <foreignObject
@@ -153,18 +182,46 @@ export function PieChartImage({
           <ClientTooltip key={i}>
             <TooltipTrigger>
               <g>
-                <path
-                  fill={isHexColor ? d.data.colorFrom : "currentColor"}
-                  d={arcGenerator(d)!}
-                  className={
-                    !isHexColor
-                      ? `${
+                <path fill={`url(#pieImageColors-${i})`} d={arcGenerator(d)!} />
+                <linearGradient
+                  id={`pieImageColors-${i}`}
+                  x1="0"
+                  y1="0"
+                  x2="1"
+                  y2="0"
+                  gradientTransform={`rotate(${
+                    (midAngle * 180) / Math.PI - 90
+                  }, 0.5, 0.5)`}
+                >
+                  {isHexColor ? (
+                    <>
+                      <stop offset="0%" stopColor={d.data.colorFrom} />
+                      <stop
+                        offset="100%"
+                        stopColor={d.data.colorTo || d.data.colorFrom}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <stop
+                        offset="0%"
+                        stopColor="currentColor"
+                        className={
                           d.data.colorFrom ||
                           defaultColors[i % data.length].colorFrom
-                        }`
-                      : ""
-                  }
-                />
+                        }
+                      />
+                      <stop
+                        offset="100%"
+                        stopColor="currentColor"
+                        className={
+                          d.data.colorTo ||
+                          defaultColors[i % data.length].colorTo
+                        }
+                      />
+                    </>
+                  )}
+                </linearGradient>
                 {angle >= MIN_ANGLE && d.data.logo && (
                   <g transform={`translate(${x}, ${y})`}>
                     <foreignObject

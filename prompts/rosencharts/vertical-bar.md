@@ -14,6 +14,6 @@
 
 ## Customization
 
-**Colors:** Add `color` per item. Tailwind or hex. Rosencharts only.
+**Colors:** Add `color` per item. Format: HEX only (e.g. `"#6C5DD3"`). Rosencharts only.
 
 **Other props:** `key` = X-axis label. `value` = bar height.

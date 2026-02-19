@@ -57,7 +57,10 @@ export function DataEditor({ shape, data, onChange }: EditorProps) {
       case "treemap":
         onChange([
           ...arr,
-          { name: `Group ${arr.length + 1}`, subtopics: [{ Topic: 10 }] },
+          {
+            name: `Group ${arr.length + 1}`,
+            subtopics: [{ key: "Topic", value: 10 }],
+          },
         ]);
         break;
       case "scatter":
@@ -517,6 +520,22 @@ function LineSeriesEditor({
 
 /* ── TreeMap editor ──────────────────────────────────────────────────── */
 
+type TreemapSubtopic = { key: string; value: number };
+
+function normalizeSubtopics(
+  raw: unknown
+): TreemapSubtopic[] {
+  if (!Array.isArray(raw) || raw.length === 0) return [{ key: "Topic", value: 10 }];
+  const first = raw[0] as Record<string, unknown>;
+  if (first && "key" in first && "value" in first) {
+    return raw.map((s) => ({ key: String((s as TreemapSubtopic).key), value: Number((s as TreemapSubtopic).value) || 0 }));
+  }
+  return Object.entries(first ?? {}).map(([key, val]) => ({
+    key,
+    value: typeof val === "number" ? val : 0,
+  }));
+}
+
 function TreeMapEditor({
   item,
   onUpdate,
@@ -524,7 +543,11 @@ function TreeMapEditor({
   item: Record<string, unknown>;
   onUpdate: (patch: Record<string, unknown>) => void;
 }) {
-  const subtopics = (item.subtopics as Record<string, number>[]) ?? [{}];
+  const subtopics = normalizeSubtopics(item.subtopics);
+
+  const updateSubtopics = (next: TreemapSubtopic[]) => {
+    onUpdate({ subtopics: next });
+  };
 
   return (
     <>
@@ -540,72 +563,57 @@ function TreeMapEditor({
         <span className="text-[11px] font-medium text-[#3D4035]/50">
           Subtopics
         </span>
-        {subtopics.map((sub, si) => (
-          <div key={si} className="space-y-1">
-            {Object.entries(sub).map(([key, val]) => (
-              <div key={key} className="flex items-center gap-2">
-                <Input
-                  value={key}
-                  onChange={(e) => {
-                    const nextSub = { ...sub };
-                    delete nextSub[key];
-                    nextSub[e.target.value] = val;
-                    const nextArr = [...subtopics];
-                    nextArr[si] = nextSub;
-                    onUpdate({ subtopics: nextArr });
-                  }}
-                  className="h-8 min-w-0 flex-1 rounded-lg text-[12px]"
-                />
-                <Input
-                  type="number"
-                  value={val}
-                  onChange={(e) => {
-                    const nextSub = {
-                      ...sub,
-                      [key]: parseFloat(e.target.value) || 0,
-                    };
-                    const nextArr = [...subtopics];
-                    nextArr[si] = nextSub;
-                    onUpdate({ subtopics: nextArr });
-                  }}
-                  className="h-8 w-20 rounded-lg text-[12px]"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    const nextSub = { ...sub };
-                    delete nextSub[key];
-                    const nextArr = [...subtopics];
-                    nextArr[si] = nextSub;
-                    onUpdate({ subtopics: nextArr });
-                  }}
-                  aria-label={`Remove topic ${key}`}
-                  title="Remove topic"
-                  className="rounded-full p-1 text-[#3D4035]/30 hover:text-red-500"
-                >
-                  <Trash2 className="size-3" />
-                </button>
-              </div>
-            ))}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                const nextSub = {
-                  ...sub,
-                  [`Topic ${Object.keys(sub).length + 1}`]: 0,
-                };
-                const nextArr = [...subtopics];
-                nextArr[si] = nextSub;
-                onUpdate({ subtopics: nextArr });
-              }}
-              className="gap-1 text-[11px] text-[#6C5DD3]"
-            >
-              <Plus className="size-3" />
-              Add topic
-            </Button>
-          </div>
-        ))}
+        <div className="space-y-1">
+          {subtopics.map((sub, si) => (
+            <div key={si} className="flex items-center gap-2">
+              <Input
+                value={sub.key}
+                onChange={(e) => {
+                  const next = [...subtopics];
+                  next[si] = { ...sub, key: e.target.value };
+                  updateSubtopics(next);
+                }}
+                className="h-8 min-w-0 flex-1 rounded-lg text-[12px]"
+              />
+              <Input
+                type="number"
+                value={sub.value}
+                onChange={(e) => {
+                  const next = [...subtopics];
+                  next[si] = { ...sub, value: parseFloat(e.target.value) || 0 };
+                  updateSubtopics(next);
+                }}
+                className="h-8 w-20 rounded-lg text-[12px]"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const next = subtopics.filter((_, i) => i !== si);
+                  updateSubtopics(next.length ? next : [{ key: "Topic", value: 0 }]);
+                }}
+                aria-label={`Remove topic ${sub.key}`}
+                title="Remove topic"
+                className="rounded-full p-1 text-[#3D4035]/30 hover:text-red-500"
+              >
+                <Trash2 className="size-3" />
+              </button>
+            </div>
+          ))}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() =>
+              updateSubtopics([
+                ...subtopics,
+                { key: `Topic ${subtopics.length + 1}`, value: 0 },
+              ])
+            }
+            className="gap-1 text-[11px] text-[#6C5DD3]"
+          >
+            <Plus className="size-3" />
+            Add topic
+          </Button>
+        </div>
       </div>
     </>
   );

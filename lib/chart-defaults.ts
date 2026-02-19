@@ -62,7 +62,13 @@ export const ROSENCHARTS_PIE_DEFAULT = [
 
 /** Default data for Rosencharts treemap */
 export const ROSENCHARTS_TREEMAP_DEFAULT = [
-  { name: "Group 1", subtopics: [{ A: 40, B: 60 }] },
+  {
+    name: "Group 1",
+    subtopics: [
+      { key: "A", value: 40 },
+      { key: "B", value: 60 },
+    ],
+  },
 ];
 
 /** Default data for Rosencharts scatter */
