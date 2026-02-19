@@ -80,7 +80,7 @@ export function IconSidebar() {
             <IconBtn
               key={item.sectionKey}
               {...item}
-              active={activeSection === item.sectionKey}
+              active={isOnHome && activeSection === item.sectionKey}
               onClick={() => handleIconClick(item.sectionKey)}
             />
           ))}
@@ -93,7 +93,7 @@ export function IconSidebar() {
             <IconBtn
               key={item.sectionKey}
               {...item}
-              active={activeSection === item.sectionKey}
+              active={isOnHome && activeSection === item.sectionKey}
               onClick={() => handleIconClick(item.sectionKey)}
             />
           ))}
