@@ -7,9 +7,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  ArrowLeft,
   BarChart3,
-  Check,
   ChevronDown,
   FileSpreadsheet,
   FileText,
@@ -29,11 +27,8 @@ import { useEffect, useRef, useState } from "react";
 
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
-import {
-  CHART_LIBRARIES,
-  getChartTypesByLibrary,
-  type ChartLibraryId,
-} from "@/lib/chart-registry";
+import { ChartLibrarySelector } from "@/components/chart-library-selector";
+import { getChartTypesByLibrary } from "@/lib/chart-registry";
 import { cn } from "@/lib/utils";
 import { useChatbotStore } from "@/stores/chatbot-store";
 import { useSectionStore } from "@/stores/section-store";
@@ -188,10 +183,8 @@ export function ChatSidebarContent() {
   const hasLoadedDocs = loadedDocuments.length > 0;
 
   const [chartPopoverOpen, setChartPopoverOpen] = useState(false);
-  const [chartSelectorLibrary, setChartSelectorLibrary] =
-    useState<ChartLibraryId | null>(null);
 
-  const toggleChartSelection = (key: string) => {
+  const handleChartSelect = (key: string) => {
     toggleSelectedChartKey(key);
     setChartPopoverOpen(false);
   };
@@ -667,10 +660,7 @@ export function ChatSidebarContent() {
 
           <Popover
             open={chartPopoverOpen}
-            onOpenChange={(open) => {
-              setChartPopoverOpen(open);
-              if (!open) setChartSelectorLibrary(null);
-            }}
+            onOpenChange={setChartPopoverOpen}
           >
             <PopoverTrigger asChild>
               <Button
@@ -691,78 +681,13 @@ export function ChatSidebarContent() {
             <PopoverContent
               align="end"
               side="top"
-              className="flex w-56 max-h-[380px] flex-col gap-0 rounded-2xl border-0 bg-white p-0 shadow-xl overflow-hidden"
+              className="w-auto max-w-[320px] p-0 rounded-2xl border-0 bg-white shadow-xl overflow-hidden"
             >
-              {chartSelectorLibrary === null ? (
-                <div className="flex flex-col">
-                  <div className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
-                    Select library
-                  </div>
-                  {CHART_LIBRARIES.map((lib) => {
-                    const LibIcon = lib.icon;
-                    const typesCount = getChartTypesByLibrary()[lib.id].length;
-                    return (
-                      <button
-                        key={lib.id}
-                        type="button"
-                        onClick={() => setChartSelectorLibrary(lib.id)}
-                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-sidebar-foreground transition-colors hover:bg-[#BCBDEA]/20"
-                      >
-                        <LibIcon
-                          className="size-4 shrink-0"
-                          strokeWidth={1.7}
-                        />
-                        <span className="flex-1 text-left">{lib.label}</span>
-                        <span className="text-[11px] text-sidebar-foreground/50">
-                          {typesCount} charts
-                        </span>
-                        <ChevronDown className="size-3 -rotate-90" />
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="flex flex-col overflow-y-auto max-h-[340px]">
-                  <button
-                    type="button"
-                    onClick={() => setChartSelectorLibrary(null)}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-[12px] text-sidebar-foreground/70 hover:bg-sidebar-foreground/5 hover:text-sidebar-foreground"
-                  >
-                    <ArrowLeft className="size-3.5" />
-                    Back to libraries
-                  </button>
-                  <div className="border-t border-sidebar-border/50 px-2 pb-2 pt-1">
-                    {getChartTypesByLibrary()[chartSelectorLibrary].map(
-                      ({ key, label, icon: Icon }) => {
-                        const isSelected = selectedChartKey === key;
-                        return (
-                          <button
-                            key={key}
-                            type="button"
-                            onClick={() => toggleChartSelection(key)}
-                            className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-[12px] font-medium transition-colors hover:bg-[#BCBDEA]/20 hover:text-sidebar-foreground ${
-                              isSelected
-                                ? "bg-[#BCBDEA]/20 text-sidebar-foreground"
-                                : "text-sidebar-foreground/70"
-                            }`}
-                          >
-                            <Icon
-                              className="size-3.5 shrink-0"
-                              strokeWidth={1.7}
-                            />
-                            <span className="min-w-0 flex-1 truncate text-left">
-                              {label}
-                            </span>
-                            {isSelected && (
-                              <Check className="size-3.5 shrink-0 text-[#6C5DD3]" />
-                            )}
-                          </button>
-                        );
-                      },
-                    )}
-                  </div>
-                </div>
-              )}
+              <ChartLibrarySelector
+                selectedChartKey={selectedChartKey}
+                onSelect={handleChartSelect}
+                className="h-[360px] w-[300px]"
+              />
             </PopoverContent>
           </Popover>
         </div>

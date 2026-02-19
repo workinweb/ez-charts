@@ -1,27 +1,26 @@
 "use client";
 
-import { Eye, Lock } from "lucide-react";
+import { useState } from "react";
+import { ChevronDown, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 import {
   isChartTypeCompatible,
   transformChartData,
 } from "@/components/charts/rosencharts";
 import type { ChartTypeKey } from "@/components/charts/rosencharts";
+import { ChartLibrarySelector } from "@/components/chart-library-selector";
 import {
-  CHART_LIBRARIES,
   getChartTypesByLibrary,
   isShadcnChartType,
 } from "@/lib/chart-registry";
+import { cn } from "@/lib/utils";
 
 interface ChartPreviewProps {
   title: string;
@@ -42,6 +41,78 @@ export function ChartPreview({
   onChartTypeChange,
   onIncompatibleType,
 }: ChartPreviewProps) {
+  const [chartPopoverOpen, setChartPopoverOpen] = useState(false);
+
+  const isDisabled = (key: string) => {
+    const fromRosencharts = !isShadcnChartType(chartType);
+    const toRosencharts = !isShadcnChartType(key);
+    const sameLibrary = fromRosencharts === toRosencharts;
+    const compatible =
+      sameLibrary &&
+      fromRosencharts &&
+      isChartTypeCompatible(
+        chartType as ChartTypeKey,
+        key as ChartTypeKey,
+      );
+    if (compatible) return false;
+    if (sameLibrary && isShadcnChartType(key)) {
+      const shadcnCartesian = ["shadcn:bar", "shadcn:area", "shadcn:line"];
+      const shadcnPieLike = ["shadcn:pie", "shadcn:radial"];
+      const fromCartesian = shadcnCartesian.includes(chartType);
+      const toCartesian = shadcnCartesian.includes(key);
+      const fromPieLike = shadcnPieLike.includes(chartType);
+      const toPieLike = shadcnPieLike.includes(key);
+      return !(
+        (fromCartesian && toCartesian) || (fromPieLike && toPieLike)
+      );
+    }
+    return true;
+  };
+
+  const handleChartTypeSelect = (newType: string) => {
+    const fromRosencharts = !isShadcnChartType(chartType);
+    const toRosencharts = !isShadcnChartType(newType);
+    const sameLibrary = fromRosencharts === toRosencharts;
+    const compatible =
+      sameLibrary &&
+      fromRosencharts &&
+      isChartTypeCompatible(
+        chartType as ChartTypeKey,
+        newType as ChartTypeKey,
+      );
+    if (compatible) {
+      const transformed = transformChartData(
+        data,
+        chartType as ChartTypeKey,
+        newType as ChartTypeKey,
+      );
+      onChartTypeChange(newType, transformed);
+    } else if (sameLibrary && isShadcnChartType(newType)) {
+      const shadcnCartesian = ["shadcn:bar", "shadcn:area", "shadcn:line"];
+      const shadcnPieLike = ["shadcn:pie", "shadcn:radial"];
+      const fromCartesian = shadcnCartesian.includes(chartType);
+      const toCartesian = shadcnCartesian.includes(newType);
+      const fromPieLike = shadcnPieLike.includes(chartType);
+      const toPieLike = shadcnPieLike.includes(newType);
+      if (
+        (fromCartesian && toCartesian) ||
+        (fromPieLike && toPieLike)
+      ) {
+        onChartTypeChange(newType, data);
+      } else {
+        onIncompatibleType(newType);
+      }
+    } else {
+      onIncompatibleType(newType);
+    }
+    setChartPopoverOpen(false);
+  };
+
+  const currentLabel =
+    getChartTypesByLibrary().rosencharts
+      .concat(getChartTypesByLibrary().shadcn)
+      .find((c) => c.key === chartType)?.label ?? "Select chart type";
+
   return (
     <div className="order-1 flex min-w-0 flex-col gap-4 sm:gap-5">
       {/* Title + type */}
@@ -66,107 +137,34 @@ export function ChartPreview({
             <Label className="text-[12px] font-medium text-[#3D4035]/60">
               Chart type
             </Label>
-            <Select
-              value={chartType}
-              onValueChange={(v) => {
-                const newType = v;
-                const fromRosencharts = !isShadcnChartType(chartType);
-                const toRosencharts = !isShadcnChartType(newType);
-                const sameLibrary = fromRosencharts === toRosencharts;
-                const compatible =
-                  sameLibrary &&
-                  fromRosencharts &&
-                  isChartTypeCompatible(
-                    chartType as ChartTypeKey,
-                    newType as ChartTypeKey,
-                  );
-                if (compatible) {
-                  const transformed = transformChartData(
-                    data,
-                    chartType as ChartTypeKey,
-                    newType as ChartTypeKey,
-                  );
-                  onChartTypeChange(v, transformed);
-                } else if (sameLibrary && isShadcnChartType(newType)) {
-                  const shadcnCartesian = [
-                    "shadcn:bar",
-                    "shadcn:area",
-                    "shadcn:line",
-                  ];
-                  const shadcnPieLike = ["shadcn:pie", "shadcn:radial"];
-                  const fromCartesian = shadcnCartesian.includes(chartType);
-                  const toCartesian = shadcnCartesian.includes(newType);
-                  const fromPieLike = shadcnPieLike.includes(chartType);
-                  const toPieLike = shadcnPieLike.includes(newType);
-                  if (
-                    (fromCartesian && toCartesian) ||
-                    (fromPieLike && toPieLike)
-                  ) {
-                    onChartTypeChange(v, data);
-                  } else {
-                    onIncompatibleType(newType);
-                  }
-                } else {
-                  onIncompatibleType(newType);
-                }
-              }}
+            <Popover
+              open={chartPopoverOpen}
+              onOpenChange={setChartPopoverOpen}
             >
-              <SelectTrigger className="w-full rounded-xl border-black/[0.06] bg-white/60 text-[14px] sm:w-[220px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CHART_LIBRARIES.map((lib) => {
-                  const types = getChartTypesByLibrary()[lib.id];
-                  if (!types.length) return null;
-                  return (
-                    <SelectGroup key={lib.id}>
-                      <SelectLabel className="text-[11px] font-semibold uppercase tracking-wider">
-                        {lib.label}
-                      </SelectLabel>
-                      {types.map((ct) => {
-                        const fromRosencharts = !isShadcnChartType(chartType);
-                        const toRosencharts = !isShadcnChartType(ct.key);
-                        const sameLibrary = fromRosencharts === toRosencharts;
-                        const compatible =
-                          sameLibrary &&
-                          fromRosencharts &&
-                          isChartTypeCompatible(
-                            chartType as ChartTypeKey,
-                            ct.key as ChartTypeKey,
-                          );
-                        const shadcnCompatible =
-                          sameLibrary &&
-                          isShadcnChartType(ct.key) &&
-                          ([
-                            "shadcn:bar",
-                            "shadcn:area",
-                            "shadcn:line",
-                          ].includes(ct.key)
-                            ? [
-                                "shadcn:bar",
-                                "shadcn:area",
-                                "shadcn:line",
-                              ].includes(chartType)
-                            : ["shadcn:pie", "shadcn:radial"].includes(
-                                chartType,
-                              ));
-                        const canSwitch = compatible || shadcnCompatible;
-                        return (
-                          <SelectItem key={ct.key} value={ct.key}>
-                            <span className="flex items-center gap-2">
-                              {ct.label}
-                              {!canSwitch && (
-                                <Lock className="size-3.5 shrink-0 text-[#3D4035]/40" />
-                              )}
-                            </span>
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectGroup>
-                  );
-                })}
-              </SelectContent>
-            </Select>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-between rounded-xl border-black/[0.06] bg-white/60 text-[14px] font-normal sm:w-[220px]",
+                    "hover:bg-white/80 focus-visible:ring-[#6C5DD3]/30",
+                  )}
+                >
+                  {currentLabel}
+                  <ChevronDown className="size-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="start"
+                className="w-auto p-0 rounded-2xl border-black/[0.06] bg-white shadow-xl overflow-hidden"
+              >
+                <ChartLibrarySelector
+                  selectedChartKey={chartType}
+                  onSelect={handleChartTypeSelect}
+                  isDisabled={isDisabled}
+                  className="h-[380px] w-[300px]"
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       </div>

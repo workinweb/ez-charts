@@ -11,8 +11,8 @@ import { SHADCN_CHART_TYPES } from "@/components/charts/shadcn-charts";
 import type { ShadcnChartTypeKey } from "@/components/charts/shadcn-charts";
 
 export const CHART_LIBRARIES = [
-  { id: "shadcn", label: "Shadcn", icon: Sparkles },
   { id: "rosencharts", label: "Rosencharts", icon: Layers },
+  { id: "shadcn", label: "Shadcn", icon: Sparkles },
 ] as const;
 
 export type ChartLibraryId = (typeof CHART_LIBRARIES)[number]["id"];
