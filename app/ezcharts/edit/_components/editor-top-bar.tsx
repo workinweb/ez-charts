@@ -11,6 +11,9 @@ interface EditorTopBarProps {
   dirty: boolean;
   saved: boolean;
   saving?: boolean;
+  /** When true, Save button is disabled (e.g. chart limit reached) */
+  saveDisabled?: boolean;
+  saveDisabledReason?: string;
   onBack: () => void;
   onReset: () => void;
   onSave: () => void | Promise<void>;
@@ -23,6 +26,8 @@ export function EditorTopBar({
   dirty,
   saved,
   saving = false,
+  saveDisabled = false,
+  saveDisabledReason,
   onBack,
   onReset,
   onSave,
@@ -68,10 +73,26 @@ export function EditorTopBar({
 
       <Button
         size="sm"
-        disabled={(!dirty && !isCreateMode && !isUnsavedChart) || saving}
+        disabled={
+          saveDisabled ||
+          (!dirty && !isCreateMode && !isUnsavedChart) ||
+          saving
+        }
         onClick={onSave}
         aria-label={saving ? "Saving…" : saved ? "Saved" : isCreateMode ? "Create chart" : isUnsavedChart ? "Save chart" : "Save changes"}
-        title={saving ? "Saving…" : saved ? "Saved" : isCreateMode ? "Create chart" : isUnsavedChart ? "Save chart" : "Save changes"}
+        title={
+          saveDisabled
+            ? saveDisabledReason
+            : saving
+              ? "Saving…"
+              : saved
+                ? "Saved"
+                : isCreateMode
+                  ? "Create chart"
+                  : isUnsavedChart
+                    ? "Save chart"
+                    : "Save changes"
+        }
         className={cn(
           "gap-2 rounded-xl text-[12px] font-semibold transition-all",
           dirty

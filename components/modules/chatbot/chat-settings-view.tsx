@@ -1,19 +1,17 @@
 "use client";
 
-import { Settings, Database } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { api } from "@/convex/_generated/api";
-import { useQuery } from "convex/react";
-import { TIER_LIMITS } from "@/lib/tiers/tier-limits";
+import { useFeatureCheck } from "@/hooks/use-feature-check";
 import { cn } from "@/lib/utils";
 import { useChatbotStore } from "@/stores/chatbot-store";
+import { Database, Settings } from "lucide-react";
 
 export function ChatSettingsView() {
   const saveDocumentsOnDb = useChatbotStore((s) => s.saveDocumentsOnDb);
   const setSaveDocumentsOnDb = useChatbotStore((s) => s.setSaveDocumentsOnDb);
-  const settings = useQuery(api.userSettings.get);
-  const planTier = (settings?.planTier ?? "free") as "free" | "pro" | "max";
-  const canSaveDocuments = TIER_LIMITS[planTier].canSaveDocuments;
+  const { canUse } = useFeatureCheck();
+  const docAllowed = canUse("saveDocument");
+  const canSaveDocuments = docAllowed.allowed;
 
   return (
     <div className="flex flex-1 flex-col overflow-y-auto px-4 py-6">
@@ -45,7 +43,8 @@ export function ChatSettingsView() {
                 <p className="text-[12px] text-sidebar-foreground/50">
                   {canSaveDocuments
                     ? "Persist attached files for later use"
-                    : "Upgrade to Pro to save documents. Free: use in chat only."}
+                    : (docAllowed.reason ??
+                      "Upgrade to Pro to save documents. Free: use in chat only.")}
                 </p>
               </div>
             </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { PlansDialog } from "@/components/modules/plans";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,7 +12,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { PlansDialog } from "@/components/modules/plans";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,31 +20,29 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { UserAvatar } from "@/components/ui/user-avatar";
-import { authClient } from "@/lib/(auth)/auth-client";
+import { api } from "@/convex/_generated/api";
 import { useChartById } from "@/hooks/use-charts";
+import { useFeatureCheck } from "@/hooks/use-feature-check";
+import { authClient } from "@/lib/(auth)/auth-client";
+import { TIER_LIMITS } from "@/lib/tiers/tier-limits";
 import { useChartsStore } from "@/stores/charts-store";
+import { useQuery } from "convex/react";
 import {
-  Bookmark,
   ChevronDown,
-  Coins,
   Coffee,
+  Coins,
   Crown,
   Home,
   LayoutGrid,
   LogOut,
-  MoreHorizontal,
   Pencil,
   Plus,
-  Share,
   User,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { TIER_LIMITS } from "@/lib/tiers/tier-limits";
 
 const PLAN_ICONS = { free: Coffee, pro: Zap, max: Crown } as const;
 
@@ -64,6 +62,8 @@ function AppNavbarInner() {
   const [plansDialogOpen, setPlansDialogOpen] = useState(false);
 
   const settings = useQuery(api.userSettings.get, session?.user ? {} : "skip");
+  const { canUse } = useFeatureCheck();
+  const chartAllowed = canUse("createChart");
   const planTier = (settings?.planTier ?? "free") as "free" | "pro" | "max";
   const showUpgradeButton = planTier !== "max";
 
@@ -198,14 +198,17 @@ function AppNavbarInner() {
               <DropdownMenuItem
                 onSelect={(e) => {
                   e.preventDefault();
+                  if (!chartAllowed.allowed) return;
                   setCreateChartConfirmOpen(true);
                 }}
-                className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-foreground/80 hover:bg-foreground/5 hover:text-foreground focus:bg-foreground/5 focus:outline-none"
+                disabled={!chartAllowed.allowed}
+                className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-foreground/80 hover:bg-foreground/5 hover:text-foreground focus:bg-foreground/5 focus:outline-none disabled:pointer-events-none disabled:opacity-50"
+                title={!chartAllowed.allowed ? chartAllowed.reason : undefined}
               >
                 <Plus className="size-3.5 text-foreground/50" />
                 Create Chart
               </DropdownMenuItem>
-            ) : (
+            ) : chartAllowed.allowed ? (
               <DropdownMenuItem asChild>
                 <Link
                   href="/ezcharts/edit"
@@ -214,6 +217,15 @@ function AppNavbarInner() {
                   <Plus className="size-3.5 text-foreground/50" />
                   Create Chart
                 </Link>
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem
+                disabled
+                className="flex cursor-default items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-foreground/50"
+                title={chartAllowed.reason}
+              >
+                <Plus className="size-3.5 text-foreground/40" />
+                Create Chart
               </DropdownMenuItem>
             )}
             {editingChartId && (

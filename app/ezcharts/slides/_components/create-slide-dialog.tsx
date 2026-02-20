@@ -1,9 +1,24 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
-  DndContext,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { useChartsList } from "@/hooks/use-charts";
+import { useFeatureCheck } from "@/hooks/use-feature-check";
+import { useSlidesMutations } from "@/hooks/use-slides";
+import { cn } from "@/lib/utils";
+import {
   closestCenter,
+  DndContext,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -18,22 +33,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { GripVertical, Plus, Search, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useChartsList } from "@/hooks/use-charts";
-import { useSlidesMutations } from "@/hooks/use-slides";
+import { useMemo, useState } from "react";
 
 interface CreateSlideDialogProps {
   triggerLabel?: string;
@@ -120,6 +121,8 @@ export function CreateSlideDialog({
   const [name, setName] = useState("");
   const [chartIds, setChartIds] = useState<string[]>([]);
   const [addChartSearch, setAddChartSearch] = useState("");
+  const { canUse } = useFeatureCheck();
+  const slideAllowed = canUse("createSlide");
   const mutations = useSlidesMutations();
   const allCharts = useChartsList();
 
@@ -186,7 +189,9 @@ export function CreateSlideDialog({
       <DialogTrigger asChild>
         <Button
           size="sm"
-          className="gap-2 rounded-xl bg-[#6C5DD3] text-[12px] font-semibold text-white hover:bg-[#5a4dbf]"
+          disabled={!slideAllowed.allowed}
+          title={!slideAllowed.allowed ? slideAllowed.reason : undefined}
+          className="gap-2 rounded-xl bg-[#6C5DD3] text-[12px] font-semibold text-white hover:bg-[#5a4dbf] disabled:opacity-50"
         >
           <Plus className="size-3.5" />
           {triggerLabel}
@@ -276,36 +281,36 @@ export function CreateSlideDialog({
                     </p>
                   ) : (
                     filteredAvailableToAdd.map((chart) => {
-                    const Icon = chart.icon;
-                    return (
-                      <label
-                        key={chart.id}
-                        className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-black/2"
-                      >
-                        <Checkbox
-                          checked={false}
-                          onCheckedChange={(checked) =>
-                            checked && addChart(chart.id)
-                          }
-                        />
-                        <div
-                          className={cn(
-                            "flex size-8 shrink-0 items-center justify-center rounded-lg",
-                            chart.iconBg,
-                          )}
+                      const Icon = chart.icon;
+                      return (
+                        <label
+                          key={chart.id}
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-black/2"
                         >
-                          <Icon
-                            className={cn("size-4", chart.iconColor)}
-                            strokeWidth={2}
+                          <Checkbox
+                            checked={false}
+                            onCheckedChange={(checked) =>
+                              checked && addChart(chart.id)
+                            }
                           />
-                        </div>
-                        <span className="flex-1 truncate text-[13px] font-medium text-[#3D4035]">
-                          {chart.title}
-                        </span>
-                        <Plus className="size-3.5 shrink-0 text-[#3D4035]/40" />
-                      </label>
-                    );
-                  })
+                          <div
+                            className={cn(
+                              "flex size-8 shrink-0 items-center justify-center rounded-lg",
+                              chart.iconBg,
+                            )}
+                          >
+                            <Icon
+                              className={cn("size-4", chart.iconColor)}
+                              strokeWidth={2}
+                            />
+                          </div>
+                          <span className="flex-1 truncate text-[13px] font-medium text-[#3D4035]">
+                            {chart.title}
+                          </span>
+                          <Plus className="size-3.5 shrink-0 text-[#3D4035]/40" />
+                        </label>
+                      );
+                    })
                   )}
                 </div>
               </div>
@@ -337,7 +342,10 @@ export function CreateSlideDialog({
           </Button>
           <Button
             size="sm"
-            disabled={!name.trim() || chartIds.length === 0}
+            disabled={
+              !name.trim() || chartIds.length === 0 || !slideAllowed.allowed
+            }
+            title={!slideAllowed.allowed ? slideAllowed.reason : undefined}
             onClick={handleCreate}
             className="rounded-xl bg-[#6C5DD3] text-[13px] font-semibold text-white hover:bg-[#5a4dbf] disabled:opacity-50"
           >

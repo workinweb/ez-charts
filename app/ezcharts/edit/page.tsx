@@ -1,32 +1,33 @@
 "use client";
 
-import {
-  Suspense,
-  useState,
-  useMemo,
-  useCallback,
-  useEffect,
-  useRef,
-} from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Navbar } from "@/components/layout/navbar";
 import { api } from "@/convex/_generated/api";
-import { useQuery } from "convex/react";
-import { renderChart } from "@/lib/chart-render";
 import { useChartByIdWithStatus, useChartsMutations } from "@/hooks/use-charts";
+import { useFeatureCheck } from "@/hooks/use-feature-check";
+import { renderChart } from "@/lib/chart-render";
 import { useChartsStore } from "@/stores/charts-store";
 import { useChatbotStore } from "@/stores/chatbot-store";
-import { Navbar } from "@/components/layout/navbar";
+import { useQuery } from "convex/react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
-  EditorTopBar,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
   ChartPreview,
-  EditorPanel,
-  IncompatibleTypeDialog,
-  type EditorTab,
-  getEditorShape,
   cloneData,
-  getDefaultDataForChartType,
   DEFAULT_CHART_TYPE,
   DEFAULT_CREATE_DATA,
+  EditorPanel,
+  EditorTopBar,
+  getDefaultDataForChartType,
+  getEditorShape,
+  IncompatibleTypeDialog,
+  type EditorTab,
 } from "./_components";
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -52,6 +53,8 @@ function EditChartContent() {
   const chartId = searchParams.get("chart");
 
   const mutations = useChartsMutations();
+  const { canUse } = useFeatureCheck();
+  const chartAllowed = canUse("createChart");
   const removeUnsavedChart = useChartsStore((s) => s.removeUnsavedChart);
   const userSettings = useQuery(api.userSettings.get);
   const {
@@ -136,6 +139,12 @@ function EditChartContent() {
   /* ── Save handler ────────────────────────────────────────────────── */
   const [saving, setSaving] = useState(false);
   const handleSave = useCallback(async () => {
+    if (
+      (isCreateMode || !!selectedId?.startsWith("unsaved-")) &&
+      !chartAllowed.allowed
+    ) {
+      return;
+    }
     setSaving(true);
     try {
       if (isCreateMode) {
@@ -188,6 +197,7 @@ function EditChartContent() {
   }, [
     isCreateMode,
     selectedId,
+    chartAllowed.allowed,
     title,
     chartType,
     data,
@@ -281,6 +291,11 @@ function EditChartContent() {
             dirty={dirty}
             saved={saved}
             saving={saving}
+            saveDisabled={
+              (isCreateMode || !!selectedId?.startsWith("unsaved-")) &&
+              !chartAllowed.allowed
+            }
+            saveDisabledReason={chartAllowed.reason}
             onBack={() => router.replace("/ezcharts/charts")}
             onReset={handleReset}
             onSave={handleSave}

@@ -25,9 +25,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+import { ChartLibrarySelector } from "@/components/chart-library-selector";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
-import { ChartLibrarySelector } from "@/components/chart-library-selector";
+import { useFeatureCheck } from "@/hooks/use-feature-check";
 import { getChartTypesByLibrary } from "@/lib/chart-registry";
 import { cn } from "@/lib/utils";
 import { useChatbotStore } from "@/stores/chatbot-store";
@@ -171,6 +172,8 @@ export function ChatSidebarContent() {
   const updateChartResultFeedback = useMutation(
     api.chat.updateChartResultFeedback,
   );
+  const { canUse } = useFeatureCheck();
+  const chatAllowed = canUse("chat");
 
   const isLoading = status === "submitted" || status === "streaming";
   const lastMsg = messages[messages.length - 1];
@@ -534,10 +537,11 @@ export function ChatSidebarContent() {
               type="submit"
               size="icon-xs"
               aria-label="Send message"
-              title="Send message"
+              title={!chatAllowed.allowed ? chatAllowed.reason : "Send message"}
               disabled={
                 isLoading ||
                 hasParsing ||
+                !chatAllowed.allowed ||
                 (!input.trim() &&
                   !attachedFiles.some((f) => f.parsedContent) &&
                   !hasChartContext &&

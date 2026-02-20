@@ -1,23 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Sparkles, Save, Pencil } from "lucide-react";
-import { renderChart } from "@/lib/chart-render";
-import { useChartsStore } from "@/stores/charts-store";
-import { useChartsMutations } from "@/hooks/use-charts";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useChartsMutations } from "@/hooks/use-charts";
+import { useFeatureCheck } from "@/hooks/use-feature-check";
+import { renderChart } from "@/lib/chart-render";
 import { cn } from "@/lib/utils";
+import { useChartsStore } from "@/stores/charts-store";
+import { Pencil, Save, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 function formatChartTime(id: string): string {
   const match = id.match(/^unsaved-(\d+)-/);
@@ -44,6 +45,8 @@ function formatChartTime(id: string): string {
 
 export function NewSection() {
   const router = useRouter();
+  const { canUse } = useFeatureCheck();
+  const chartAllowed = canUse("createChart");
   const unsavedCharts = useChartsStore((s) => s.unsavedCharts);
   const removeUnsavedChart = useChartsStore((s) => s.removeUnsavedChart);
   const previewChartId = useChartsStore((s) => s.previewChartId);
@@ -142,7 +145,11 @@ export function NewSection() {
                 <Button
                   size="sm"
                   onClick={() => openSaveDialog(displayChart.id)}
-                  className="gap-2 bg-[#6C5DD3] text-white hover:bg-[#5a4dbf]"
+                  disabled={!chartAllowed.allowed}
+                  title={
+                    !chartAllowed.allowed ? chartAllowed.reason : undefined
+                  }
+                  className="gap-2 bg-[#6C5DD3] text-white hover:bg-[#5a4dbf] disabled:opacity-50"
                 >
                   <Save className="size-3.5" />
                   Save Chart
@@ -150,15 +157,11 @@ export function NewSection() {
               </div>
             </div>
             <div className="min-h-[220px] overflow-hidden rounded-xl bg-white/60 ring-1 ring-black/[0.03] p-5">
-              {renderChart(
-                displayChart.data,
-                displayChart.chartType,
-                {
-                  withTooltip: true,
-                  withAnimation: true,
-                  className: "w-full",
-                },
-              )}
+              {renderChart(displayChart.data, displayChart.chartType, {
+                withTooltip: true,
+                withAnimation: true,
+                className: "w-full",
+              })}
             </div>
           </div>
         ) : (
@@ -240,8 +243,13 @@ export function NewSection() {
                         e.stopPropagation();
                         openSaveDialog(chart.id);
                       }}
+                      disabled={!chartAllowed.allowed}
                       aria-label="Save chart"
-                      title="Save chart"
+                      title={
+                        !chartAllowed.allowed
+                          ? chartAllowed.reason
+                          : "Save chart"
+                      }
                     >
                       <Save className="size-3.5" />
                     </Button>
@@ -276,7 +284,8 @@ export function NewSection() {
             </Button>
             <Button
               onClick={handleSave}
-              disabled={!saveName.trim() || saving}
+              disabled={!saveName.trim() || saving || !chartAllowed.allowed}
+              title={!chartAllowed.allowed ? chartAllowed.reason : undefined}
               className="bg-[#6C5DD3] text-white hover:bg-[#5a4dbf]"
             >
               {saving ? "Saving…" : "Save"}
