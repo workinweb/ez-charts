@@ -90,7 +90,7 @@ export async function POST(req: Request) {
     const outputSchema = zodSchema(buildOutputSchema(selectedChartKey));
 
     const result = streamText({
-      model: openai("gpt-5"),
+      model: openai("gpt-5-nano"),
       providerOptions: { openai: { reasoningEffort: "minimal" } },
       messages: await convertToModelMessages(messages),
       output: Output.object({

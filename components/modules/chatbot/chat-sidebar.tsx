@@ -310,7 +310,7 @@ export function ChatSidebarContent() {
                 <p className="text-[13px] leading-relaxed text-sidebar-foreground/90">
                   <TypewriterText
                     text="Chart created! Check it out in the AI Builds tab — "
-                    speed={30}
+                    speed={20}
                     className="inline"
                   />
                   <button
@@ -327,48 +327,6 @@ export function ChatSidebarContent() {
                   >
                     See it
                   </button>
-
-                  {/* Expandable to see the formatted response of the latest message part */}
-                  <details className="inline-block ml-2 align-middle">
-                    <summary className="cursor-pointer text-[12px] underline text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors">
-                      View raw response
-                    </summary>
-                    <div className="mt-2 p-2 bg-sidebar-foreground/5 rounded text-[12px] max-w-full overflow-auto">
-                      <pre className="whitespace-pre-wrap break-words text-sidebar-foreground/80">
-                        {(() => {
-                          // Find last assistant message with chart
-                          const latestMsgWithChart = messages
-                            .slice()
-                            .reverse()
-                            .find(
-                              (m) =>
-                                m.role === "assistant" &&
-                                messageHasCompletedChart(m),
-                            );
-                          if (
-                            latestMsgWithChart &&
-                            latestMsgWithChart.parts &&
-                            latestMsgWithChart.parts.length > 0
-                          ) {
-                            // Use only the text parts to re-combine
-                            const combined = latestMsgWithChart.parts
-                              .filter((p) => p?.type === "text" && p.text)
-                              .map((p) => p.text!)
-                              .join("");
-                            try {
-                              const parsed = JSON.parse(combined);
-                              // Display formatted as JSON
-                              return JSON.stringify(parsed, null, 2);
-                            } catch {
-                              // Fallback to raw text
-                              return combined;
-                            }
-                          }
-                          return "No structured chart data found.";
-                        })()}
-                      </pre>
-                    </div>
-                  </details>
                 </p>
                 <div className="mt-2 flex items-center gap-1">
                   <span className="mr-1 text-[11px] text-sidebar-foreground/50">
@@ -658,10 +616,7 @@ export function ChatSidebarContent() {
             Discuss
           </Button> */}
 
-          <Popover
-            open={chartPopoverOpen}
-            onOpenChange={setChartPopoverOpen}
-          >
+          <Popover open={chartPopoverOpen} onOpenChange={setChartPopoverOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="ghost"
