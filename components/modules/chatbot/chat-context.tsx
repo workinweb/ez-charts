@@ -285,7 +285,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     (async () => {
       try {
         for (const msg of toSync) {
-          const { message, result } = serializeMessage(msg, chartFeedbackMap);
+          const { message, result } = serializeMessage(
+            msg as Parameters<typeof serializeMessage>[0],
+            chartFeedbackMap,
+          );
           if (message.content.trim().length === 0) continue;
           if (!convId) {
             const id = await createConversationMutation({});

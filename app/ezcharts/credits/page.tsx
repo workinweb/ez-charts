@@ -149,13 +149,12 @@ export default function CreditsPage() {
 
             <div className="mt-6 flex-1 space-y-1 overflow-y-auto">
           {/* Credit usage (spent) */}
-          {usageStatus === "LoadingFirstPage" ? (
+          {usageStatus === "LoadingMore" && usagePage.length === 0 ? (
             <div className="flex items-center justify-center gap-2 py-12 text-[14px] text-[#3D4035]/50">
               <Loader2 className="size-4 animate-spin" />
               Loading…
             </div>
-          ) : usagePage.length === 0 && (!purchases || purchases.length === 0) &&
-            usageStatus !== "LoadingFirstPage" ? (
+          ) : usagePage.length === 0 && (!purchases || purchases.length === 0) ? (
             <div className="py-12 text-center text-[14px] text-[#3D4035]/50">
               No activity yet. Start a chat or buy credits to see your history.
             </div>
