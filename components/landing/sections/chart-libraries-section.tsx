@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { renderChart } from "@/lib/chart-render";
 import { shadcnExampleData } from "@/components/charts/shadcn-charts/fixture/exampleChartsData";
 import { data as rosenchartsData } from "@/components/charts/rosencharts/fixture/exampleChartsData";
+import { LIBRARY_DISPLAY } from "@/lib/chart-keys";
 
 const RC_TYPES = ["donut", "treemap", "scatter", "breakdown"] as const;
 const rcCharts = RC_TYPES.map(
@@ -62,7 +63,7 @@ export function ChartLibrariesSection() {
           </div>
           <div className="flex max-w-sm flex-col gap-6">
             <p className="text-sm font-medium leading-relaxed text-slate-500">
-              Rosencharts and Shadcn — bar, donut, scatter, treemap, breakdown.
+              {LIBRARY_DISPLAY.rosencharts} and {LIBRARY_DISPLAY.shadcn} — bar, donut, scatter, treemap, breakdown.
               Pick the right chart for your data.
             </p>
             <div className=" flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3">

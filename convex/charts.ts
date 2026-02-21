@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
+import { LIBRARY_DISPLAY } from "../lib/chart-keys";
 import { TIER_LIMITS, type PlanTier } from "./tierLimits";
 
 // ─── Queries ────────────────────────────────────────────────────────────────
@@ -134,14 +135,14 @@ export const dashboardStats = query({
       monthlyData.push({ month: monthNames[d.getMonth()], charts: count });
     }
 
-    // Chart types distribution: library + type (e.g. "Shadcn · Bar", "Rosencharts · Bar")
+    // Chart types distribution: library + type (e.g. "Classic · Bar", "Rich · Bar")
     const typeCounts: Record<string, number> = {};
     for (const c of charts) {
       const lib = c.chartLibrary ?? (c.chartType?.startsWith("shadcn:") ? "shadcn" : "rosencharts");
       const type = c.chartType?.startsWith("shadcn:") ? c.chartType.slice(7) : c.chartType;
-      const display = lib === "shadcn"
-        ? `Shadcn · ${type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, " ")}`
-        : `Rosencharts · ${type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, " ") || "Bar"}`;
+      const libLabel = LIBRARY_DISPLAY[lib] ?? lib;
+      const typeLabel = type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, " ") || "Bar";
+      const display = `${libLabel} · ${typeLabel}`;
       typeCounts[display] = (typeCounts[display] ?? 0) + 1;
     }
     const chartTypes = Object.entries(typeCounts)

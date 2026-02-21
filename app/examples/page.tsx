@@ -6,10 +6,11 @@ import { renderChart } from "@/lib/chart-render";
 import { data as rosenchartsData } from "@/components/charts/rosencharts/fixture/exampleChartsData";
 import { shadcnExampleData } from "@/components/charts/shadcn-charts/fixture/exampleChartsData";
 import { LandingNavbar } from "@/components/landing/sections/navbar-section";
+import { LIBRARY_DISPLAY } from "@/lib/chart-keys";
 
 const TABS = [
-  { id: "rosencharts", label: "Rosencharts" },
-  { id: "shadcn", label: "Shadcn" },
+  { id: "rosencharts", label: LIBRARY_DISPLAY.rosencharts },
+  { id: "shadcn", label: LIBRARY_DISPLAY.shadcn },
 ] as const;
 
 export default function ExamplesPage() {
@@ -28,7 +29,7 @@ export default function ExamplesPage() {
               Chart examples
             </h1>
             <p className="text-lg font-medium text-slate-500">
-              All available chart types — Rosencharts and Shadcn
+              All available chart types — {LIBRARY_DISPLAY.rosencharts} and {LIBRARY_DISPLAY.shadcn}
             </p>
 
             <div className="mt-6 flex gap-1 rounded-xl bg-slate-100/80 p-1">

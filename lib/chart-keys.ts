@@ -6,6 +6,12 @@
 
 export type ChartLibrary = "shadcn" | "rosencharts";
 
+/** User-facing display names for chart libraries (non-technical) */
+export const LIBRARY_DISPLAY: Record<ChartLibrary, string> = {
+  shadcn: "Classic",
+  rosencharts: "Rich",
+};
+
 export const DEFAULT_CHART_LIBRARY: ChartLibrary = "shadcn";
 export const DEFAULT_CHART_TYPE = "bar";
 

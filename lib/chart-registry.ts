@@ -9,10 +9,11 @@ import { chartTypes } from "@/components/charts/rosencharts";
 import type { ChartTypeKey } from "@/components/charts/rosencharts";
 import { SHADCN_CHART_TYPES } from "@/components/charts/shadcn-charts";
 import type { ShadcnChartTypeKey } from "@/components/charts/shadcn-charts";
+import { LIBRARY_DISPLAY } from "@/lib/chart-keys";
 
 export const CHART_LIBRARIES = [
-  { id: "rosencharts", label: "Rosencharts", icon: Layers },
-  { id: "shadcn", label: "Shadcn", icon: Sparkles },
+  { id: "rosencharts", label: LIBRARY_DISPLAY.rosencharts, icon: Layers },
+  { id: "shadcn", label: LIBRARY_DISPLAY.shadcn, icon: Sparkles },
 ] as const;
 
 export type ChartLibraryId = (typeof CHART_LIBRARIES)[number]["id"];
