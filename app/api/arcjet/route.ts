@@ -3,7 +3,7 @@ import { isSpoofedBot } from "@arcjet/inspect";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
-  const decision = await aj.protect(req, { requested: 1 }); // Deduct 1 tokens from the bucket
+  const decision = await aj.protect(req); // Deduct 1 tokens from the bucket
 
   if (decision.isDenied()) {
     if (decision.reason.isRateLimit()) {
