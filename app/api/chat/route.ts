@@ -1,4 +1,6 @@
 import { aj } from "@/arcject/config";
+import { api } from "@/convex/_generated/api";
+import { fetchAuthQuery } from "@/lib/(auth)/auth-server";
 import { getChartPromptContent } from "@/lib/load-chart-prompt";
 import {
   CHART_SYSTEM_PROMPT,
@@ -27,16 +29,35 @@ export async function POST(req: Request) {
     if (!process.env.NEXT_PUBLIC_IS_DEV_MODE) {
       const decision = await aj.protect(req, { requested: 15 });
 
-      if (decision.reason.isRateLimit()) {
-        return NextResponse.json(
-          {
-            error: "Too Many Requests",
-            message:
-              "You have reached the rate limit for today. Please try again tomorrow.",
-          },
-          { status: 429 },
-        );
+      if (decision.isDenied()) {
+        if (decision.reason.isBot()) {
+          return NextResponse.json(
+            { error: "No bots allowed", reason: decision.reason },
+            { status: 403 },
+          );
+        } else {
+          return NextResponse.json(
+            { error: "Forbidden", reason: decision.reason },
+            { status: 403 },
+          );
+        }
       }
+    }
+
+    // ── Credits check (loose: allow if user has any credits) ───────
+    const settings = await fetchAuthQuery(api.userSettings.get);
+    if (!settings) {
+      return NextResponse.json(
+        { error: "Authentication required to use the chat." },
+        { status: 401 },
+      );
+    }
+    const credits = settings.credits ?? 0;
+    if (credits <= 0) {
+      return NextResponse.json(
+        { error: "Insufficient credits. Please add more to continue." },
+        { status: 402 },
+      );
     }
 
     const { messages, selectedChartKey } = await req.json();

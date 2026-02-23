@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Check, Lock, Search } from "lucide-react";
 import {
   CHART_LIBRARIES,
@@ -13,8 +13,10 @@ import { Input } from "@/components/ui/input";
 export interface ChartLibrarySelectorProps {
   selectedChartKey: string | null;
   onSelect: (key: string) => void;
-  /** When provided, shows Lock icon for incompatible types (e.g. edit page) */
+  /** When provided, disables selection for these types */
   isDisabled?: (key: string) => boolean;
+  /** When provided, shows Lock icon (data will be erased / requires confirmation) but remains clickable */
+  requiresConfirmation?: (key: string) => boolean;
   /** Control library from outside, or leave undefined for internal state */
   activeLibrary?: ChartLibraryId;
   /** Callback when library changes (for controlled mode) */
@@ -31,6 +33,7 @@ export function ChartLibrarySelector({
   selectedChartKey,
   onSelect,
   isDisabled,
+  requiresConfirmation,
   activeLibrary: controlledLib,
   onLibraryChange,
   className,
@@ -40,13 +43,6 @@ export function ChartLibrarySelector({
   );
   const [searchQuery, setSearchQuery] = useState("");
   const activeLibrary = controlledLib ?? internalLib;
-
-  useEffect(() => {
-    if (selectedChartKey) {
-      const lib = getLibraryFromKey(selectedChartKey);
-      if (controlledLib == null) setInternalLib(lib);
-    }
-  }, [selectedChartKey, controlledLib]);
 
   const typesByLib = getChartTypesByLibrary();
   const allTypes = typesByLib[activeLibrary] ?? [];
@@ -127,6 +123,8 @@ export function ChartLibrarySelector({
               <div className="space-y-0.5">
                 {filteredTypes.map((ct) => {
                   const disabled = isDisabled?.(ct.key) ?? false;
+                  const showLock =
+                    requiresConfirmation?.(ct.key) ?? false;
                   const isSelected = selectedChartKey === ct.key;
                   const Icon = ct.icon;
 
@@ -156,6 +154,10 @@ export function ChartLibrarySelector({
                       </span>
                       {disabled ? (
                         <Lock className="size-3 shrink-0 text-[#3D4035]/40" />
+                      ) : showLock ? (
+                        <span title="Switching will replace data with defaults">
+                          <Lock className="size-3 shrink-0 text-[#3D4035]/60" />
+                        </span>
                       ) : isSelected ? (
                         <Check className="size-3.5 shrink-0 text-primary" />
                       ) : null}

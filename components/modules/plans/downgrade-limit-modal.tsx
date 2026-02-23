@@ -21,7 +21,7 @@ import {
   Search,
   Loader2,
 } from "lucide-react";
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useMemo, useState } from "react";
 
 type TabId = "charts" | "slides" | "documents";
 
@@ -64,25 +64,21 @@ export function DowngradeLimitModal({
   const maxSlides = limits.maxSlides;
   const maxDocuments = limits.maxDocuments;
 
-  const prevOpen = useRef(false);
-  useEffect(() => {
-    if (open && !prevOpen.current) {
-      const visibleCharts = charts.filter((c) => c.blockedByTier !== true);
-      const visibleSlides = slides.filter((s) => s.blockedByTier !== true);
-      const visibleDocs = documents.filter((d) => d.blockedByTier !== true);
-      setSelectedCharts(
-        new Set(visibleCharts.slice(0, maxCharts).map((c) => c._id)),
-      );
-      setSelectedSlides(
-        new Set(visibleSlides.slice(0, maxSlides).map((s) => s._id)),
-      );
-      setSelectedDocs(
-        new Set(visibleDocs.slice(0, maxDocuments).map((d) => d._id)),
-      );
-      setSearch("");
-    }
-    prevOpen.current = open;
-  }, [open, maxCharts, maxSlides, maxDocuments, charts, slides, documents]);
+  function handleOpenAutoFocus() {
+    const visibleCharts = charts.filter((c) => c.blockedByTier !== true);
+    const visibleSlides = slides.filter((s) => s.blockedByTier !== true);
+    const visibleDocs = documents.filter((d) => d.blockedByTier !== true);
+    setSelectedCharts(
+      new Set(visibleCharts.slice(0, maxCharts).map((c) => c._id)),
+    );
+    setSelectedSlides(
+      new Set(visibleSlides.slice(0, maxSlides).map((s) => s._id)),
+    );
+    setSelectedDocs(
+      new Set(visibleDocs.slice(0, maxDocuments).map((d) => d._id)),
+    );
+    setSearch("");
+  }
 
   const filteredCharts = useMemo(() => {
     if (!search.trim()) return charts;
@@ -170,6 +166,7 @@ export function DowngradeLimitModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
+        onOpenAutoFocus={handleOpenAutoFocus}
         className="max-w-2xl rounded-[28px] sm:rounded-[32px] p-0 overflow-hidden flex flex-col max-h-[85vh]"
         showCloseButton
       >

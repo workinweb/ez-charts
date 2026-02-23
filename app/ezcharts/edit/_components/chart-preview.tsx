@@ -43,7 +43,8 @@ export function ChartPreview({
 }: ChartPreviewProps) {
   const [chartPopoverOpen, setChartPopoverOpen] = useState(false);
 
-  const isDisabled = (key: string) => {
+  /** Incompatible types show Lock icon (data will be erased) but remain clickable → confirmation dialog */
+  const requiresConfirmation = (key: string) => {
     const fromRosencharts = !isShadcnChartType(chartType);
     const toRosencharts = !isShadcnChartType(key);
     const sameLibrary = fromRosencharts === toRosencharts;
@@ -158,9 +159,10 @@ export function ChartPreview({
                 className="w-auto p-0 rounded-2xl border-black/[0.06] bg-white shadow-xl overflow-hidden"
               >
                 <ChartLibrarySelector
+                  key={chartType ?? "none"}
                   selectedChartKey={chartType}
                   onSelect={handleChartTypeSelect}
-                  isDisabled={isDisabled}
+                  requiresConfirmation={requiresConfirmation}
                   className="h-[380px] w-[300px]"
                 />
               </PopoverContent>

@@ -60,25 +60,19 @@ function EditChartContent() {
   const {
     setAttachedChartContext,
     setSelectedChartKey,
-    setInput,
     setChatSidebarView,
   } = useChatbotStore();
 
   const isCreateMode = !chartId;
 
-  /* ── Chart selection ─────────────────────────────────────────────── */
-  const [selectedId, setSelectedId] = useState<string | null>(chartId);
+  /* ── Chart selection: URL is source of truth; createdId for create→save flow */
+  const [createdId, setCreatedId] = useState<string | null>(null);
+  const selectedId = chartId ?? createdId;
   const {
     chart: sourceChart,
     isLoading: chartLoading,
     isNotFound: chartMissing,
   } = useChartByIdWithStatus(selectedId ?? undefined);
-
-  useEffect(() => {
-    if (chartId && chartId !== selectedId) {
-      setSelectedId(chartId);
-    }
-  }, [chartId, selectedId]);
 
   /* ── Working copy (editable state) ───────────────────────────────── */
   const [title, setTitle] = useState(isCreateMode ? "Untitled Chart" : "");
@@ -158,7 +152,7 @@ function EditChartContent() {
         });
         setDirty(false);
         setSaved(true);
-        setSelectedId(newId);
+        setCreatedId(newId);
         prevChartIdRef.current = newId;
         router.replace(`/ezcharts/edit?chart=${newId}`);
         return;
@@ -177,7 +171,7 @@ function EditChartContent() {
         removeUnsavedChart(selectedId);
         setDirty(false);
         setSaved(true);
-        setSelectedId(newId);
+        setCreatedId(newId);
         prevChartIdRef.current = newId;
         router.replace(`/ezcharts/edit?chart=${newId}`);
       } else {
@@ -216,7 +210,6 @@ function EditChartContent() {
       data: data ?? [],
     });
     setSelectedChartKey(chartType);
-    setInput("Help me improve this chart");
     setChatSidebarView("chat");
   }, [
     title,
@@ -224,7 +217,6 @@ function EditChartContent() {
     data,
     setAttachedChartContext,
     setSelectedChartKey,
-    setInput,
     setChatSidebarView,
   ]);
 

@@ -7,6 +7,7 @@ import { HeroSection } from "@/components/landing/sections/hero-section";
 import { ManualStudioSection } from "@/components/landing/sections/manual-studio-section";
 import { LandingNavbar } from "@/components/landing/sections/navbar-section";
 import { PricingSection } from "@/components/landing/sections/pricing-section";
+import { PromptExamplesSection } from "@/components/landing/sections/prompt-examples-section";
 import { TemplatesSection } from "@/components/landing/sections/templates-section";
 import { TrustedBySection } from "@/components/landing/sections/trusted-by-section";
 
@@ -19,6 +20,7 @@ export default function LandingPage() {
         <TrustedBySection />
         <FeaturesSection />
         <AIChatSection />
+        <PromptExamplesSection />
         <ManualStudioSection />
         <TemplatesSection />
         <ChartLibrariesSection />

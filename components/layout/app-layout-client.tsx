@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { AppNavbar } from "@/components/layout/app-navbar";
 import {
   ChatDrawer,
@@ -17,11 +17,10 @@ interface AppLayoutClientProps {
 
 export function AppLayoutClient({ children, initialSettings }: AppLayoutClientProps) {
   const hydrated = useRef(false);
-  useEffect(() => {
-    if (hydrated.current) return;
+  if (!hydrated.current) {
     hydrated.current = true;
     hydrateUserSettingsStore(initialSettings);
-  }, [initialSettings]);
+  }
 
   return (
     <ChatProvider>

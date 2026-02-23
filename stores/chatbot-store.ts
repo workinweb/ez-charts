@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import { DEFAULT_CHART_KEY } from "@/lib/chart-registry";
 
 export interface AttachedFile {
   file: File;
@@ -85,7 +86,7 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
   attachedFiles: [],
   attachedChartContext: null,
   loadedDocuments: [],
-  selectedChartKey: null,
+  selectedChartKey: DEFAULT_CHART_KEY,
   chatSidebarView: "chat",
   saveDocumentsOnDb: false,
   chartFeedbackMap: {},
@@ -178,10 +179,7 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
 
   setSelectedChartKey: (key) => set({ selectedChartKey: key }),
 
-  toggleSelectedChartKey: (key) =>
-    set((s) => ({
-      selectedChartKey: s.selectedChartKey === key ? null : key,
-    })),
+  toggleSelectedChartKey: (key) => set({ selectedChartKey: key }),
 
   setChatSidebarView: (view) => set({ chatSidebarView: view }),
 

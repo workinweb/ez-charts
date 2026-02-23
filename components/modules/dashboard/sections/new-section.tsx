@@ -18,7 +18,7 @@ import { useChartsStore } from "@/stores/charts-store";
 import { Pencil, Save, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 function formatChartTime(id: string): string {
   const match = id.match(/^unsaved-(\d+)-/);
@@ -63,15 +63,6 @@ export function NewSection() {
       ? unsavedCharts.find((c) => c.id === previewChartId)
       : null) ?? latestChart;
   const historyCharts = [...unsavedCharts].reverse();
-
-  // When AI creates a new chart, auto-switch to it
-  useEffect(() => {
-    if (latestChart) {
-      setTimeout(() => {
-        setPreviewChartId(latestChart.id);
-      }, 0);
-    }
-  }, [latestChart?.id, setPreviewChartId]);
 
   const openSaveDialog = (chartId: string) => {
     const chart = unsavedCharts.find((c) => c.id === chartId);
