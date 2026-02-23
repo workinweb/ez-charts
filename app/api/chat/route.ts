@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   try {
     // ── Arcjet protection ──────────────────────────────────────────
     if (!process.env.NEXT_PUBLIC_IS_DEV_MODE) {
-      const decision = await aj.protect(req, { requested: 15 });
+      const decision = await aj.protect(req);
 
       if (decision.isDenied()) {
         if (decision.reason.isBot()) {
