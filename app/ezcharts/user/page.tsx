@@ -41,6 +41,7 @@ import { useMutation, useQuery } from "convex/react";
 import {
   BarChart3,
   Check,
+  CheckCircle2,
   Coins,
   CreditCard,
   FileText,
@@ -52,34 +53,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
-function ResendVerificationButton({ email }: { email: string }) {
-  const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
-  return (
-    <button
-      type="button"
-      onClick={async () => {
-        setLoading(true);
-        setSent(false);
-        await authClient.sendVerificationEmail({
-          email,
-          callbackURL: "/ezcharts/user",
-        });
-        setSent(true);
-        setLoading(false);
-      }}
-      disabled={loading}
-      className="mt-2 text-[12px] font-medium text-[#6C5DD3] hover:underline disabled:opacity-50"
-    >
-      {loading
-        ? "Sending…"
-        : sent
-          ? "Verification email sent"
-          : "Resend verification email"}
-    </button>
-  );
-}
+import { SecuritySection } from "@/components/modules/user/security-section";
 
 function SortableCardRow({ id }: { id: DashboardCardId }) {
   const {
@@ -244,11 +218,24 @@ export default function UserPage() {
                 <p className="text-[14px] text-[#3D4035]/60">
                   {session?.user?.email ?? "—"}
                 </p>
-                {session?.user?.email &&
-                  !(session?.user as { emailVerified?: boolean })
-                    ?.emailVerified && (
-                    <ResendVerificationButton email={session.user.email} />
-                  )}
+                {session?.user?.email && (
+                  <p className="mt-1.5 flex items-center gap-2 text-[13px]">
+                    {(session.user as { emailVerified?: boolean })
+                      ?.emailVerified ? (
+                      <span className="flex items-center gap-1.5 text-emerald-600">
+                        <CheckCircle2 className="size-4" />
+                        Email verified
+                      </span>
+                    ) : (
+                      <Link
+                        href="/ezcharts/verification"
+                        className="inline-flex items-center gap-1.5 font-medium text-[#6C5DD3] hover:underline"
+                      >
+                        Email not verified — Verify
+                      </Link>
+                    )}
+                  </p>
+                )}
               </div>
               <User className="size-5 text-[#3D4035]/30" />
             </div>
@@ -307,6 +294,16 @@ export default function UserPage() {
               </div>
             )}
           </section>
+
+          {/* Security & password */}
+          {session?.user?.email && (
+            <SecuritySection
+              email={session.user.email}
+              emailVerified={
+                !!(session.user as { emailVerified?: boolean })?.emailVerified
+              }
+            />
+          )}
 
           {/* Plan & credits */}
           <section className="rounded-[28px] bg-white/80 p-6 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">

@@ -149,6 +149,23 @@ html {
   animation: float 3s ease-in-out infinite;
 }
 
+@keyframes verification-shine {
+  0%,
+  82% {
+    transform: translateX(-100%);
+  }
+  97% {
+    transform: translateX(200%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.animate-verification-shine {
+  animation: verification-shine 6s ease-in-out infinite;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

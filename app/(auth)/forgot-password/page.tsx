@@ -1,16 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { authClient } from "@/lib/(auth)/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Image from "next/image";
+import { authClient } from "@/lib/(auth)/auth-client";
 import { Loader2 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { Suspense, useState } from "react";
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
 
@@ -27,7 +28,9 @@ export default function ForgotPasswordPage() {
       });
 
       if (result.error) {
-        setError(result.error.message ?? "Something went wrong. Please try again.");
+        setError(
+          result.error.message ?? "Something went wrong. Please try again.",
+        );
         return;
       }
 
@@ -120,5 +123,17 @@ export default function ForgotPasswordPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function ForgotPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="h-64 w-full max-w-[400px] animate-pulse rounded-[28px] bg-white/80" />
+      }
+    >
+      <ForgotPasswordForm />
+    </Suspense>
   );
 }

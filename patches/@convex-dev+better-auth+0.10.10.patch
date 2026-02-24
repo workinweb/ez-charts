@@ -1,0 +1,58 @@
+diff --git a/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.js b/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.js
+index 075f4f1..3696d4b 100644
+--- a/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.js
++++ b/node_modules/@convex-dev/better-auth/dist/plugins/convex/index.js
+@@ -143,15 +143,15 @@ export const convex = (opts) => {
+                 ...oidcProvider.hooks.after,
+                 {
+                     matcher: (ctx) => {
+-                        return Boolean(ctx.path.startsWith("/sign-in") ||
+-                            ctx.path.startsWith("/sign-up") ||
+-                            ctx.path.startsWith("/callback") ||
+-                            ctx.path.startsWith("/oauth2/callback") ||
+-                            ctx.path.startsWith("/magic-link/verify") ||
+-                            ctx.path.startsWith("/email-otp/verify-email") ||
+-                            ctx.path.startsWith("/phone-number/verify") ||
+-                            ctx.path.startsWith("/siwe/verify") ||
+-                            (ctx.path.startsWith("/get-session") && ctx.context.session));
++                        return Boolean(ctx.path?.startsWith("/sign-in") ||
++                            ctx.path?.startsWith("/sign-up") ||
++                            ctx.path?.startsWith("/callback") ||
++                            ctx.path?.startsWith("/oauth2/callback") ||
++                            ctx.path?.startsWith("/magic-link/verify") ||
++                            ctx.path?.startsWith("/email-otp/verify-email") ||
++                            ctx.path?.startsWith("/phone-number/verify") ||
++                            ctx.path?.startsWith("/siwe/verify") ||
++                            (ctx.path?.startsWith("/get-session") && ctx.context.session));
+                     },
+                     handler: createAuthMiddleware(async (ctx) => {
+                         // Set jwt cookie at login for authenticated ssr
+diff --git a/node_modules/@convex-dev/better-auth/src/plugins/convex/index.ts b/node_modules/@convex-dev/better-auth/src/plugins/convex/index.ts
+index b10a9dc..56db196 100644
+--- a/node_modules/@convex-dev/better-auth/src/plugins/convex/index.ts
++++ b/node_modules/@convex-dev/better-auth/src/plugins/convex/index.ts
+@@ -286,15 +286,15 @@ export const convex = (opts: {
+         {
+           matcher: (ctx) => {
+             return Boolean(
+-              ctx.path.startsWith("/sign-in") ||
+-                ctx.path.startsWith("/sign-up") ||
+-                ctx.path.startsWith("/callback") ||
+-                ctx.path.startsWith("/oauth2/callback") ||
+-                ctx.path.startsWith("/magic-link/verify") ||
+-                ctx.path.startsWith("/email-otp/verify-email") ||
+-                ctx.path.startsWith("/phone-number/verify") ||
+-                ctx.path.startsWith("/siwe/verify") ||
+-                (ctx.path.startsWith("/get-session") && ctx.context.session)
++              ctx.path?.startsWith("/sign-in") ||
++                ctx.path?.startsWith("/sign-up") ||
++                ctx.path?.startsWith("/callback") ||
++                ctx.path?.startsWith("/oauth2/callback") ||
++                ctx.path?.startsWith("/magic-link/verify") ||
++                ctx.path?.startsWith("/email-otp/verify-email") ||
++                ctx.path?.startsWith("/phone-number/verify") ||
++                ctx.path?.startsWith("/siwe/verify") ||
++                (ctx.path?.startsWith("/get-session") && ctx.context.session)
+             );
+           },
+           handler: createAuthMiddleware(async (ctx) => {

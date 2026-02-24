@@ -7,6 +7,7 @@ import {
   ChatSidebar,
   ChatProvider,
 } from "@/components/modules/chatbot";
+import { VerificationBanner } from "@/components/modules/user/verification-banner";
 import { IconSidebar } from "@/components/layout/icon-sidebar";
 import { hydrateUserSettingsStore, type UserSettingsData } from "@/lib/load-user-settings";
 
@@ -25,6 +26,7 @@ export function AppLayoutClient({ children, initialSettings }: AppLayoutClientPr
   return (
     <ChatProvider>
       <div className="flex h-screen w-screen flex-col overflow-hidden">
+        <VerificationBanner />
         <AppNavbar />
 
         <div className="flex min-h-0 flex-1">

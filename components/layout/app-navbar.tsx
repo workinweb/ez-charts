@@ -35,6 +35,7 @@ import {
   Home,
   LayoutGrid,
   LogOut,
+  Mail,
   Pencil,
   Plus,
   User,
@@ -49,6 +50,7 @@ const PLAN_ICONS = { free: Coffee, pro: Zap, max: Crown } as const;
 const navItems = [
   { label: "Home", href: "/ezcharts", icon: Home },
   { label: "Examples", href: "/ezcharts/examples", icon: LayoutGrid },
+  { label: "Contact us", href: "/contact", icon: Mail },
 ] as const;
 
 function AppNavbarInner() {

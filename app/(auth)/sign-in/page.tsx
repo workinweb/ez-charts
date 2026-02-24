@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/(auth)/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { GoogleIcon } from "@/components/icons/google-icon";
@@ -166,9 +167,8 @@ export default function SignInPage() {
                 Forgot password?
               </Link>
             </div>
-            <Input
+            <PasswordInput
               id="password"
-              type="password"
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/(auth)/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { BarChart3, Loader2 } from "lucide-react";
 
 function ResetPasswordForm() {
@@ -139,9 +140,8 @@ function ResetPasswordForm() {
             >
               New password
             </label>
-            <Input
+            <PasswordInput
               id="password"
-              type="password"
               placeholder="Minimum 8 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -159,9 +159,8 @@ function ResetPasswordForm() {
             >
               Confirm password
             </label>
-            <Input
+            <PasswordInput
               id="confirm-password"
-              type="password"
               placeholder="Repeat your password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
