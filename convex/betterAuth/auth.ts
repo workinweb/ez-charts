@@ -19,7 +19,7 @@ export const createAuth = (ctx: GenericCtx<DataModel>) => {
     appName: "Charts AI",
     baseURL: process.env.SITE_URL,
     database: authComponent.adapter(ctx),
-    trustedOrigins: [process.env.SITE_URL ?? ""],
+    trustedOrigins: [process.env.BETTER_AUTH_URL ?? ""],
 
     emailVerification: {
       sendVerificationEmail: async ({ user, url }) => {
@@ -38,6 +38,7 @@ export const createAuth = (ctx: GenericCtx<DataModel>) => {
       sendOnSignUp: true,
       autoSignInAfterVerification: true,
     },
+
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: false, // Set true to block login until verified
@@ -58,6 +59,7 @@ export const createAuth = (ctx: GenericCtx<DataModel>) => {
         });
       },
     },
+
     socialProviders: {
       ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
         ? {
