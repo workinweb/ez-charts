@@ -9,6 +9,7 @@ import { unwrapShadcnData } from "@/lib/shadcn-chart-data";
  * Unified chart renderer: routes to Rosencharts or Shadcn based on chartType.
  * - Rosencharts: horizontal-bar, pie, line, etc.
  * - Shadcn: shadcn:bar, shadcn:area, shadcn:line, shadcn:pie, shadcn:radar, shadcn:radial
+ * @param options.presentationMode - When true, charts fill available space (for /present)
  */
 export function renderChart(
   data: unknown,
@@ -17,9 +18,14 @@ export function renderChart(
     withTooltip?: boolean;
     withAnimation?: boolean;
     className?: string;
+    presentationMode?: boolean;
   },
 ): JSX.Element | null {
   if (!data || !chartType) return null;
+
+  const chartClassName = options?.presentationMode
+    ? "min-h-[280px] h-full w-full max-h-none"
+    : options?.className;
 
   if (chartType.startsWith("shadcn:")) {
     const { rows, seriesColors } = unwrapShadcnData(data);
@@ -27,7 +33,7 @@ export function renderChart(
       rows as Parameters<typeof getShadcnChartByName>[0],
       chartType,
       {
-        className: options?.className,
+        className: chartClassName ?? options?.className,
         seriesColors,
         withTooltip: options?.withTooltip,
         withAnimation: options?.withAnimation,
@@ -41,7 +47,7 @@ export function renderChart(
     {
       withTooltip: options?.withTooltip,
       withAnimation: options?.withAnimation,
-      className: options?.className,
+      className: chartClassName ?? options?.className,
     },
   );
 }

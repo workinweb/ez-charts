@@ -45,6 +45,7 @@ export default function SlideViewPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [chartScale, setChartScale] = useState(100); // 0-100%, scales both width and height (zoom)
   const chartCardRef = useRef<HTMLDivElement>(null);
 
   const totalSlides = slide?.chartIds.length ?? 0;
@@ -139,7 +140,7 @@ export default function SlideViewPage() {
     ? renderChart(currentChart.data, currentChart.chartType, {
         withTooltip: currentChart.withTooltip ?? true,
         withAnimation: currentChart.withAnimation ?? true,
-        className: "min-h-[320px] w-full",
+        presentationMode: true,
       })
     : null;
 
@@ -174,7 +175,29 @@ export default function SlideViewPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3">
+          {currentChart && (
+            <label
+              className="flex items-center gap-3"
+              role="group"
+              aria-label="Chart zoom (scale)"
+            >
+              <span className="text-[11px] font-medium text-[#3D4035]/60">
+                Zoom
+              </span>
+              <input
+                type="range"
+                min={50}
+                max={100}
+                value={chartScale}
+                onChange={(e) => setChartScale(Number(e.target.value))}
+                className="h-1.5 w-24 cursor-pointer appearance-none rounded-full bg-[#3D4035]/15 accent-[#6C5DD3] sm:w-32"
+              />
+              <span className="min-w-10 text-[11px] text-[#3D4035]/70">
+                {chartScale}%
+              </span>
+            </label>
+          )}
           {totalSlides > 1 && (
             <span className="rounded-lg bg-[#BCBDEA]/20 px-3 py-1 text-[12px] font-semibold text-[#6C5DD3]">
               {currentIndex + 1} / {totalSlides}
@@ -234,22 +257,30 @@ export default function SlideViewPage() {
           </button>
         )}
 
-        {/* Scrollable chart area — matches /charts/[id] flow layout */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-12 sm:py-8">
-          <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-5">
-            <div ref={chartCardRef} className="flex flex-col gap-5">
-              {currentChart && (
-                <div className="text-center">
-                  <h2 className="text-xl font-semibold text-[#3D4035] sm:text-2xl">
-                    {currentChart.title}
-                  </h2>
-                  <p className="mt-1 text-[13px] text-[#3D4035]/50">
-                    {currentChart.source} · {currentChart.date}
-                  </p>
-                </div>
-              )}
-              <div className="rounded-[28px] bg-white/90 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
-                <div className="min-h-[360px] w-full">
+        {/* Full-space chart area — presentation style */}
+        <div className="flex min-h-0 flex-1 px-4 py-4 sm:px-8 sm:py-6">
+          {/* Wrapper establishes explicit dimensions so % on child resolves correctly */}
+          <div className="flex min-h-0 w-full flex-1 items-center justify-center">
+            <div
+              ref={chartCardRef}
+              className="flex min-h-0 min-w-0 flex-col gap-4 overflow-hidden"
+              style={{
+                width: `${chartScale}%`,
+                height: `${chartScale}%`,
+              }}
+            >
+            {currentChart && (
+              <div className="shrink-0 text-center">
+                <h2 className="text-xl font-semibold text-[#3D4035] sm:text-2xl">
+                  {currentChart.title}
+                </h2>
+                <p className="mt-1 text-[13px] text-[#3D4035]/50">
+                  {currentChart.source} · {currentChart.date}
+                </p>
+              </div>
+            )}
+            <div className="flex min-h-0 flex-1 flex-col rounded-[28px] bg-white/90 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
+              <div className="flex min-h-[320px] flex-1 w-full">
                   {chartLoading ? (
                     <div className="flex h-[360px] w-full flex-col items-center justify-center gap-3">
                       <div className="size-8 animate-spin rounded-full border-2 border-[#6C5DD3]/20 border-t-[#6C5DD3]" />
@@ -258,7 +289,7 @@ export default function SlideViewPage() {
                       </p>
                     </div>
                   ) : !currentChart ? (
-                    <div className="flex h-[360px] w-full flex-col items-center justify-center gap-3 text-center">
+                    <div className="flex min-h-[320px] w-full flex-1 flex-col items-center justify-center gap-3 text-center">
                       <div className="flex size-14 items-center justify-center rounded-full bg-[#e87c5c]/10">
                         <AlertCircle className="size-7 text-[#e87c5c]" />
                       </div>
@@ -285,10 +316,10 @@ export default function SlideViewPage() {
                   ) : (
                     chartEl
                   )}
-                </div>
               </div>
             </div>
           </div>
+        </div>
         </div>
 
         {/* Next button */}
