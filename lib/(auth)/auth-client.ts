@@ -12,5 +12,9 @@ import { convexClient } from "@convex-dev/better-auth/client/plugins";
  *   await authClient.signOut();
  */
 export const authClient = createAuthClient({
+  // Explicit baseURL for production stability (Next.js inlines NEXT_PUBLIC_* at build)
+  ...(process.env.NEXT_PUBLIC_SITE_URL && {
+    baseURL: process.env.NEXT_PUBLIC_SITE_URL,
+  }),
   plugins: [convexClient()],
 });
