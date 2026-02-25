@@ -1,3 +1,4 @@
+import { getSessionCookie } from "better-auth/cookies";
 import { NextRequest, NextResponse } from "next/server";
 
 // ─── Auth Guard ────────────────────────────────────────────────────────────
@@ -19,31 +20,26 @@ function isPublicPath(pathname: string): boolean {
   return false;
 }
 
-const AUTH_COOKIE_NAME = "better-auth.session_token";
+// const AUTH_COOKIE_NAME = "better-auth.session_token";
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  console.log("🚀 ~ proxy ~ pathname:", pathname);
-  const hasSession = request.cookies.has(AUTH_COOKIE_NAME);
-  console.log("🚀 ~ proxy ~ hasSession:", hasSession);
+  const sessionCookie = getSessionCookie(request);
 
   // Authenticated user on landing or sign-in/sign-up → redirect to app
-  console.log("🚀 ~ proxy ~ pathname:", pathname);
-  // if (
-  //   hasSession &&
-  //   (pathname === "/" || pathname === "/sign-in" || pathname === "/sign-up")
-  // ) {
-  if (pathname !== "/ezcharts") {
+  if (
+    sessionCookie &&
+    (pathname === "/" || pathname === "/sign-in" || pathname === "/sign-up")
+  ) {
     return NextResponse.redirect(new URL("/ezcharts", request.url));
-    // }
   }
 
   // Unauthenticated on protected route → sign-in with redirect param
-  // if (!isPublicPath(pathname) && !hasSession) {
-  //   const signInUrl = new URL("/sign-in", request.url);
-  //   signInUrl.searchParams.set("redirect", pathname);
-  //   return NextResponse.redirect(signInUrl);
-  // }
+  if (!isPublicPath(pathname) && !sessionCookie) {
+    const signInUrl = new URL("/sign-in", request.url);
+    signInUrl.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(signInUrl);
+  }
 
   return NextResponse.next();
 }

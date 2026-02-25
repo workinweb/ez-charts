@@ -1,5 +1,6 @@
-import { createAuthClient } from "better-auth/react";
 import { convexClient } from "@convex-dev/better-auth/client/plugins";
+import { nextCookies } from "better-auth/next-js";
+import { createAuthClient } from "better-auth/react";
 
 /**
  * Better Auth client for use in React components.
@@ -12,5 +13,5 @@ import { convexClient } from "@convex-dev/better-auth/client/plugins";
  *   await authClient.signOut();
  */
 export const authClient = createAuthClient({
-  plugins: [convexClient()],
+  plugins: [convexClient(), nextCookies()],
 });
