@@ -88,15 +88,12 @@ export const addMessage = mutation({
           .unique();
 
         const currentCredits = settings?.credits ?? 0;
-        if (currentCredits < creditsCharged) {
-          throw new Error(
-            `Insufficient credits. Need ${creditsCharged}, have ${currentCredits}.`,
-          );
-        }
+        // Never store negative credits — minimum is 0
+        const newCredits = Math.max(0, currentCredits - creditsCharged);
 
         if (settings) {
           await ctx.db.patch(settings._id, {
-            credits: currentCredits - creditsCharged,
+            credits: newCredits,
             updatedAt: now,
           });
         }

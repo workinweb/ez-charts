@@ -24,15 +24,5 @@ export const aj = arcjet({
       ],
     }),
     // Create a token bucket rate limit. Other algorithms are supported.
-    tokenBucket({
-      mode: protectionMode,
-      characteristics: ["ip.src"],
-      // Tracked by IP address by default, but this can be customized
-      // See https://docs.arcjet.com/fingerprints
-      //characteristics: ["ip.src"],
-      refillRate: 15, // Refill 10 tokens per interval
-      interval: "1d", // Refill every day
-      capacity: 40, // Bucket capacity of 10 tokens
-    }),
   ],
 });

@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
 import { DonutChart } from "@/components/charts/rosencharts";
 import type { PieChartItem } from "@/components/charts/rosencharts";
@@ -36,9 +36,7 @@ export function ChartTypesDistribution() {
   const [mounted, setMounted] = useState(false);
   const { stats, isLoading } = useDashboardStats();
   const chartTypes = stats.chartTypes;
-  useEffect(() => {
-    setTimeout(() => setMounted(true), 0);
-  }, []);
+  useLayoutEffect(() => setMounted(true), []);
 
   const totalValue = chartTypes.reduce((s, t) => s + t.value, 0);
   const isEmpty = chartTypes.length === 0 || totalValue === 0;

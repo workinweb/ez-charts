@@ -38,6 +38,9 @@ export const allChartTypes: ChartTypeEntry[] = [
   })),
 ];
 
+/** Default selected chart key (first in list) — always have a chart type selected */
+export const DEFAULT_CHART_KEY = allChartTypes[0]?.key ?? "shadcn:bar";
+
 export type AnyChartTypeKey = ChartTypeKey | ShadcnChartTypeKey;
 
 /** Check if chart type belongs to shadcn */

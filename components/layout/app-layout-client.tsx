@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { AppNavbar } from "@/components/layout/app-navbar";
 import {
   ChatDrawer,
   ChatSidebar,
   ChatProvider,
 } from "@/components/modules/chatbot";
+import { VerificationBanner } from "@/components/modules/user/verification-banner";
 import { IconSidebar } from "@/components/layout/icon-sidebar";
 import { hydrateUserSettingsStore, type UserSettingsData } from "@/lib/load-user-settings";
 
@@ -17,15 +18,15 @@ interface AppLayoutClientProps {
 
 export function AppLayoutClient({ children, initialSettings }: AppLayoutClientProps) {
   const hydrated = useRef(false);
-  useEffect(() => {
-    if (hydrated.current) return;
+  if (!hydrated.current) {
     hydrated.current = true;
     hydrateUserSettingsStore(initialSettings);
-  }, [initialSettings]);
+  }
 
   return (
     <ChatProvider>
       <div className="flex h-screen w-screen flex-col overflow-hidden">
+        <VerificationBanner />
         <AppNavbar />
 
         <div className="flex min-h-0 flex-1">

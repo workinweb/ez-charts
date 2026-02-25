@@ -35,6 +35,7 @@ import {
   Home,
   LayoutGrid,
   LogOut,
+  Mail,
   Pencil,
   Plus,
   User,
@@ -42,13 +43,14 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 
 const PLAN_ICONS = { free: Coffee, pro: Zap, max: Crown } as const;
 
 const navItems = [
   { label: "Home", href: "/ezcharts", icon: Home },
   { label: "Examples", href: "/ezcharts/examples", icon: LayoutGrid },
+  { label: "Contact us", href: "/contact", icon: Mail },
 ] as const;
 
 function AppNavbarInner() {
@@ -77,12 +79,12 @@ function AppNavbarInner() {
   const chartFromUrl =
     pathname === "/ezcharts/edit" ? searchParams.get("chart") : null;
 
-  // Sync URL → store when the URL has a chart param
-  useEffect(() => {
-    if (chartFromUrl) {
-      setLastEditedChartId(chartFromUrl);
-    }
-  }, [chartFromUrl, setLastEditedChartId]);
+  // Sync URL → store when the URL has a chart param (no effect; runs during render)
+  const prevChartFromUrlRef = useRef<string | null>(null);
+  if (chartFromUrl && chartFromUrl !== prevChartFromUrlRef.current) {
+    prevChartFromUrlRef.current = chartFromUrl;
+    setLastEditedChartId(chartFromUrl);
+  }
 
   const editingChartId = chartFromUrl ?? lastEditedChartId;
   const isEditingChart = pathname === "/ezcharts/edit" && !!chartFromUrl;

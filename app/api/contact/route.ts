@@ -1,12 +1,8 @@
 import { Resend } from "resend";
 import { NextResponse } from "next/server";
 
-const CONTACT_EMAIL =
-  process.env.CONTACT_EMAIL ??
-  process.env.EMAIL_FROM ??
-  "weworkinweb@gmail.com";
-const EMAIL_FROM =
-  process.env.EMAIL_FROM ?? "EZ Charts <weworkinweb@resend.dev>";
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL ?? "weworkinweb@gmail.com";
+const EMAIL_FROM = process.env.EMAIL_FROM ?? "";
 
 function escapeHtml(s: string): string {
   return s
@@ -49,7 +45,7 @@ export async function POST(req: Request) {
     );
 
     const resend = new Resend(apiKey);
-    const { data, error } = await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: EMAIL_FROM,
       to: [CONTACT_EMAIL],
       replyTo: email,
@@ -71,7 +67,7 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({ ok: true, id: data?.id });
+    return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[Contact] Unexpected error:", err);
     return NextResponse.json(

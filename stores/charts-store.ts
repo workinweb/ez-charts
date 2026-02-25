@@ -52,7 +52,10 @@ export const useChartsStore = create<ChartsState>((set) => ({
   addChartFromTool: (tool) => {
     const id = `unsaved-${Date.now()}-${nextUnsavedId++}`;
     const chart = chartFromToolToUserChart(tool, id);
-    set((s) => ({ unsavedCharts: [...s.unsavedCharts, chart] }));
+    set((s) => ({
+      unsavedCharts: [...s.unsavedCharts, chart],
+      previewChartId: id, // Auto-switch to the new chart
+    }));
     return id;
   },
 

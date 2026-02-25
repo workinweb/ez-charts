@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/(auth)/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { GoogleIcon } from "@/components/icons/google-icon";
@@ -167,9 +168,8 @@ export default function SignUpPage() {
             >
               Password
             </label>
-            <Input
+            <PasswordInput
               id="password"
-              type="password"
               placeholder="Minimum 8 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -187,9 +187,8 @@ export default function SignUpPage() {
             >
               Confirm password
             </label>
-            <Input
+            <PasswordInput
               id="confirm-password"
-              type="password"
               placeholder="Repeat your password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}

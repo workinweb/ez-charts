@@ -12,7 +12,7 @@ import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
 import { useMutation, useQuery } from "convex/react";
 import { ArrowRight, Coins, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const CREDITS_PER_DOLLAR = 40;
 
@@ -36,13 +36,6 @@ export function BuyCustomCreditsDialog({
   const recordPurchase = useMutation(api.creditPurchases.record);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (open) {
-      setCreditsInput("");
-      setError(null);
-    }
-  }, [open]);
 
   async function handleContinue() {
     if (!canContinue) return;
@@ -69,6 +62,10 @@ export function BuyCustomCreditsDialog({
       <DialogContent
         className="max-w-md rounded-[28px] sm:rounded-[32px]"
         showCloseButton
+        onOpenAutoFocus={() => {
+          setCreditsInput("");
+          setError(null);
+        }}
       >
         <DialogHeader className="space-y-1">
           <DialogTitle className="text-[22px] font-semibold tracking-tight text-[#3D4035]">

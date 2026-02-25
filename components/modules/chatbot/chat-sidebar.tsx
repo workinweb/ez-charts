@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { ChartLibrarySelector } from "@/components/chart-library-selector";
+import { PROMPT_EXAMPLES } from "@/lib/prompt-examples";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
 import { useFeatureCheck } from "@/hooks/use-feature-check";
@@ -150,7 +151,6 @@ export function ChatSidebarContent() {
     attachedFiles,
     addFiles,
     removeFile,
-    attachedChartContext,
     setAttachedChartContext,
     effectiveChartContext,
     loadedDocuments,
@@ -239,22 +239,35 @@ export function ChatSidebarContent() {
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
           <div className="space-y-5">
             {messages.length === 0 && (
-              <div className="flex flex-col items-center justify-center gap-3 py-12">
+              <div className="flex flex-col items-center justify-center gap-4 py-8">
                 <Image
                   src="/logo.png"
                   alt="logo"
                   width={540}
                   height={540}
-                  className="size-40 rounded-full object-cover"
+                  className="size-32 rounded-full object-cover"
                 />
 
                 <p className="text-[13px] font-semibold text-sidebar-foreground">
-                  EZ Charts AI
+                  EZ Charts
                 </p>
                 <p className="text-center text-[13px] leading-relaxed text-sidebar-foreground/50">
                   Ask me to create a chart, analyze data, or upload a file to
                   get started.
                 </p>
+
+                <div className="mt-2 flex w-full max-w-sm flex-wrap justify-center gap-2">
+                  {PROMPT_EXAMPLES.slice(0, 4).map((prompt, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setInput(prompt)}
+                      className="rounded-xl border border-sidebar-border bg-white/80 px-3 py-2 text-left text-[11px] font-medium leading-snug text-sidebar-foreground/80 transition-colors hover:bg-[#BCBDEA]/20 hover:text-sidebar-foreground"
+                    >
+                      {prompt.length > 45 ? `${prompt.slice(0, 45)}…` : prompt}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -523,11 +536,9 @@ export function ChatSidebarContent() {
                 }
               }}
               placeholder={
-                hasChartContext
-                  ? "Ask for help improving this chart…"
-                  : attachedFiles.length > 0 || hasLoadedDocs
-                    ? "Describe what chart to create from the data…"
-                    : "What would you like to create?"
+                attachedFiles.length > 0 || hasLoadedDocs
+                  ? "Describe what chart to create from the data…"
+                  : "What would you like to create?"
               }
               rows={2}
               className="rounded-none min-h-[48px] max-h-32 min-w-0 flex-1 resize-none overflow-y-auto border-0 bg-transparent px-0  text-[13px] leading-relaxed text-sidebar-foreground shadow-none placeholder:text-sidebar-foreground/40 focus-visible:ring-0"
@@ -643,6 +654,7 @@ export function ChatSidebarContent() {
               className="w-auto max-w-[320px] p-0 rounded-2xl border-0 bg-white shadow-xl overflow-hidden"
             >
               <ChartLibrarySelector
+                key={selectedChartKey ?? "none"}
                 selectedChartKey={selectedChartKey}
                 onSelect={handleChartSelect}
                 className="h-[360px] w-[300px]"

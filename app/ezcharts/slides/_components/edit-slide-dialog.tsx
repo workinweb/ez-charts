@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   DndContext,
   closestCenter,
@@ -146,6 +146,7 @@ export function EditSlideDialog({
     );
   }, [availableToAdd, addChartSearch]);
 
+  // Reset form when dialog opens with a slide
   useEffect(() => {
     if (!slide || !open) return;
     setName(slide.name);

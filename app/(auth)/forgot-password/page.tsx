@@ -1,16 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { authClient } from "@/lib/(auth)/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Image from "next/image";
+import { authClient } from "@/lib/(auth)/auth-client";
 import { Loader2 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { Suspense, useState } from "react";
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
 
@@ -27,7 +28,9 @@ export default function ForgotPasswordPage() {
       });
 
       if (result.error) {
-        setError(result.error.message ?? "Something went wrong. Please try again.");
+        setError(
+          result.error.message ?? "Something went wrong. Please try again.",
+        );
         return;
       }
 
@@ -58,7 +61,10 @@ export default function ForgotPasswordPage() {
             </h1>
             <p className="mt-1 text-[14px] text-[#3D4035]/60">
               Enter your email and we&apos;ll send you a link to reset your
-              password
+              password.{" "}
+              <span className="font-semibold text-[#3D4035]/80">
+                Check your spam folder if you don&apos;t see it.
+              </span>
             </p>
           </div>
         </div>
@@ -66,7 +72,10 @@ export default function ForgotPasswordPage() {
         {sent ? (
           <div className="rounded-xl bg-emerald-50 px-4 py-4 text-[14px] text-emerald-800">
             Check your email. If an account exists for {email}, we&apos;ve sent
-            a password reset link.
+            a password reset link.{" "}
+            <span className="font-semibold">
+              Check your spam folder if you don&apos;t see it.
+            </span>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -120,5 +129,17 @@ export default function ForgotPasswordPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function ForgotPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="h-64 w-full max-w-[400px] animate-pulse rounded-[28px] bg-white/80" />
+      }
+    >
+      <ForgotPasswordForm />
+    </Suspense>
   );
 }

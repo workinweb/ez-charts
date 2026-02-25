@@ -2,7 +2,7 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 // ─── App Data Schema ────────────────────────────────────────────────────────
-// All user-owned data tables for Charts AI.
+// All user-owned data tables for Ez Charts.
 // Every table includes `userId` for ownership + RLS, indexed for fast queries.
 //
 // Auth tables (user, session, account, verification) are handled by the
@@ -15,7 +15,9 @@ export default defineSchema({
     userId: v.string(),
     title: v.string(),
     /** shadcn | rosencharts — inferred from chartType when missing (legacy) */
-    chartLibrary: v.optional(v.union(v.literal("shadcn"), v.literal("rosencharts"))),
+    chartLibrary: v.optional(
+      v.union(v.literal("shadcn"), v.literal("rosencharts")),
+    ),
     chartType: v.string(),
     /** Serialized chart data (flexible shape per chart type) */
     data: v.any(),
@@ -85,11 +87,15 @@ export default defineSchema({
     /** Whether to auto-save documents from chat */
     saveDocumentsOnDb: v.optional(v.boolean()),
     /** Chart data editor style: table (shadcn-like) or items (expandable cards) */
-    chartDataEditorMode: v.optional(v.union(v.literal("table"), v.literal("items"))),
+    chartDataEditorMode: v.optional(
+      v.union(v.literal("table"), v.literal("items")),
+    ),
     /** Credits available for AI usage (Free: 100, Pro: 500, Max: 1000) */
     credits: v.optional(v.number()),
     /** Plan tier: free | pro | max */
-    planTier: v.optional(v.union(v.literal("free"), v.literal("pro"), v.literal("max"))),
+    planTier: v.optional(
+      v.union(v.literal("free"), v.literal("pro"), v.literal("max")),
+    ),
     /** Timestamp (ms) of next credit renewal. On renew, add 1 month to this. */
     renewDate: v.optional(v.number()),
     updatedAt: v.number(),
@@ -133,7 +139,9 @@ export default defineSchema({
     userId: v.string(),
 
     /** shadcn | rosencharts — inferred from chartType when missing (legacy) */
-    chartLibrary: v.optional(v.union(v.literal("shadcn"), v.literal("rosencharts"))),
+    chartLibrary: v.optional(
+      v.union(v.literal("shadcn"), v.literal("rosencharts")),
+    ),
     chartType: v.string(),
     chartTitle: v.string(),
     chartData: v.any(),
@@ -157,11 +165,7 @@ export default defineSchema({
     /** Credits purchased/added */
     credits: v.number(),
     /** Plan tier at time of purchase (free | pro | max) */
-    planTier: v.union(
-      v.literal("free"),
-      v.literal("pro"),
-      v.literal("max"),
-    ),
+    planTier: v.union(v.literal("free"), v.literal("pro"), v.literal("max")),
     /** Price paid in smallest currency unit (cents for USD). Optional for promos. */
     amountCents: v.optional(v.number()),
     /** Currency code, e.g. "usd" */
