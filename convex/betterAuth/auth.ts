@@ -14,25 +14,12 @@ export const authComponent = createClient<DataModel>(components.betterAuth);
 
 // ─── Better Auth Instance Factory ───────────────────────────────────────────
 // Creates a fresh auth instance bound to the current Convex context.
-//
-// Required Convex env for production: SITE_URL must match your deployed URL
-// (e.g. https://ez-charts-delta.vercel.app). For preview deploys, add extra
-// origins via TRUSTED_ORIGINS (comma-separated).
-function getTrustedOrigins(): string[] {
-  const fromEnv = process.env.SITE_URL ?? "";
-  const extra =
-    process.env.TRUSTED_ORIGINS?.split(",")
-      .map((s) => s.trim())
-      .filter(Boolean) ?? [];
-  return [...new Set([fromEnv, ...extra].filter(Boolean))];
-}
-
 export const createAuth = (ctx: GenericCtx<DataModel>) => {
   return betterAuth({
     appName: "EZ Charts",
     baseURL: process.env.SITE_URL,
     database: authComponent.adapter(ctx),
-    trustedOrigins: getTrustedOrigins(),
+    trustedOrigins: [process.env.SITE_URL ?? ""],
 
     emailVerification: {
       sendVerificationEmail: async ({ user, url }) => {
