@@ -115,7 +115,10 @@ export default function VerificationPage() {
                   Verify your email
                 </h1>
                 <p className="mt-1 text-[14px] text-[#3D4035]/60">
-                  We&apos;ll send a verification link to {email ?? "your email"}.
+                  We&apos;ll send a verification link to {email ?? "your email"}.{" "}
+                  <span className="font-semibold text-[#3D4035]/80">
+                    Check your spam folder if you don&apos;t see it.
+                  </span>
                 </p>
               </div>
             </div>
@@ -123,7 +126,10 @@ export default function VerificationPage() {
             {sent ? (
               <div className="rounded-xl bg-emerald-50 px-4 py-4 text-[14px] text-emerald-800">
                 Verification email sent. Check your inbox and click the link to
-                verify.
+                verify.{" "}
+                <span className="font-semibold">
+                  Check your spam folder if you don&apos;t see it.
+                </span>
               </div>
             ) : (
               <div className="flex flex-col gap-4">

@@ -61,7 +61,10 @@ function ForgotPasswordForm() {
             </h1>
             <p className="mt-1 text-[14px] text-[#3D4035]/60">
               Enter your email and we&apos;ll send you a link to reset your
-              password
+              password.{" "}
+              <span className="font-semibold text-[#3D4035]/80">
+                Check your spam folder if you don&apos;t see it.
+              </span>
             </p>
           </div>
         </div>
@@ -69,7 +72,10 @@ function ForgotPasswordForm() {
         {sent ? (
           <div className="rounded-xl bg-emerald-50 px-4 py-4 text-[14px] text-emerald-800">
             Check your email. If an account exists for {email}, we&apos;ve sent
-            a password reset link.
+            a password reset link.{" "}
+            <span className="font-semibold">
+              Check your spam folder if you don&apos;t see it.
+            </span>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">

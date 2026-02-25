@@ -1,8 +1,8 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import { NextResponse } from "next/server";
 
 const CONTACT_EMAIL = process.env.CONTACT_EMAIL ?? "weworkinweb@gmail.com";
-const GMAIL_USER = process.env.GMAIL_USER ?? "weworkinweb@gmail.com";
+const EMAIL_FROM = process.env.EMAIL_FROM ?? "";
 
 function escapeHtml(s: string): string {
   return s
@@ -14,13 +14,13 @@ function escapeHtml(s: string): string {
 
 export async function POST(req: Request) {
   try {
-    const pass = process.env.GMAIL_APP_PASSWORD;
-    if (!pass) {
-      console.warn("[Contact] GMAIL_APP_PASSWORD not set. Add it to .env.local");
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.warn("[Contact] RESEND_API_KEY not set. Add it to .env.local");
       return NextResponse.json(
         {
           error:
-            "Contact form is not configured. Please set GMAIL_APP_PASSWORD in your environment.",
+            "Contact form is not configured. Please set RESEND_API_KEY in your environment.",
         },
         { status: 503 },
       );
@@ -44,16 +44,10 @@ export async function POST(req: Request) {
       "<br>",
     );
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      auth: { user: GMAIL_USER, pass },
-    });
-
-    await transporter.sendMail({
-      from: `"Charts AI" <${GMAIL_USER}>`,
-      to: CONTACT_EMAIL,
+    const resend = new Resend(apiKey);
+    const { error } = await resend.emails.send({
+      from: EMAIL_FROM,
+      to: [CONTACT_EMAIL],
       replyTo: email,
       subject: `[Contact] ${subject}`,
       html: `
@@ -64,6 +58,14 @@ export async function POST(req: Request) {
       `,
       text: `From: ${name} <${email}>\nSubject: ${subject}\n\n${message}`,
     });
+
+    if (error) {
+      console.error("[Contact] Resend error:", error);
+      return NextResponse.json(
+        { error: "Failed to send message. Please try again." },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {

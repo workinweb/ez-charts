@@ -249,7 +249,7 @@ export function ChatSidebarContent() {
                 />
 
                 <p className="text-[13px] font-semibold text-sidebar-foreground">
-                  EZ Charts AI
+                  EZ Charts
                 </p>
                 <p className="text-center text-[13px] leading-relaxed text-sidebar-foreground/50">
                   Ask me to create a chart, analyze data, or upload a file to

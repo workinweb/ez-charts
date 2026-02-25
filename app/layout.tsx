@@ -13,7 +13,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Charts AI",
+  title: "EZ Charts",
   description: "AI-powered charts from your input or file data",
 };
 
@@ -29,9 +29,7 @@ export default async function RootLayout({
       <body className="font-sans antialiased">
         <PostHogProvider>
           <ConvexClientProvider initialToken={token}>
-            <TooltipProvider delayDuration={300}>
-              {children}
-            </TooltipProvider>
+            <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
           </ConvexClientProvider>
         </PostHogProvider>
         <Analytics />

@@ -1,9 +1,11 @@
+import { Resend } from "resend";
+
 /**
- * Send auth emails by calling the Next.js API (which uses Gmail SMTP).
- * Convex's bundler doesn't support nodemailer (Node built-ins), so we proxy.
+ * Send auth emails via Resend SDK (same as contact form).
  *
- * Required in Convex: SITE_URL, SEND_EMAIL_SECRET
- * Required in Next.js (.env.local): GMAIL_USER, GMAIL_APP_PASSWORD, SEND_EMAIL_SECRET
+ * Required in Convex: RESEND_API_KEY, EMAIL_FROM
+ * Resend: Add & verify your domain at https://resend.com/domains, then use
+ *   EMAIL_FROM e.g. "EZ Charts <noreply@yourdomain.com>"
  */
 async function sendEmail({
   to,
@@ -16,33 +18,30 @@ async function sendEmail({
   text: string;
   html?: string;
 }): Promise<void> {
-  const baseUrl = process.env.SITE_URL;
-  const secret = process.env.SEND_EMAIL_SECRET;
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.EMAIL_FROM ?? "";
 
-  if (!baseUrl || !secret) {
-    console.warn(
-      "[sendEmail] SITE_URL or SEND_EMAIL_SECRET not set. Would have sent:",
-      {
-        to,
-        subject,
-        text: text.slice(0, 80) + "...",
-      },
-    );
+  if (!apiKey) {
+    console.warn("[sendEmail] RESEND_API_KEY not set. Would have sent:", {
+      to,
+      subject,
+      text: text.slice(0, 80) + "...",
+    });
     return;
   }
 
-  const res = await fetch(`${baseUrl}/api/send-auth-email`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${secret}`,
-    },
-    body: JSON.stringify({ to, subject, text, html }),
+  console.log("🚀 ~ sendEmail ~ from:", from);
+  const resend = new Resend(apiKey);
+  const { error } = await resend.emails.send({
+    from,
+    to: [to],
+    subject,
+    text,
+    html: html ?? text.replace(/\n/g, "<br>"),
   });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Failed to send email: ${res.status} ${err}`);
+  if (error) {
+    throw new Error(`Failed to send email: ${error.message}`);
   }
 }
 
