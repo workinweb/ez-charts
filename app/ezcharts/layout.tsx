@@ -1,6 +1,12 @@
 import { fetchAuthQuery, fetchAuthMutation } from "@/lib/(auth)/auth-server";
 import { api } from "@/convex/_generated/api";
 import { AppLayoutClient } from "@/components/layout/app-layout-client";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+  description: "Create and manage your AI-powered charts. Chat with data, edit manually, export to PNG.",
+};
 
 export default async function AppLayout({
   children,

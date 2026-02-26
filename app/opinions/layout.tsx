@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Opinions & Feedback | EZ Charts",
+  title: "Opinions & Feedback",
   description: "Share your feedback and upvote others' ideas for EZ Charts.",
 };
 

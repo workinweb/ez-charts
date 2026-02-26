@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact Us | EZ Charts",
-  description: "Questions or support — we're here to help.",
+  title: "Contact",
+  description: "Questions or support — we're here to help. Get in touch with the EZ Charts team.",
 };
 
 export default function ContactLayout({
