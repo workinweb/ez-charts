@@ -1,17 +1,20 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { api } from "@/convex/_generated/api";
+import { authClient } from "@/lib/(auth)/auth-client";
 import { cn } from "@/lib/utils";
 import type { SectionKey } from "@/stores/section-store";
 import { useSectionStore } from "@/stores/section-store";
 import {
   Bookmark,
+  Coffee,
+  Crown,
   FileText,
   LayoutDashboard,
   LayoutGrid,
@@ -21,16 +24,21 @@ import {
   SlidersHorizontal,
   Sparkles,
   Users,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useQuery } from "convex/react";
 
 const navLinks = [
   { label: "Dashboard", href: "/ezcharts" },
   { label: "Favorites", href: "/ezcharts/favorites" },
   { label: "Charts", href: "/ezcharts/charts" },
   { label: "Slides", href: "/ezcharts/slides" },
+  { label: "Opinions", href: "/opinions" },
 ];
+
+const PLAN_ICONS = { free: Coffee, pro: Zap, max: Crown } as const;
 
 const toolIcons: {
   icon: React.ElementType;
@@ -49,17 +57,22 @@ const toolIcons: {
 ];
 
 function isLinkActive(href: string, pathname: string): boolean {
-  if (href === "/ezcharts") return pathname === "/ezcharts" || pathname === "/ezcharts/";
+  if (href === "/ezcharts")
+    return pathname === "/ezcharts" || pathname === "/ezcharts/";
   return pathname === href || pathname.startsWith(href + "/");
 }
 
 export function Navbar() {
   const pathname = usePathname();
   const setActiveSection = useSectionStore((s) => s.setActiveSection);
+  const { data: session } = authClient.useSession();
+  const settings = useQuery(api.userSettings.get, session?.user ? {} : "skip");
+  const planTier = (settings?.planTier ?? "free") as "free" | "pro" | "max";
+  const TierIcon = PLAN_ICONS[planTier];
 
   return (
     <nav className="flex items-center justify-between px-3 py-3  sm:px-5 sm:py-4">
-      <div className="flex w-full items-center justify-between rounded-[32px] max-w-[1600px] mx-auto w-full bg-white/80 px-4 py-2.5 shadow-sm ring-1 ring-black/[0.02] sm:px-6 sm:py-3">
+      <div className="flex  items-center justify-between rounded-[32px] max-w-[1600px] mx-auto w-full bg-white/80 px-4 py-2.5 shadow-sm ring-1 ring-black/[0.02] sm:px-6 sm:py-3">
         {/* Left: nav links (desktop) / hamburger + tools (mobile) */}
         <div className="flex items-center gap-3 sm:gap-6">
           {/* Mobile tools popover */}
@@ -70,9 +83,9 @@ export function Navbar() {
                 size="icon-xs"
                 aria-label="Open navigation menu"
                 title="Open navigation menu"
-                className="flex md:hidden rounded-xl text-[#3D4035]/60 hover:text-[#3D4035]"
+                className="flex md:hidden rounded-xl text-[#3D4035]/60 hover:text-[#3D4035] p-2"
               >
-                <Menu className="size-5" />
+                <Menu className="size-4.5" />
               </Button>
             </PopoverTrigger>
             <PopoverContent
@@ -117,7 +130,7 @@ export function Navbar() {
           </Popover>
 
           {/* Desktop nav links */}
-          <div className="hidden items-center gap-1 md:flex">
+          <div className="hidden items-center gap-1  md:flex">
             {navLinks.map((link) => {
               const active = isLinkActive(link.href, pathname ?? "");
               return (
@@ -136,6 +149,14 @@ export function Navbar() {
               );
             })}
           </div>
+        </div>
+
+        {/* Right: tier badge on mobile — opposite side of hamburger */}
+        <div className="flex md:hidden items-center gap-1.5 rounded-xl bg-[#6C5DD3]/8 px-2.5 py-1.5">
+          <TierIcon className="size-3.5 shrink-0 text-[#6C5DD3]" />
+          <span className="text-[12px] font-semibold text-[#3D4035]">
+            {planTier.charAt(0).toUpperCase() + planTier.slice(1)}
+          </span>
         </div>
       </div>
     </nav>

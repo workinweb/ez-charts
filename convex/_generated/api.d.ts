@@ -19,6 +19,7 @@ import type * as creditPurchases from "../creditPurchases.js";
 import type * as creditUsage from "../creditUsage.js";
 import type * as documents from "../documents.js";
 import type * as http from "../http.js";
+import type * as opinions from "../opinions.js";
 import type * as planLimits from "../planLimits.js";
 import type * as slides from "../slides.js";
 import type * as tierLimits from "../tierLimits.js";
@@ -42,6 +43,7 @@ declare const fullApi: ApiFromModules<{
   creditUsage: typeof creditUsage;
   documents: typeof documents;
   http: typeof http;
+  opinions: typeof opinions;
   planLimits: typeof planLimits;
   slides: typeof slides;
   tierLimits: typeof tierLimits;
