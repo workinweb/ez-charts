@@ -76,12 +76,21 @@ async function parseFile(file: File): Promise<{ textContent: string }> {
     body: formData,
   });
 
+  const data = await res.json().catch(() => ({}));
+
   if (!res.ok) {
-    const data = await res.json();
-    throw new Error(data.error || "Failed to parse file");
+    const msg =
+      typeof data?.error === "string"
+        ? data.error
+        : res.status === 405
+          ? "File upload not available right now. Try again later or use a different browser."
+          : res.status === 413
+            ? "File too large (max 10 MB)"
+            : `Failed to parse file${res.status ? ` (${res.status})` : ""}`;
+    throw new Error(msg);
   }
 
-  return res.json();
+  return data as { textContent: string };
 }
 
 export const useChatbotStore = create<ChatbotState>((set) => ({

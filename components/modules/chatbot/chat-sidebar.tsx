@@ -477,38 +477,47 @@ export function ChatSidebarContent() {
 
           {/* Attached file chips */}
           {attachedFiles.length > 0 && (
-            <div className="mb-2 flex flex-wrap gap-1.5">
+            <div className="mb-2 flex flex-col gap-2">
               {attachedFiles.map((af, idx) => {
                 const Icon = getFileIcon(af.name);
                 return (
-                  <div
-                    key={`${af.name}-${idx}`}
-                    className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] ${
-                      af.error
-                        ? "border border-red-200 bg-red-50 text-red-600"
-                        : af.parsing
-                          ? "bg-sidebar-foreground/5 text-sidebar-foreground/50"
-                          : "bg-[#BCBDEA]/15 text-sidebar-foreground/70"
-                    }`}
-                  >
-                    {af.parsing ? (
-                      <Loader2 className="size-3 animate-spin" />
-                    ) : (
-                      <Icon className="size-3 shrink-0" />
-                    )}
-                    <span className="max-w-[120px] truncate">{af.name}</span>
-                    <span className="text-[10px] opacity-60">
-                      {formatFileSize(af.size)}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => removeFile(idx)}
-                      className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-sidebar-foreground/10"
-                      aria-label={`Remove ${af.name} from attachments`}
-                      title={`Remove ${af.name} from attachments`}
+                  <div key={`${af.name}-${idx}`} className="flex flex-col gap-1">
+                    <div
+                      className={`flex items-center gap-1.5 self-start rounded-lg px-2.5 py-1.5 text-[11px] ${
+                        af.error
+                          ? "border border-red-200 bg-red-50 text-red-600"
+                          : af.parsing
+                            ? "bg-sidebar-foreground/5 text-sidebar-foreground/50"
+                            : "bg-[#BCBDEA]/15 text-sidebar-foreground/70"
+                      }`}
                     >
-                      <X className="size-2.5" />
-                    </button>
+                      {af.parsing ? (
+                        <Loader2 className="size-3 animate-spin" />
+                      ) : (
+                        <Icon className="size-3 shrink-0" />
+                      )}
+                      <span className="max-w-[120px] truncate">{af.name}</span>
+                      <span className="text-[10px] opacity-60">
+                        {formatFileSize(af.size)}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeFile(idx)}
+                        className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-sidebar-foreground/10"
+                        aria-label={`Remove ${af.name} from attachments`}
+                        title={`Remove ${af.name} from attachments`}
+                      >
+                        <X className="size-2.5" />
+                      </button>
+                    </div>
+                    {af.error && (
+                      <p
+                        className="max-w-[280px] text-[11px] text-red-600"
+                        title={af.error}
+                      >
+                        {af.error}
+                      </p>
+                    )}
                   </div>
                 );
               })}
