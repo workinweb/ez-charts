@@ -93,7 +93,21 @@ export function FooterSection() {
         </div>
 
         <div className="flex flex-col justify-between gap-4 border-t border-slate-100 pt-8 text-xs font-bold uppercase tracking-wider text-slate-400 md:flex-row md:items-center">
-          <p>© {new Date().getFullYear()} EZ Charts</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p>© {new Date().getFullYear()} EZ Charts</p>
+            <span className="text-slate-300">·</span>
+            <p>
+              Powered by{" "}
+              <a
+                href="https://weworkinweb.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-[#6C5DD3]"
+              >
+                WorkinWeb
+              </a>
+            </p>
+          </div>
           <div className="flex gap-6">
             <Link
               href="/privacy"

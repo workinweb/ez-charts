@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | EZ Charts",
-  description: "EZ Charts privacy policy — how we collect, use, and protect your data.",
+  title: "Privacy Policy",
+  description: "How EZ Charts collects, uses, and protects your data.",
 };
 
 export default function PrivacyLayout({

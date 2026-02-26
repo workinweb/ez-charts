@@ -10,6 +10,13 @@ import { PricingSection } from "@/components/landing/sections/pricing-section";
 import { PromptExamplesSection } from "@/components/landing/sections/prompt-examples-section";
 import { TemplatesSection } from "@/components/landing/sections/templates-section";
 import { TrustedBySection } from "@/components/landing/sections/trusted-by-section";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Home",
+  description:
+    "Generate stunning charts instantly with AI. Chat with your data, edit manually, export to PNG. Bar, line, pie, area charts—no code required.",
+};
 
 export default function LandingPage() {
   return (

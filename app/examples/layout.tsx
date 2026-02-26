@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Chart Examples | EZ Charts",
+  title: "Chart Examples",
   description:
-    "Explore all chart types — Rosencharts and Shadcn. Bar, line, pie, area, donut, scatter, and more.",
+    "Explore chart types — bar, line, pie, area, donut, scatter. Rosencharts and Shadcn UI.",
 };
 
 export default function ExamplesLayout({
