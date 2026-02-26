@@ -36,6 +36,7 @@ import {
   LayoutGrid,
   LogOut,
   Mail,
+  MessageSquare,
   Pencil,
   Plus,
   User,
@@ -51,6 +52,7 @@ const navItems = [
   { label: "Home", href: "/ezcharts", icon: Home },
   { label: "Examples", href: "/ezcharts/examples", icon: LayoutGrid },
   { label: "Contact us", href: "/contact", icon: Mail },
+  { label: "Opinions", href: "/opinions", icon: MessageSquare },
 ] as const;
 
 function AppNavbarInner() {

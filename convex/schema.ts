@@ -187,6 +187,36 @@ export default defineSchema({
     .index("by_user_created", ["userId", "createdAt"])
     .index("by_payment_id", ["paymentId"]),
 
+  // ── Opinions / Feedback ──────────────────────────────────────────────────
+  // User feedback. Public list; create/upvote require auth.
+  opinions: defineTable({
+    userId: v.string(),
+    userName: v.string(),
+    userImage: v.optional(v.string()),
+    content: v.string(),
+    category: v.string(),
+    /** Custom label when category is "other" */
+    categoryCustom: v.optional(v.string()),
+    upvoteCount: v.number(),
+    /** When true, hidden from the public list (e.g. addressed by team) */
+    resolved: v.optional(v.boolean()),
+    createdAt: v.number(),
+  })
+    .index("by_created", ["createdAt"])
+    .index("by_category_created", ["category", "createdAt"])
+    .index("by_upvoteCount", ["upvoteCount"])
+    .index("by_category_upvoteCount", ["category", "upvoteCount"])
+    .index("by_user", ["userId"]),
+
+  opinionUpvotes: defineTable({
+    opinionId: v.id("opinions"),
+    userId: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_opinion", ["opinionId"])
+    .index("by_user", ["userId"])
+    .index("by_opinion_user", ["opinionId", "userId"]),
+
   // ── Stripe (prepared for future) ────────────────────────────────────────
   // Subscription and payment records. Uncomment when integrating Stripe.
   // subscriptions: defineTable({

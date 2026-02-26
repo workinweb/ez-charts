@@ -1,4 +1,4 @@
-import arcjet, { detectBot, shield, tokenBucket } from "@arcjet/next";
+import arcjet, { detectBot, fixedWindow, shield } from "@arcjet/next";
 
 // Check if we're in development mode
 const isDevMode = !!process.env.NEXT_PUBLIC_IS_DEV_MODE;
@@ -23,6 +23,18 @@ export const aj = arcjet({
         //"CATEGORY:PREVIEW", // Link previews e.g. Slack, Discord
       ],
     }),
-    // Create a token bucket rate limit. Other algorithms are supported.
+  ],
+});
+
+/** Arcjet instance for opinions: 3 feedback submissions per user per 24h */
+export const ajOpinions = arcjet({
+  key: process.env.ARCJET_KEY!,
+  rules: [
+    fixedWindow({
+      mode: protectionMode,
+      characteristics: ["userId"],
+      window: "24h",
+      max: 3,
+    }),
   ],
 });
