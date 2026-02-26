@@ -15,6 +15,7 @@ import type * as charts_slides from "../charts/slides.js";
 import type * as chat_chat from "../chat/chat.js";
 import type * as chat_chatStats from "../chat/chatStats.js";
 import type * as credits_chatCreditsConfig from "../credits/chatCreditsConfig.js";
+import type * as credits_creditActivity from "../credits/creditActivity.js";
 import type * as credits_creditPurchases from "../credits/creditPurchases.js";
 import type * as credits_creditUsage from "../credits/creditUsage.js";
 import type * as crons from "../crons.js";
@@ -41,6 +42,7 @@ declare const fullApi: ApiFromModules<{
   "chat/chat": typeof chat_chat;
   "chat/chatStats": typeof chat_chatStats;
   "credits/chatCreditsConfig": typeof credits_chatCreditsConfig;
+  "credits/creditActivity": typeof credits_creditActivity;
   "credits/creditPurchases": typeof credits_creditPurchases;
   "credits/creditUsage": typeof credits_creditUsage;
   crons: typeof crons;

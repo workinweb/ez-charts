@@ -46,18 +46,13 @@ export default function CreditsPage() {
   const maxCredits = TIER_LIMITS[planTier].credits;
 
   const {
-    results: usagePage,
-    status: usageStatus,
-    loadMore: loadMoreUsage,
+    results: activityPage,
+    status: activityStatus,
+    loadMore: loadMoreActivity,
   } = usePaginatedQuery(
-    api.credits.creditUsage.listUsagePaginated,
+    api.credits.creditActivity.listPaginated,
     session?.user ? {} : "skip",
     { initialNumItems: PAGE_SIZE },
-  );
-
-  const purchases = useQuery(
-    api.credits.creditPurchases.list,
-    session?.user ? { limit: 10 } : "skip",
   );
 
   if (!session?.user) {
@@ -75,7 +70,7 @@ export default function CreditsPage() {
     );
   }
 
-  const hasMoreUsage = usageStatus === "CanLoadMore";
+  const hasMoreActivity = activityStatus === "CanLoadMore";
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-[#E8E7F5]">
@@ -148,29 +143,27 @@ export default function CreditsPage() {
             </p>
 
             <div className="mt-6 flex-1 space-y-1 overflow-y-auto">
-          {/* Credit usage (spent) */}
-          {usageStatus === "LoadingMore" && usagePage.length === 0 ? (
+          {activityStatus === "LoadingMore" && activityPage.length === 0 ? (
             <div className="flex items-center justify-center gap-2 py-12 text-[14px] text-[#3D4035]/50">
               <Loader2 className="size-4 animate-spin" />
               Loading…
             </div>
-          ) : usagePage.length === 0 && (!purchases || purchases.length === 0) ? (
+          ) : activityPage.length === 0 ? (
             <div className="py-12 text-center text-[14px] text-[#3D4035]/50">
               No activity yet. Start a chat or buy credits to see your history.
             </div>
           ) : (
             <>
-              {usagePage.map((msg) => {
-                const content = msg.content?.trim() || "Chart / response";
-                const isLong = content.length > PREVIEW_LENGTH;
-                const isExpanded = expandedId === msg._id;
-                const displayText = isExpanded
-                  ? content
-                  : content.slice(0, PREVIEW_LENGTH) + (isLong ? "…" : "");
-
-                return (
+              {activityPage.map((item) =>
+                item.type === "spent" ? (() => {
+                  const content = item.content?.trim() || "Chart / response";
+                  const isLong = content.length > PREVIEW_LENGTH;
+                  const isExpanded = expandedId === item._id;
+                  const displayText =
+                    isExpanded ? content : content.slice(0, PREVIEW_LENGTH) + (isLong ? "…" : "");
+                  return (
                   <div
-                    key={msg._id}
+                    key={item._id}
                     className="rounded-xl px-4 py-3 transition-colors hover:bg-[#6C5DD3]/8"
                   >
                     <div className="flex items-start justify-between gap-4">
@@ -193,19 +186,19 @@ export default function CreditsPage() {
                           </p>
                           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5">
                             <p className="text-[11px] text-[#3D4035]/40">
-                              {formatDate(msg.createdAt)}
+                              {formatDate(item.createdAt)}
                             </p>
                             {isLong && (
                               <button
                                 type="button"
                                 onClick={() =>
                                   setExpandedId((id) =>
-                                    id === msg._id ? null : msg._id
+                                    id === item._id ? null : item._id
                                   )
                                 }
                                 className="flex items-center gap-0.5 text-[11px] text-[#6C5DD3] hover:underline"
                               >
-                                {isExpanded ? (
+                                {expandedId === item._id ? (
                                   <>
                                     <ChevronUp className="size-3" />
                                     Show less
@@ -222,46 +215,44 @@ export default function CreditsPage() {
                         </div>
                       </div>
                       <span className="shrink-0 text-[14px] font-semibold tabular-nums text-red-600">
-                        −{msg.creditsCharged ?? 0}
+                        −{item.creditsCharged}
                       </span>
                     </div>
                   </div>
-                );
-              })}
-
-              {/* Purchases (added) - interleave by date or show after */}
-              {purchases?.map((p) => (
-                <div
-                  key={p._id}
-                  className="flex items-center justify-between gap-4 rounded-xl px-4 py-3 transition-colors hover:bg-[#6C5DD3]/8"
-                >
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-green-500/10">
-                      <ArrowUp className="size-4 text-green-600" />
+                  );
+                })() : (
+                  <div
+                    key={item._id}
+                    className="flex items-center justify-between gap-4 rounded-xl px-4 py-3 transition-colors hover:bg-[#6C5DD3]/8"
+                  >
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-green-500/10">
+                        <ArrowUp className="size-4 text-green-600" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[14px] font-medium text-[#3D4035]">
+                          Credits added
+                        </p>
+                        <p className="text-[12px] text-[#3D4035]/50 capitalize">
+                          {item.source?.replace("_", " ") ?? "Purchase"}
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-[#3D4035]/40">
+                          {formatDate(item.createdAt)}
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-[14px] font-medium text-[#3D4035]">
-                        Credits added
-                      </p>
-                      <p className="text-[12px] text-[#3D4035]/50 capitalize">
-                        {p.source?.replace("_", " ") ?? "Purchase"}
-                      </p>
-                      <p className="mt-0.5 text-[11px] text-[#3D4035]/40">
-                        {formatDate(p.createdAt)}
-                      </p>
-                    </div>
+                    <span className="shrink-0 text-[14px] font-semibold tabular-nums text-green-600">
+                      +{item.credits}
+                    </span>
                   </div>
-                  <span className="shrink-0 text-[14px] font-semibold tabular-nums text-green-600">
-                    +{p.credits}
-                  </span>
-                </div>
-              ))}
+                ),
+              )}
 
-              {hasMoreUsage && (
+              {hasMoreActivity && (
                 <div className="pt-4">
                   <Button
                     variant="ghost"
-                    onClick={() => loadMoreUsage(PAGE_SIZE)}
+                    onClick={() => loadMoreActivity(PAGE_SIZE)}
                     className="w-full text-[13px] text-[#6C5DD3] hover:bg-[#6C5DD3]/10"
                   >
                     Load more
