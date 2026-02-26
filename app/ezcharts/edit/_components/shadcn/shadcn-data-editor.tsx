@@ -4,7 +4,10 @@ import { useCallback, useMemo } from "react";
 import { Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { unwrapShadcnData, wrapShadcnData } from "@/lib/shadcn-chart-data";
+import {
+  unwrapShadcnData,
+  wrapShadcnData,
+} from "@/lib/chart/shadcn-chart-data";
 import { FieldRow } from "../field-row";
 
 const SHADCN_CARTESIAN = ["shadcn:bar", "shadcn:area", "shadcn:line"];
@@ -79,14 +82,21 @@ export function ShadcnDataEditor({
     const sample = rows[0];
     const numKeys = sample
       ? Object.keys(sample).filter(
-          (k) => k !== catKey && typeof (sample as Record<string, unknown>)[k] === "number",
+          (k) =>
+            k !== catKey &&
+            typeof (sample as Record<string, unknown>)[k] === "number",
         )
       : getDefaultNumericKeys(chartType);
 
     const defaults: Record<string, string | number> = {
-      [catKey]: chartType === SHADCN_RADAR ? `Subject ${rows.length + 1}` : `Row ${rows.length + 1}`,
+      [catKey]:
+        chartType === SHADCN_RADAR
+          ? `Subject ${rows.length + 1}`
+          : `Row ${rows.length + 1}`,
     };
-    for (const k of numKeys.length ? numKeys : getDefaultNumericKeys(chartType)) {
+    for (const k of numKeys.length
+      ? numKeys
+      : getDefaultNumericKeys(chartType)) {
       defaults[k] = 0;
     }
     updateRows([...rows, defaults]);
@@ -97,7 +107,9 @@ export function ShadcnDataEditor({
     const sample = rows[0];
     const numKeys = sample
       ? Object.keys(sample).filter(
-          (k) => k !== catKey && typeof (sample as Record<string, unknown>)[k] === "number",
+          (k) =>
+            k !== catKey &&
+            typeof (sample as Record<string, unknown>)[k] === "number",
         )
       : [];
     const used = new Set(numKeys);
@@ -106,8 +118,15 @@ export function ShadcnDataEditor({
       name = `series${i}`;
       if (!used.has(name)) break;
     }
-    const next = rows.map((r) => ({ ...r, [name]: 0 })) as Record<string, string | number>[];
-    if (next.length === 0) next.push({ [catKey]: "Row 1", [name]: 0 } as Record<string, string | number>);
+    const next = rows.map((r) => ({ ...r, [name]: 0 })) as Record<
+      string,
+      string | number
+    >[];
+    if (next.length === 0)
+      next.push({ [catKey]: "Row 1", [name]: 0 } as Record<
+        string,
+        string | number
+      >);
     updateRows(next);
   }, [chartType, rows, updateRows]);
 
@@ -119,7 +138,10 @@ export function ShadcnDataEditor({
           delete c[key];
           return c;
         })
-        .filter((r) => Object.keys(r).length > 0) as Record<string, string | number>[];
+        .filter((r) => Object.keys(r).length > 0) as Record<
+        string,
+        string | number
+      >[];
       updateRows(next.length ? next : []);
     },
     [rows, updateRows],
@@ -164,7 +186,9 @@ export function ShadcnDataEditor({
   );
 }
 
-function getWrappedIfNeeded(data: unknown): { _data: unknown; _seriesColors?: Record<string, string> } | null {
+function getWrappedIfNeeded(
+  data: unknown,
+): { _data: unknown; _seriesColors?: Record<string, string> } | null {
   if (data && typeof data === "object" && "_data" in data) {
     return data as { _data: unknown; _seriesColors?: Record<string, string> };
   }
@@ -197,7 +221,9 @@ function ShadcnCartesianDataEditor({
     const sample = rows[0];
     const numeric = sample
       ? Object.keys(sample).filter(
-          (k) => k !== catKey && typeof (sample as Record<string, unknown>)[k] === "number",
+          (k) =>
+            k !== catKey &&
+            typeof (sample as Record<string, unknown>)[k] === "number",
         )
       : getDefaultNumericKeys(chartType);
     return {
@@ -258,23 +284,26 @@ function ShadcnCartesianDataEditor({
                     <Input
                       defaultValue={k}
                       onBlur={(e) => {
-                        const v = e.target.value.trim().replace(/\s+/g, "_") || k;
-                        if (v !== k && /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(v)) onRenameSeries(k, v);
+                        const v =
+                          e.target.value.trim().replace(/\s+/g, "_") || k;
+                        if (v !== k && /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(v))
+                          onRenameSeries(k, v);
                       }}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+                        if (e.key === "Enter")
+                          (e.target as HTMLInputElement).blur();
                       }}
                       className="h-7 rounded border-0 bg-transparent px-2 text-[11px] font-medium text-[#3D4035] focus-visible:ring-1"
                       placeholder="Series"
                     />
                     {canRemoveSeries && (
-                <button
-                  type="button"
-                  onClick={() => onRemoveSeries(k)}
-                  aria-label={`Remove series ${k}`}
-                  title={`Remove series ${k}`}
-                  className="shrink-0 rounded p-0.5 text-[#3D4035]/30 hover:bg-red-50 hover:text-red-500"
-                >
+                      <button
+                        type="button"
+                        onClick={() => onRemoveSeries(k)}
+                        aria-label={`Remove series ${k}`}
+                        title={`Remove series ${k}`}
+                        className="shrink-0 rounded p-0.5 text-[#3D4035]/30 hover:bg-red-50 hover:text-red-500"
+                      >
                         <X className="size-3" />
                       </button>
                     )}
@@ -313,10 +342,15 @@ function ShadcnCartesianDataEditor({
                     onChange={(e) => {
                       const raw = e.target.value;
                       const num = parseFloat(raw);
-                      const merged = { ...item } as Record<string, string | number>;
+                      const merged = { ...item } as Record<
+                        string,
+                        string | number
+                      >;
                       merged[k] =
                         typeof item[k] === "number"
-                          ? (Number.isNaN(num) ? 0 : num)
+                          ? Number.isNaN(num)
+                            ? 0
+                            : num
                           : raw;
                       const next = [...rows];
                       next[idx] = merged;
@@ -342,7 +376,8 @@ function ShadcnCartesianDataEditor({
 
           {rows.length === 0 && (
             <div className="py-12 text-center text-[13px] text-[#3D4035]/40">
-              No data. Click &ldquo;Add row&rdquo; or &ldquo;Add series&rdquo; to start.
+              No data. Click &ldquo;Add row&rdquo; or &ldquo;Add series&rdquo;
+              to start.
             </div>
           )}
         </div>

@@ -10,7 +10,7 @@ import { useSlidesStore } from "@/stores/slides-store";
 import { useSlidesList, useSlidesMutations } from "@/hooks/use-slides";
 import { CreateSlideDialog } from "./_components/create-slide-dialog";
 import { EditSlideDialog } from "./_components/edit-slide-dialog";
-import { getChartById } from "@/lib/charts-data";
+import { getChartById } from "@/lib/chart/charts-data";
 import { useChartsList } from "@/hooks/use-charts";
 import {
   Presentation,
@@ -65,7 +65,7 @@ export default function SlidesPage() {
     if (!search.trim()) return customSlides;
     const q = search.toLowerCase().trim();
     return customSlides.filter((s) =>
-      matchesSlide(s, q, (id) => getChartById(id, charts))
+      matchesSlide(s, q, (id) => getChartById(id, charts)),
     );
   }, [customSlides, search, charts]);
 
@@ -111,7 +111,10 @@ export default function SlidesPage() {
                   <div className="flex flex-col gap-4">
                     {paginatedItems.map((slide) => {
                       const chartCount = slide.chartIds.length;
-                      const firstChart = getChartById(slide.chartIds[0], charts);
+                      const firstChart = getChartById(
+                        slide.chartIds[0],
+                        charts,
+                      );
                       const iconBg = firstChart?.iconBg ?? "bg-[#6C5DD3]/20";
                       const iconColor =
                         firstChart?.iconColor ?? "text-[#3D4035]";

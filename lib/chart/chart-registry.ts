@@ -9,7 +9,7 @@ import { chartTypes } from "@/components/charts/rosencharts";
 import type { ChartTypeKey } from "@/components/charts/rosencharts";
 import { SHADCN_CHART_TYPES } from "@/components/charts/shadcn-charts";
 import type { ShadcnChartTypeKey } from "@/components/charts/shadcn-charts";
-import { LIBRARY_DISPLAY } from "@/lib/chart-keys";
+import { LIBRARY_DISPLAY } from "@/lib/chart/chart-keys";
 
 export const CHART_LIBRARIES = [
   { id: "rosencharts", label: LIBRARY_DISPLAY.rosencharts, icon: Layers },

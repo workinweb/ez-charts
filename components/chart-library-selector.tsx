@@ -6,7 +6,7 @@ import {
   CHART_LIBRARIES,
   getChartTypesByLibrary,
   type ChartLibraryId,
-} from "@/lib/chart-registry";
+} from "@/lib/chart/chart-registry";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 
@@ -51,8 +51,7 @@ export function ChartLibrarySelector({
     if (!q) return allTypes;
     return allTypes.filter(
       (ct) =>
-        ct.label.toLowerCase().includes(q) ||
-        ct.key.toLowerCase().includes(q),
+        ct.label.toLowerCase().includes(q) || ct.key.toLowerCase().includes(q),
     );
   }, [allTypes, searchQuery]);
 
@@ -115,16 +114,13 @@ export function ChartLibrarySelector({
           <div className="min-h-0 flex-1 overflow-y-auto px-2 py-2">
             {filteredTypes.length === 0 ? (
               <div className="py-10 text-center text-[12px] text-[#3D4035]/40">
-                {searchQuery.trim()
-                  ? "No matching charts"
-                  : "No chart types"}
+                {searchQuery.trim() ? "No matching charts" : "No chart types"}
               </div>
             ) : (
               <div className="space-y-0.5">
                 {filteredTypes.map((ct) => {
                   const disabled = isDisabled?.(ct.key) ?? false;
-                  const showLock =
-                    requiresConfirmation?.(ct.key) ?? false;
+                  const showLock = requiresConfirmation?.(ct.key) ?? false;
                   const isSelected = selectedChartKey === ct.key;
                   const Icon = ct.icon;
 
@@ -145,10 +141,7 @@ export function ChartLibrarySelector({
                         disabled && "cursor-not-allowed opacity-60",
                       )}
                     >
-                      <Icon
-                        className="size-3.5 shrink-0"
-                        strokeWidth={1.7}
-                      />
+                      <Icon className="size-3.5 shrink-0" strokeWidth={1.7} />
                       <span className="min-w-0 flex-1 truncate">
                         {ct.label}
                       </span>

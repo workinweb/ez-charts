@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Layers, ChevronRight } from "lucide-react";
 import { useSlidesList } from "@/hooks/use-slides";
-import { getChartById } from "@/lib/charts-data";
+import { getChartById } from "@/lib/chart/charts-data";
 import { useChartsList } from "@/hooks/use-charts";
 import { cn } from "@/lib/utils";
 

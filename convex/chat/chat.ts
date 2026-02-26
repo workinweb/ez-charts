@@ -1,6 +1,6 @@
 import { v } from "convex/values";
-import { mutation } from "./_generated/server";
-import { tokensToCredits } from "./chatCreditsConfig";
+import { mutation } from "../_generated/server";
+import { tokensToCredits } from "../credits/chatCreditsConfig";
 
 /**
  * Chat mutations — like chart creation: create at start, update continuously.

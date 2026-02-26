@@ -30,7 +30,7 @@ import { PROMPT_EXAMPLES } from "@/lib/prompt-examples";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
 import { useFeatureCheck } from "@/hooks/use-feature-check";
-import { getChartTypesByLibrary } from "@/lib/chart-registry";
+import { getChartTypesByLibrary } from "@/lib/chart/chart-registry";
 import { cn } from "@/lib/utils";
 import { useChatbotStore } from "@/stores/chatbot-store";
 import { useSectionStore } from "@/stores/section-store";

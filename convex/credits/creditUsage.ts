@@ -1,9 +1,8 @@
 /**
  * Credit usage history — records when credits were spent (from chatMessages).
  */
-import { v } from "convex/values";
-import { query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
+import { query } from "../_generated/server";
 
 /**
  * Paginated list of credit usage for the authenticated user.

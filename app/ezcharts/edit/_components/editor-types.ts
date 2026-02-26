@@ -6,7 +6,7 @@ import {
   DEFAULT_CHART_TYPE as DEFAULT_CHART_TYPE_IMPORT,
   DEFAULT_CREATE_DATA as DEFAULT_CREATE_DATA_IMPORT,
   getDefaultDataForChartType as getDefaultDataForChartTypeImport,
-} from "@/lib/chart-defaults";
+} from "@/lib/chart/chart-defaults";
 
 export type EditorShape =
   | "keyValue" // { key, value, color? }
@@ -29,9 +29,11 @@ export interface EditorProps {
 
 export function getEditorShape(chartType: string): EditorShape {
   if (chartType.startsWith("shadcn:")) {
-    if (chartType === "shadcn:pie" || chartType === "shadcn:radial") return "pie";
+    if (chartType === "shadcn:pie" || chartType === "shadcn:radial")
+      return "pie";
     if (chartType === "shadcn:radar") return "shadcnCartesian";
-    if (["shadcn:bar", "shadcn:area", "shadcn:line"].includes(chartType)) return "shadcnCartesian";
+    if (["shadcn:bar", "shadcn:area", "shadcn:line"].includes(chartType))
+      return "shadcnCartesian";
     return "shadcnCartesian";
   }
   if (chartType === "horizontal-bar-image") return "bar-image";

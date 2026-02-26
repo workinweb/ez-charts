@@ -11,18 +11,18 @@
 import type * as auth from "../auth.js";
 import type * as betterAuth_auth from "../betterAuth/auth.js";
 import type * as betterAuth_sendEmail from "../betterAuth/sendEmail.js";
-import type * as charts from "../charts.js";
-import type * as chat from "../chat.js";
-import type * as chatCreditsConfig from "../chatCreditsConfig.js";
-import type * as chatStats from "../chatStats.js";
-import type * as creditPurchases from "../creditPurchases.js";
-import type * as creditUsage from "../creditUsage.js";
-import type * as documents from "../documents.js";
+import type * as charts from "../charts/charts.js";
+import type * as chat from "../chat/chat.js";
+import type * as chatCreditsConfig from "../credits/chatCreditsConfig.js";
+import type * as chatStats from "../chat/chatStats.js";
+import type * as creditPurchases from "../credits/creditPurchases.js";
+import type * as creditUsage from "../credits/creditUsage.js";
+import type * as documents from "../documents/documents.js";
 import type * as http from "../http.js";
 import type * as opinions from "../opinions.js";
-import type * as planLimits from "../planLimits.js";
-import type * as slides from "../slides.js";
-import type * as tierLimits from "../tierLimits.js";
+import type * as planLimits from "../tiers/planLimits.js";
+import type * as slides from "../charts/slides.js";
+import type * as tierLimits from "../tiers/tierLimits.js";
 import type * as userSettings from "../userSettings.js";
 
 import type {

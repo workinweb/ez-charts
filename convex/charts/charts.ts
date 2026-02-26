@@ -1,8 +1,8 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query } from "../_generated/server";
 import { paginationOptsValidator } from "convex/server";
-import { LIBRARY_DISPLAY } from "../lib/chart-keys";
-import { TIER_LIMITS, type PlanTier } from "./tierLimits";
+import { LIBRARY_DISPLAY } from "../../lib/chart/chart-keys";
+import { TIER_LIMITS, type PlanTier } from "../tiers/tierLimits";
 
 // ─── Queries ────────────────────────────────────────────────────────────────
 
@@ -56,7 +56,9 @@ export const listPaginated = query({
       .paginate(args.paginationOpts);
     return {
       ...result,
-      page: result.page.filter((c) => c.isVisible !== false && c.blockedByTier !== true),
+      page: result.page.filter(
+        (c) => c.isVisible !== false && c.blockedByTier !== true,
+      ),
     };
   },
 });
@@ -85,7 +87,9 @@ export const listFavorites = query({
       .query("charts")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
-    return all.filter((c) => c.favorited && c.isVisible !== false && c.blockedByTier !== true);
+    return all.filter(
+      (c) => c.favorited && c.isVisible !== false && c.blockedByTier !== true,
+    );
   },
 });
 
@@ -109,7 +113,9 @@ export const dashboardStats = query({
       .query("charts")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
-    const charts = all.filter((c) => c.isVisible !== false && c.blockedByTier !== true);
+    const charts = all.filter(
+      (c) => c.isVisible !== false && c.blockedByTier !== true,
+    );
 
     const now = Date.now();
     const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
@@ -119,29 +125,62 @@ export const dashboardStats = query({
     const monthStart = startOfMonth.getTime();
 
     const totalCharts = charts.length;
-    const chartsThisMonth = charts.filter((c) => c.createdAt >= monthStart).length;
-    const chartsThisWeek = charts.filter((c) => c.createdAt >= oneWeekAgo).length;
+    const chartsThisMonth = charts.filter(
+      (c) => c.createdAt >= monthStart,
+    ).length;
+    const chartsThisWeek = charts.filter(
+      (c) => c.createdAt >= oneWeekAgo,
+    ).length;
     const favoritesCount = charts.filter((c) => c.favorited).length;
 
     // Last 5 months for bar chart (current + 4 previous)
     const monthlyData: { month: string; charts: number }[] = [];
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     for (let i = 4; i >= 0; i--) {
       const d = new Date();
       d.setMonth(d.getMonth() - i);
       const start = new Date(d.getFullYear(), d.getMonth(), 1).getTime();
-      const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999).getTime();
-      const count = charts.filter((c) => c.createdAt >= start && c.createdAt <= end).length;
+      const end = new Date(
+        d.getFullYear(),
+        d.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+        999,
+      ).getTime();
+      const count = charts.filter(
+        (c) => c.createdAt >= start && c.createdAt <= end,
+      ).length;
       monthlyData.push({ month: monthNames[d.getMonth()], charts: count });
     }
 
     // Chart types distribution: library + type (e.g. "Classic · Bar", "Rich · Bar")
     const typeCounts: Record<string, number> = {};
     for (const c of charts) {
-      const lib = c.chartLibrary ?? (c.chartType?.startsWith("shadcn:") ? "shadcn" : "rosencharts");
-      const type = c.chartType?.startsWith("shadcn:") ? c.chartType.slice(7) : c.chartType;
+      const lib =
+        c.chartLibrary ??
+        (c.chartType?.startsWith("shadcn:") ? "shadcn" : "rosencharts");
+      const type = c.chartType?.startsWith("shadcn:")
+        ? c.chartType.slice(7)
+        : c.chartType;
       const libLabel = LIBRARY_DISPLAY[lib] ?? lib;
-      const typeLabel = type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, " ") || "Bar";
+      const typeLabel =
+        type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, " ") ||
+        "Bar";
       const display = `${libLabel} · ${typeLabel}`;
       typeCounts[display] = (typeCounts[display] ?? 0) + 1;
     }
@@ -150,14 +189,18 @@ export const dashboardStats = query({
       .sort((a, b) => b.value - a.value)
       .slice(0, 6);
     const totalForPct = chartTypes.reduce((s, t) => s + t.value, 0);
-    const chartTypesWithPct = totalForPct > 0
-      ? chartTypes.map((t) => ({ name: t.name, value: Math.round((t.value / totalForPct) * 100) }))
-      : chartTypes.map((t) => ({ name: t.name, value: 0 }));
+    const chartTypesWithPct =
+      totalForPct > 0
+        ? chartTypes.map((t) => ({
+            name: t.name,
+            value: Math.round((t.value / totalForPct) * 100),
+          }))
+        : chartTypes.map((t) => ({ name: t.name, value: 0 }));
 
     // Data sources
     const sourceMap: Record<string, string> = {
       "From chat": "From prompt",
-      "Manual": "Manual",
+      Manual: "Manual",
     };
     const sourceCounts: Record<string, number> = {};
     for (const c of charts) {
@@ -182,7 +225,10 @@ export const dashboardStats = query({
 
 // ─── Mutations ──────────────────────────────────────────────────────────────
 
-const chartLibraryValidator = v.union(v.literal("shadcn"), v.literal("rosencharts"));
+const chartLibraryValidator = v.union(
+  v.literal("shadcn"),
+  v.literal("rosencharts"),
+);
 
 /** Create a new chart. */
 export const create = mutation({
@@ -212,7 +258,9 @@ export const create = mutation({
         .query("charts")
         .withIndex("by_user", (q) => q.eq("userId", userId))
         .collect();
-      const visible = existing.filter((c) => c.isVisible !== false && c.blockedByTier !== true);
+      const visible = existing.filter(
+        (c) => c.isVisible !== false && c.blockedByTier !== true,
+      );
       if (visible.length >= maxCharts) {
         throw new Error(
           `Chart limit reached (${maxCharts} for ${tier} plan). Upgrade to save more charts.`,
@@ -307,7 +355,9 @@ export const duplicate = mutation({
         .query("charts")
         .withIndex("by_user", (q) => q.eq("userId", userId))
         .collect();
-      const visible = existing.filter((c) => c.isVisible !== false && c.blockedByTier !== true);
+      const visible = existing.filter(
+        (c) => c.isVisible !== false && c.blockedByTier !== true,
+      );
       if (visible.length >= maxCharts) {
         throw new Error(
           `Chart limit reached (${maxCharts} for ${tier} plan). Upgrade to save more charts.`,
@@ -315,8 +365,12 @@ export const duplicate = mutation({
       }
     }
     const now = Date.now();
-    const library = chart.chartLibrary ?? (chart.chartType?.startsWith("shadcn:") ? "shadcn" : "rosencharts");
-    const type = chart.chartType?.startsWith("shadcn:") ? chart.chartType.slice(7) : chart.chartType;
+    const library =
+      chart.chartLibrary ??
+      (chart.chartType?.startsWith("shadcn:") ? "shadcn" : "rosencharts");
+    const type = chart.chartType?.startsWith("shadcn:")
+      ? chart.chartType.slice(7)
+      : chart.chartType;
     return ctx.db.insert("charts", {
       userId,
       title: `${chart.title} (copy)`,

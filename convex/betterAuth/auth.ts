@@ -1,11 +1,11 @@
-import { createClient } from "@convex-dev/better-auth";
 import type { GenericCtx } from "@convex-dev/better-auth";
+import { createClient } from "@convex-dev/better-auth";
 import { convex } from "@convex-dev/better-auth/plugins";
+import { betterAuth } from "better-auth/minimal";
 import { components } from "../_generated/api";
 import type { DataModel } from "../_generated/dataModel";
-import { betterAuth } from "better-auth/minimal";
 import authConfig from "../auth.config";
-import { sendEmail, authEmailBody } from "./sendEmail";
+import { authEmailBody, sendEmail } from "./sendEmail";
 
 // ─── Better Auth Component Client ───────────────────────────────────────────
 // This client has methods needed for integrating Convex with Better Auth,

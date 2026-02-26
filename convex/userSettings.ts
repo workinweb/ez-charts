@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { TIER_LIMITS, type PlanTier } from "./tiers/tierLimits";
 
 const DEFAULT_DASHBOARD_CARD_ORDER = [
   "tier-limits",
@@ -12,8 +13,6 @@ const DEFAULT_DASHBOARD_CARD_ORDER = [
   "recent-charts",
   "recent-slide-decks",
 ];
-
-const CREDITS_BY_PLAN = { free: 100, pro: 250, max: 600 } as const;
 
 /** Full date 1 month from now — next renewal date. Set on creation or tier change. */
 function nextRenewDate(): number {
@@ -70,7 +69,7 @@ export const upsert = mutation({
       updates.dashboardCardOrder = args.dashboardCardOrder;
     }
     if (args.saveDocumentsOnDb !== undefined) {
-      const tier = (args.planTier ?? existing?.planTier ?? "free") as keyof typeof CREDITS_BY_PLAN;
+      const tier = (args.planTier ?? existing?.planTier ?? "free") as PlanTier;
       if (tier === "free") {
         updates.saveDocumentsOnDb = false;
       } else {
@@ -79,7 +78,7 @@ export const upsert = mutation({
     }
     if (args.planTier !== undefined) {
       updates.planTier = args.planTier;
-      updates.credits = CREDITS_BY_PLAN[args.planTier];
+      updates.credits = TIER_LIMITS[args.planTier].credits;
       updates.renewDate = nextRenewDate();
     }
     if (args.chartDataEditorMode !== undefined) {
@@ -97,7 +96,7 @@ export const upsert = mutation({
       saveDocumentsOnDb: args.saveDocumentsOnDb,
       planTier,
       chartDataEditorMode: args.chartDataEditorMode,
-      credits: CREDITS_BY_PLAN[planTier],
+      credits: TIER_LIMITS[planTier].credits,
       renewDate: nextRenewDate(),
       updatedAt: Date.now(),
     });
@@ -119,7 +118,8 @@ export const ensure = mutation({
 
     if (existing) {
       return {
-        dashboardCardOrder: existing.dashboardCardOrder ?? DEFAULT_DASHBOARD_CARD_ORDER,
+        dashboardCardOrder:
+          existing.dashboardCardOrder ?? DEFAULT_DASHBOARD_CARD_ORDER,
         saveDocumentsOnDb: existing.saveDocumentsOnDb ?? false,
         credits: existing.credits ?? 100,
         planTier: existing.planTier ?? "free",

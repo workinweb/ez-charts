@@ -1,6 +1,6 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
-import { TIER_LIMITS, type PlanTier } from "./tierLimits";
+import { mutation, query } from "../_generated/server";
+import { TIER_LIMITS, type PlanTier } from "../tiers/tierLimits";
 
 // ─── Queries ────────────────────────────────────────────────────────────────
 
@@ -95,7 +95,9 @@ export const create = mutation({
         .query("documents")
         .withIndex("by_user", (q) => q.eq("userId", userId))
         .collect();
-      const visible = existing.filter((d) => d.isVisible !== false && d.blockedByTier !== true);
+      const visible = existing.filter(
+        (d) => d.isVisible !== false && d.blockedByTier !== true,
+      );
       if (visible.length >= maxDocuments) {
         throw new Error(
           `Document limit reached (${maxDocuments} for ${tier} plan). Upgrade to save more.`,

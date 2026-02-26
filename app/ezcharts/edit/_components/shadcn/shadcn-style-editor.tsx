@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { unwrapShadcnData } from "@/lib/shadcn-chart-data";
+import { unwrapShadcnData } from "@/lib/chart/shadcn-chart-data";
 
 interface ShadcnStyleEditorProps {
   chartType: string;
@@ -30,7 +30,8 @@ export function ShadcnStyleEditor({
   const { rows, seriesColors } = unwrapShadcnData(data);
 
   const isPieLike = SHADCN_PIE_LIKE.includes(chartType);
-  const isCartesian = SHADCN_CARTESIAN.includes(chartType) || chartType === SHADCN_RADAR;
+  const isCartesian =
+    SHADCN_CARTESIAN.includes(chartType) || chartType === SHADCN_RADAR;
 
   if (isPieLike) {
     return (
@@ -71,9 +72,13 @@ function ShadcnPieStyleEditor({
     (idx: number, fill: string) => {
       const next = [...rows];
       next[idx] = { ...next[idx], fill };
-      const wrapped = data && typeof data === "object" && "_data" in data
-        ? (data as { _data?: unknown; _seriesColors?: Record<string, string> })
-        : null;
+      const wrapped =
+        data && typeof data === "object" && "_data" in data
+          ? (data as {
+              _data?: unknown;
+              _seriesColors?: Record<string, string>;
+            })
+          : null;
       if (wrapped) {
         onChange({ ...wrapped, _data: next });
       } else {
@@ -140,20 +145,25 @@ function ShadcnCartesianStyleEditor({
 }) {
   const sample = rows[0];
   const categoryKey = sample
-    ? Object.keys(sample).find((k) => typeof (sample as Record<string, unknown>)[k] === "string") ?? "month"
+    ? (Object.keys(sample).find(
+        (k) => typeof (sample as Record<string, unknown>)[k] === "string",
+      ) ?? "month")
     : "month";
   const seriesKeys = sample
     ? Object.keys(sample).filter(
-        (k) => k !== categoryKey && typeof (sample as Record<string, unknown>)[k] === "number",
+        (k) =>
+          k !== categoryKey &&
+          typeof (sample as Record<string, unknown>)[k] === "number",
       )
     : ["desktop", "mobile"];
 
   const updateSeriesColor = useCallback(
     (key: string, color: string) => {
       const next = { ...(seriesColors ?? {}), [key]: color };
-      const wrapped = data && typeof data === "object" && "_data" in data
-        ? (data as { _data: unknown; _seriesColors?: Record<string, string> })
-        : null;
+      const wrapped =
+        data && typeof data === "object" && "_data" in data
+          ? (data as { _data: unknown; _seriesColors?: Record<string, string> })
+          : null;
       if (wrapped) {
         onChange({ ...wrapped, _seriesColors: next });
       } else {
@@ -178,7 +188,9 @@ function ShadcnCartesianStyleEditor({
       </h3>
       <div className="flex max-h-[40vh] flex-col gap-3 overflow-y-auto pr-1 sm:max-h-[45vh] md:max-h-[50vh] lg:max-h-[56vh]">
         {seriesKeys.map((key, idx) => {
-          const color = seriesColors?.[key] ?? SERIES_COLOR_PALETTE[idx % SERIES_COLOR_PALETTE.length];
+          const color =
+            seriesColors?.[key] ??
+            SERIES_COLOR_PALETTE[idx % SERIES_COLOR_PALETTE.length];
           return (
             <div
               key={key}

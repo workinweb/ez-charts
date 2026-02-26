@@ -1,7 +1,7 @@
 /**
  * Chat statistics — user-based counts for dashboard.
  */
-import { query } from "./_generated/server";
+import { query } from "../_generated/server";
 
 /**
  * Returns the number of conversations and user messages for the authenticated user.

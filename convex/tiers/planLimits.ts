@@ -1,14 +1,12 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
-import { TIER_LIMITS, type PlanTier } from "./tierLimits";
+import { mutation, query } from "../_generated/server";
+import { TIER_LIMITS, type PlanTier } from "../tiers/tierLimits";
 
 const planTierValidator = v.union(
   v.literal("free"),
   v.literal("pro"),
   v.literal("max"),
 );
-
-const CREDITS_BY_PLAN = { free: 100, pro: 250, max: 600 } as const;
 
 /** Usage counts + limits for the authenticated user. For dashboard Tier Limits card. */
 export const tierUsage = query({
@@ -25,24 +23,42 @@ export const tierUsage = query({
         documentsUsed: 0,
         documentsLimit: TIER_LIMITS.free.maxDocuments,
         creditsUsed: 100,
-        creditsLimit: CREDITS_BY_PLAN.free,
+        creditsLimit: TIER_LIMITS.free.credits,
       };
     const userId = identity.subject;
 
     const [charts, slides, documents, settings] = await Promise.all([
-      ctx.db.query("charts").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
-      ctx.db.query("slides").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
-      ctx.db.query("documents").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
-      ctx.db.query("userSettings").withIndex("by_user", (q) => q.eq("userId", userId)).unique(),
+      ctx.db
+        .query("charts")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .collect(),
+      ctx.db
+        .query("slides")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .collect(),
+      ctx.db
+        .query("documents")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .collect(),
+      ctx.db
+        .query("userSettings")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .unique(),
     ]);
 
     const planTier = (settings?.planTier ?? "free") as PlanTier;
     const limits = TIER_LIMITS[planTier];
-    const creditsLimit = CREDITS_BY_PLAN[planTier];
+    const creditsLimit = TIER_LIMITS[planTier].credits;
 
-    const chartsUsed = charts.filter((c) => c.isVisible !== false && c.blockedByTier !== true).length;
-    const slidesUsed = slides.filter((s) => s.isVisible !== false && s.blockedByTier !== true).length;
-    const documentsUsed = documents.filter((d) => d.isVisible !== false && d.blockedByTier !== true).length;
+    const chartsUsed = charts.filter(
+      (c) => c.isVisible !== false && c.blockedByTier !== true,
+    ).length;
+    const slidesUsed = slides.filter(
+      (s) => s.isVisible !== false && s.blockedByTier !== true,
+    ).length;
+    const documentsUsed = documents.filter(
+      (d) => d.isVisible !== false && d.blockedByTier !== true,
+    ).length;
     const creditsUsed = settings?.credits ?? creditsLimit;
 
     return {
@@ -67,9 +83,18 @@ export const hasBlockedItems = query({
     if (!identity) return false;
     const userId = identity.subject;
     const [charts, slides, documents] = await Promise.all([
-      ctx.db.query("charts").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
-      ctx.db.query("slides").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
-      ctx.db.query("documents").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
+      ctx.db
+        .query("charts")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .collect(),
+      ctx.db
+        .query("slides")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .collect(),
+      ctx.db
+        .query("documents")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .collect(),
     ]);
     return (
       charts.some((c) => c.isVisible !== false && c.blockedByTier === true) ||
@@ -88,28 +113,46 @@ export const migrateHiddenToBlocked = mutation({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
     const userId = identity.subject;
-    const charts = await ctx.db.query("charts").withIndex("by_user", (q) => q.eq("userId", userId)).collect();
-    const slides = await ctx.db.query("slides").withIndex("by_user", (q) => q.eq("userId", userId)).collect();
-    const documents = await ctx.db.query("documents").withIndex("by_user", (q) => q.eq("userId", userId)).collect();
+    const charts = await ctx.db
+      .query("charts")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+    const slides = await ctx.db
+      .query("slides")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+    const documents = await ctx.db
+      .query("documents")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
     let migrated = 0;
     for (const c of charts) {
       const row = c as { blockedByTier?: boolean; hiddenByPlanLimit?: boolean };
       if (row.hiddenByPlanLimit === true && row.blockedByTier !== true) {
-        await ctx.db.patch(c._id, { blockedByTier: true, updatedAt: Date.now() });
+        await ctx.db.patch(c._id, {
+          blockedByTier: true,
+          updatedAt: Date.now(),
+        });
         migrated++;
       }
     }
     for (const s of slides) {
       const row = s as { blockedByTier?: boolean; hiddenByPlanLimit?: boolean };
       if (row.hiddenByPlanLimit === true && row.blockedByTier !== true) {
-        await ctx.db.patch(s._id, { blockedByTier: true, updatedAt: Date.now() });
+        await ctx.db.patch(s._id, {
+          blockedByTier: true,
+          updatedAt: Date.now(),
+        });
         migrated++;
       }
     }
     for (const d of documents) {
       const row = d as { blockedByTier?: boolean; hiddenByPlanLimit?: boolean };
       if (row.hiddenByPlanLimit === true && row.blockedByTier !== true) {
-        await ctx.db.patch(d._id, { blockedByTier: true, updatedAt: Date.now() });
+        await ctx.db.patch(d._id, {
+          blockedByTier: true,
+          updatedAt: Date.now(),
+        });
         migrated++;
       }
     }
@@ -193,12 +236,10 @@ export const applyDowngradeSelection = mutation({
       d.setMonth(d.getMonth() + 1);
       return d.getTime();
     })();
-    const CREDITS = { free: 100, pro: 250, max: 600 } as const;
-
     if (settings) {
       await ctx.db.patch(settings._id, {
         planTier: args.targetTier,
-        credits: CREDITS[args.targetTier],
+        credits: TIER_LIMITS[args.targetTier].credits,
         renewDate,
         updatedAt: Date.now(),
       });
@@ -206,7 +247,7 @@ export const applyDowngradeSelection = mutation({
       await ctx.db.insert("userSettings", {
         userId,
         planTier: args.targetTier,
-        credits: CREDITS[args.targetTier],
+        credits: TIER_LIMITS[args.targetTier].credits,
         renewDate,
         updatedAt: Date.now(),
       });

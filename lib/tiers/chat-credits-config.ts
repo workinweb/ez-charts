@@ -9,4 +9,4 @@ export {
   OUTPUT_TOKENS_FOR_LONG,
   OUTPUT_TOKENS_FOR_EXTRA_LARGE,
   tokensToCredits,
-} from "../../convex/chatCreditsConfig";
+} from "../../convex/credits/chatCreditsConfig";

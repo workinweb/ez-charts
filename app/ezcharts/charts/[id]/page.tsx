@@ -3,7 +3,7 @@
 import { useParams, notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Presentation, Copy, Pencil } from "lucide-react";
-import { renderChart } from "@/lib/chart-render";
+import { renderChart } from "@/lib/chart/chart-render";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useChartByIdWithStatus, useChartsMutations } from "@/hooks/use-charts";
 import { Button } from "@/components/ui/button";
@@ -27,15 +27,11 @@ export default function ChartDetailPage() {
     );
   }
 
-  const chartEl = renderChart(
-    chart.data,
-    chart.chartType,
-    {
-      withTooltip: chart.withTooltip ?? true,
-      withAnimation: chart.withAnimation ?? true,
-      className: "min-h-[320px] w-full",
-    }
-  );
+  const chartEl = renderChart(chart.data, chart.chartType, {
+    withTooltip: chart.withTooltip ?? true,
+    withAnimation: chart.withAnimation ?? true,
+    className: "min-h-[320px] w-full",
+  });
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-background">
@@ -108,9 +104,7 @@ export default function ChartDetailPage() {
           </header>
 
           <div className="rounded-[28px] bg-white/80 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
-            <div className="min-h-[360px] w-full">
-              {chartEl}
-            </div>
+            <div className="min-h-[360px] w-full">{chartEl}</div>
           </div>
         </div>
       </div>

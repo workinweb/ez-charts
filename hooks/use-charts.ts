@@ -3,9 +3,9 @@
 import { usePaginatedQuery, useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
-import { convexChartToUserChart } from "@/lib/chart-utils";
-import { fromChartKey } from "@/lib/chart-keys";
-import type { UserChart } from "@/lib/charts-data";
+import { convexChartToUserChart } from "@/lib/chart/chart-utils";
+import { fromChartKey } from "@/lib/chart/chart-keys";
+import type { UserChart } from "@/lib/chart/charts-data";
 import { useChartsStore } from "@/stores/charts-store";
 
 const PAGE_SIZE = 12;
@@ -15,7 +15,7 @@ export function useChartsPaginated() {
   const result = usePaginatedQuery(
     api.charts.listPaginated,
     {},
-    { initialNumItems: PAGE_SIZE }
+    { initialNumItems: PAGE_SIZE },
   );
   return {
     ...result,
@@ -25,13 +25,13 @@ export function useChartsPaginated() {
 
 /** Single chart by ID from Convex (for persisted charts). */
 export function useChartFromConvex(
-  id: Id<"charts"> | string | undefined
+  id: Id<"charts"> | string | undefined,
 ): UserChart | undefined {
   const chart = useQuery(
     api.charts.get,
     id && typeof id === "string" && !id.startsWith("unsaved-")
       ? { id: id as Id<"charts"> }
-      : "skip"
+      : "skip",
   );
   return chart ? convexChartToUserChart(chart) : undefined;
 }
@@ -45,7 +45,7 @@ export function useChartsList() {
 /** Chart by ID — checks unsaved first, then Convex. Use for edit/view. */
 export function useChartById(id: string | undefined): UserChart | undefined {
   const unsaved = useChartsStore((s) =>
-    id ? s.unsavedCharts.find((c) => c.id === id) : undefined
+    id ? s.unsavedCharts.find((c) => c.id === id) : undefined,
   );
   const convexChart = useChartFromConvex(id);
   return unsaved ?? convexChart ?? undefined;
@@ -58,13 +58,13 @@ export function useChartByIdWithStatus(id: string | undefined): {
   isNotFound: boolean;
 } {
   const unsaved = useChartsStore((s) =>
-    id ? s.unsavedCharts.find((c) => c.id === id) : undefined
+    id ? s.unsavedCharts.find((c) => c.id === id) : undefined,
   );
   const convexResult = useQuery(
     api.charts.get,
     id && typeof id === "string" && !id.startsWith("unsaved-")
       ? { id: id as Id<"charts"> }
-      : "skip"
+      : "skip",
   );
   const isConvexId = !!id && !id.startsWith("unsaved-");
   const isLoading = isConvexId && convexResult === undefined;
@@ -129,7 +129,7 @@ export function useChartsMutations() {
         data?: unknown;
         withTooltip?: boolean;
         withAnimation?: boolean;
-      }
+      },
     ) => {
       const { chartType: patchType, ...rest } = patch;
       const updates: Record<string, unknown> = { id, ...rest };
