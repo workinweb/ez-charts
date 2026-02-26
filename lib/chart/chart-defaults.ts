@@ -113,7 +113,11 @@ export function getDefaultDataForChartType(chartType: string): unknown[] {
   ) {
     return JSON.parse(JSON.stringify(ROSENCHARTS_BAR_MULTI_DEFAULT));
   }
-  if (chartType === "line" || chartType === "line-multi" || chartType === "line-curved") {
+  if (
+    chartType === "line" ||
+    chartType === "line-multi" ||
+    chartType === "line-curved"
+  ) {
     return JSON.parse(JSON.stringify(ROSENCHARTS_LINE_DEFAULT));
   }
   if (

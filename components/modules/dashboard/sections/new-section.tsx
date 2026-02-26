@@ -12,7 +12,7 @@ import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useChartsMutations } from "@/hooks/use-charts";
 import { useFeatureCheck } from "@/hooks/use-feature-check";
-import { renderChart } from "@/lib/chart-render";
+import { renderChart } from "@/lib/chart/chart-render";
 import { cn } from "@/lib/utils";
 import { useChartsStore } from "@/stores/charts-store";
 import { Pencil, Save, Sparkles } from "lucide-react";

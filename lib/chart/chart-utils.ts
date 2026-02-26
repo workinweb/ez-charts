@@ -1,8 +1,8 @@
 import type { Id } from "@/convex/_generated/dataModel";
 import type { Doc } from "@/convex/_generated/dataModel";
-import type { UserChart } from "@/lib/charts-data";
-import { chartTypeToIcon } from "@/lib/charts-data";
-import { normalizeChartForRender } from "@/lib/chart-keys";
+import type { UserChart } from "@/lib/chart/charts-data";
+import { chartTypeToIcon } from "@/lib/chart/charts-data";
+import { normalizeChartForRender } from "@/lib/chart/chart-keys";
 
 export function formatChartDate(timestamp: number): string {
   const d = new Date(timestamp);

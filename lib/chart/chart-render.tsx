@@ -3,7 +3,7 @@
 import type { JSX } from "react";
 import { getChartTypeByName } from "@/components/charts/rosencharts";
 import { getShadcnChartByName } from "@/components/charts/shadcn-charts";
-import { unwrapShadcnData } from "@/lib/shadcn-chart-data";
+import { unwrapShadcnData } from "@/lib/chart/shadcn-chart-data";
 
 /**
  * Unified chart renderer: routes to Rosencharts or Shadcn based on chartType.

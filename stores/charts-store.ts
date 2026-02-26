@@ -1,8 +1,8 @@
 "use client";
 
 import { create } from "zustand";
-import type { UserChart } from "@/lib/charts-data";
-import { chartTypeToIcon } from "@/lib/charts-data";
+import type { UserChart } from "@/lib/chart/charts-data";
+import { chartTypeToIcon } from "@/lib/chart/charts-data";
 
 export interface ChartFromTool {
   chartType: string;
@@ -63,7 +63,8 @@ export const useChartsStore = create<ChartsState>((set) => ({
     set((s) => ({
       unsavedCharts: s.unsavedCharts.filter((c) => c.id !== id),
       previewChartId: s.previewChartId === id ? null : s.previewChartId,
-      lastEditedChartId: s.lastEditedChartId === id ? null : s.lastEditedChartId,
+      lastEditedChartId:
+        s.lastEditedChartId === id ? null : s.lastEditedChartId,
     })),
 
   setLastEditedChartId: (id) => set({ lastEditedChartId: id }),
@@ -73,7 +74,9 @@ export const useChartsStore = create<ChartsState>((set) => ({
 }));
 
 /** Get an unsaved chart by ID (for new section, edit before save) */
-export function useUnsavedChartById(id: string | undefined): UserChart | undefined {
+export function useUnsavedChartById(
+  id: string | undefined,
+): UserChart | undefined {
   const unsavedCharts = useChartsStore((s) => s.unsavedCharts);
   if (!id) return undefined;
   return unsavedCharts.find((c) => c.id === id);

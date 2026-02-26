@@ -1,7 +1,7 @@
 import { aj } from "@/arcject/config";
 import { api } from "@/convex/_generated/api";
 import { fetchAuthQuery } from "@/lib/(auth)/auth-server";
-import { getChartPromptContent } from "@/lib/load-chart-prompt";
+import { getChartPromptContent } from "@/lib/chart/load-chart-prompt";
 import {
   CHART_SYSTEM_PROMPT,
   GUARDRAIL_SYSTEM_PROMPT,

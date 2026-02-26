@@ -38,14 +38,14 @@ function convexDocToItem(doc: {
 
 /** List of documents from Convex for the authenticated user. */
 export function useDocumentsList(): DocumentItem[] {
-  const list = useQuery(api.documents.list);
+  const list = useQuery(api.documents.documents.list);
   return list?.map(convexDocToItem) ?? [];
 }
 
 /** Download URL for a document (from Convex storage). Null if no storageId. */
 export function useDocumentDownloadUrl(id: Id<"documents"> | undefined) {
   return useQuery(
-    api.documents.getDownloadUrl,
+    api.documents.documents.getDownloadUrl,
     id ? { id } : "skip"
   );
 }
@@ -83,9 +83,9 @@ export interface UseDocumentsMutationsResult {
  * 4. Create document with storageId + content
  */
 export function useDocumentsMutations(): UseDocumentsMutationsResult {
-  const createDoc = useMutation(api.documents.create);
-  const removeDoc = useMutation(api.documents.remove);
-  const generateUploadUrl = useMutation(api.documents.generateUploadUrl);
+  const createDoc = useMutation(api.documents.documents.create);
+  const removeDoc = useMutation(api.documents.documents.remove);
+  const generateUploadUrl = useMutation(api.documents.documents.generateUploadUrl);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 

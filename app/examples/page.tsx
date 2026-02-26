@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { renderChart } from "@/lib/chart-render";
+import { renderChart } from "@/lib/chart/chart-render";
 import { data as rosenchartsData } from "@/components/charts/rosencharts/fixture/exampleChartsData";
 import { shadcnExampleData } from "@/components/charts/shadcn-charts/fixture/exampleChartsData";
 import { LandingNavbar } from "@/components/landing/sections/navbar-section";
-import { LIBRARY_DISPLAY } from "@/lib/chart-keys";
+import { LIBRARY_DISPLAY } from "@/lib/chart/chart-keys";
 
 const TABS = [
   { id: "rosencharts", label: LIBRARY_DISPLAY.rosencharts },
@@ -17,7 +17,8 @@ export default function ExamplesPage() {
   const [activeTab, setActiveTab] =
     useState<(typeof TABS)[number]["id"]>("rosencharts");
 
-  const items = activeTab === "rosencharts" ? rosenchartsData : shadcnExampleData;
+  const items =
+    activeTab === "rosencharts" ? rosenchartsData : shadcnExampleData;
 
   return (
     <div className="min-h-screen bg-[#F2F4F7]">
@@ -29,7 +30,8 @@ export default function ExamplesPage() {
               Chart examples
             </h1>
             <p className="text-lg font-medium text-slate-500">
-              All available chart types — {LIBRARY_DISPLAY.rosencharts} and {LIBRARY_DISPLAY.shadcn}
+              All available chart types — {LIBRARY_DISPLAY.rosencharts} and{" "}
+              {LIBRARY_DISPLAY.shadcn}
             </p>
 
             <div className="mt-6 flex gap-1 rounded-xl bg-slate-100/80 p-1">
@@ -76,7 +78,10 @@ export default function ExamplesPage() {
           </div>
 
           <p className="mt-12 text-center text-sm text-slate-500">
-            <Link href="/" className="font-medium text-[#6C5DD3] hover:underline">
+            <Link
+              href="/"
+              className="font-medium text-[#6C5DD3] hover:underline"
+            >
               Back to home
             </Link>
             {" · "}

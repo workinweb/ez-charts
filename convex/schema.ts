@@ -96,8 +96,18 @@ export default defineSchema({
     planTier: v.optional(
       v.union(v.literal("free"), v.literal("pro"), v.literal("max")),
     ),
+    /** Stripe customer ID for subscriptions */
+    stripeCustomerId: v.optional(v.string()),
+    /** Stripe subscription ID (for upgrades within paid plans) */
+    stripeSubscriptionId: v.optional(v.string()),
     /** Timestamp (ms) of next credit renewal. On renew, add 1 month to this. */
     renewDate: v.optional(v.number()),
+    /** When a paid user schedules downgrade (cancel_at_period_end), paid access continues until this date. */
+    tierAvailableUntil: v.optional(v.number()),
+    /** When tierAvailableUntil is set, the tier they are downgrading to (usually "free"). */
+    scheduledDowngradeTier: v.optional(
+      v.union(v.literal("free"), v.literal("pro"), v.literal("max")),
+    ),
     updatedAt: v.number(),
   }).index("by_user", ["userId"]),
 
@@ -217,30 +227,25 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_opinion_user", ["opinionId", "userId"]),
 
-  // ── Stripe (prepared for future) ────────────────────────────────────────
-  // Subscription and payment records. Uncomment when integrating Stripe.
-  // subscriptions: defineTable({
-  //   userId: v.string(),
-  //   stripeSubscriptionId: v.string(),
-  //   stripePriceId: v.string(),
-  //   status: v.string(), // "active" | "canceled" | "past_due" | "trialing"
-  //   currentPeriodStart: v.number(),
-  //   currentPeriodEnd: v.number(),
-  //   cancelAtPeriodEnd: v.boolean(),
-  //   createdAt: v.number(),
-  //   updatedAt: v.number(),
-  // })
-  //   .index("by_user", ["userId"])
-  //   .index("by_stripe_id", ["stripeSubscriptionId"]),
-  //
-  // payments: defineTable({
-  //   userId: v.string(),
-  //   stripePaymentIntentId: v.string(),
-  //   amount: v.number(),
-  //   currency: v.string(),
-  //   status: v.string(),
-  //   createdAt: v.number(),
-  // })
-  //   .index("by_user", ["userId"])
-  //   .index("by_stripe_id", ["stripePaymentIntentId"]),
+  // ── Stripe Subscriptions ───────────────────────────────────────────────
+  subscriptions: defineTable({
+    userId: v.string(),
+    stripeCustomerId: v.optional(v.string()),
+    stripeSubscriptionId: v.string(),
+    stripePriceId: v.string(),
+    /** Plan name matching our tiers: pro | max */
+    plan: v.string(),
+    status: v.string(), // "active" | "canceled" | "past_due" | "trialing" | "incomplete" | "incomplete_expired"
+    currentPeriodStart: v.number(),
+    currentPeriodEnd: v.number(),
+    cancelAtPeriodEnd: v.boolean(),
+    /** Trial start if applicable */
+    trialStart: v.optional(v.number()),
+    trialEnd: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_stripe_subscription", ["stripeSubscriptionId"])
+    .index("by_user_status", ["userId", "status"]),
 });

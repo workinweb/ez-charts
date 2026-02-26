@@ -33,7 +33,7 @@ export function BuyCustomCreditsDialog({
 
   const settings = useQuery(api.userSettings.get, open ? {} : "skip");
   const planTier = (settings?.planTier ?? "free") as "free" | "pro" | "max";
-  const recordPurchase = useMutation(api.creditPurchases.record);
+  const recordPurchase = useMutation(api.credits.creditPurchases.record);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 

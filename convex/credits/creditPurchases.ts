@@ -4,7 +4,7 @@
  * Usage:
  *
  * 1. Record a purchase (from BuyCustomCreditsDialog after payment success):
- *    await convex.mutation(api.creditPurchases.record, {
+ *    await convex.mutation(api.credits.creditPurchases.record, {
  *      credits: 100,
  *      planTier: "pro",
  *      amountCents: 250,  // $2.50
@@ -14,10 +14,10 @@
  *    });
  *
  * 2. List user's purchase history:
- *    const purchases = useQuery(api.creditPurchases.list, { limit: 20 });
+ *    const purchases = useQuery(api.credits.creditPurchases.list, { limit: 20 });
  *
  * 3. Record without adding to balance (tracking only):
- *    await convex.mutation(api.creditPurchases.record, {
+ *    await convex.mutation(api.credits.creditPurchases.record, {
  *      credits: 50,
  *      planTier: "free",
  *      source: "promo",
@@ -25,7 +25,7 @@
  *    });
  */
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query } from "../_generated/server";
 
 const planTierValidator = v.union(
   v.literal("free"),

@@ -8,7 +8,7 @@ import type { Slide } from "@/lib/slide-utils";
 
 /** List all slide decks for the current user from Convex. */
 export function useSlidesList(): { slides: Slide[]; isLoading: boolean } {
-  const list = useQuery(api.slides.list);
+  const list = useQuery(api.charts.slides.list);
   const slides = list?.map(convexSlideToSlide) ?? [];
   const isLoading = list === undefined;
   return { slides, isLoading };
@@ -17,7 +17,7 @@ export function useSlidesList(): { slides: Slide[]; isLoading: boolean } {
 /** Single slide by ID from Convex. */
 export function useSlideById(id: Id<"slides"> | string | undefined): Slide | undefined {
   const doc = useQuery(
-    api.slides.get,
+    api.charts.slides.get,
     id && typeof id === "string" && !id.startsWith("auto-")
       ? { id: id as Id<"slides"> }
       : "skip"
@@ -32,7 +32,7 @@ export function useSlideByIdWithStatus(id: Id<"slides"> | string | undefined): {
   isNotFound: boolean;
 } {
   const doc = useQuery(
-    api.slides.get,
+    api.charts.slides.get,
     id && typeof id === "string" && !id.startsWith("auto-")
       ? { id: id as Id<"slides"> }
       : "skip"
@@ -46,9 +46,9 @@ export function useSlideByIdWithStatus(id: Id<"slides"> | string | undefined): {
 
 /** Slide deck mutations: create, update, remove. */
 export function useSlidesMutations() {
-  const createMutation = useMutation(api.slides.create);
-  const updateMutation = useMutation(api.slides.update);
-  const removeMutation = useMutation(api.slides.remove);
+  const createMutation = useMutation(api.charts.slides.create);
+  const updateMutation = useMutation(api.charts.slides.update);
+  const removeMutation = useMutation(api.charts.slides.remove);
 
   return {
     create: async (input: { name: string; chartIds: string[] }) => {

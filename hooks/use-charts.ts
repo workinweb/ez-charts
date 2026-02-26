@@ -3,9 +3,9 @@
 import { usePaginatedQuery, useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
-import { convexChartToUserChart } from "@/lib/chart-utils";
-import { fromChartKey } from "@/lib/chart-keys";
-import type { UserChart } from "@/lib/charts-data";
+import { convexChartToUserChart } from "@/lib/chart/chart-utils";
+import { fromChartKey } from "@/lib/chart/chart-keys";
+import type { UserChart } from "@/lib/chart/charts-data";
 import { useChartsStore } from "@/stores/charts-store";
 
 const PAGE_SIZE = 12;
@@ -13,9 +13,9 @@ const PAGE_SIZE = 12;
 /** Paginated charts list from Convex. Per-user. */
 export function useChartsPaginated() {
   const result = usePaginatedQuery(
-    api.charts.listPaginated,
+    api.charts.charts.listPaginated,
     {},
-    { initialNumItems: PAGE_SIZE }
+    { initialNumItems: PAGE_SIZE },
   );
   return {
     ...result,
@@ -25,27 +25,27 @@ export function useChartsPaginated() {
 
 /** Single chart by ID from Convex (for persisted charts). */
 export function useChartFromConvex(
-  id: Id<"charts"> | string | undefined
+  id: Id<"charts"> | string | undefined,
 ): UserChart | undefined {
   const chart = useQuery(
-    api.charts.get,
+    api.charts.charts.get,
     id && typeof id === "string" && !id.startsWith("unsaved-")
       ? { id: id as Id<"charts"> }
-      : "skip"
+      : "skip",
   );
   return chart ? convexChartToUserChart(chart) : undefined;
 }
 
 /** All charts (non-paginated) for components that need full list (slides, recent). */
 export function useChartsList() {
-  const list = useQuery(api.charts.list);
+  const list = useQuery(api.charts.charts.list);
   return list?.map(convexChartToUserChart) ?? [];
 }
 
 /** Chart by ID — checks unsaved first, then Convex. Use for edit/view. */
 export function useChartById(id: string | undefined): UserChart | undefined {
   const unsaved = useChartsStore((s) =>
-    id ? s.unsavedCharts.find((c) => c.id === id) : undefined
+    id ? s.unsavedCharts.find((c) => c.id === id) : undefined,
   );
   const convexChart = useChartFromConvex(id);
   return unsaved ?? convexChart ?? undefined;
@@ -58,13 +58,13 @@ export function useChartByIdWithStatus(id: string | undefined): {
   isNotFound: boolean;
 } {
   const unsaved = useChartsStore((s) =>
-    id ? s.unsavedCharts.find((c) => c.id === id) : undefined
+    id ? s.unsavedCharts.find((c) => c.id === id) : undefined,
   );
   const convexResult = useQuery(
-    api.charts.get,
+    api.charts.charts.get,
     id && typeof id === "string" && !id.startsWith("unsaved-")
       ? { id: id as Id<"charts"> }
-      : "skip"
+      : "skip",
   );
   const isConvexId = !!id && !id.startsWith("unsaved-");
   const isLoading = isConvexId && convexResult === undefined;
@@ -80,7 +80,7 @@ export function useChartsFavorites(): {
   items: ReturnType<typeof convexChartToUserChart>[];
   isLoading: boolean;
 } {
-  const list = useQuery(api.charts.listFavorites);
+  const list = useQuery(api.charts.charts.listFavorites);
   const items = list?.map(convexChartToUserChart) ?? [];
   const isLoading = list === undefined;
   return { items, isLoading };
@@ -88,11 +88,11 @@ export function useChartsFavorites(): {
 
 /** Chart mutations: create, update, remove, toggleFavorite, duplicate. */
 export function useChartsMutations() {
-  const createMutation = useMutation(api.charts.create);
-  const updateMutation = useMutation(api.charts.update);
-  const removeMutation = useMutation(api.charts.remove);
-  const toggleFavoriteMutation = useMutation(api.charts.toggleFavorite);
-  const duplicateMutation = useMutation(api.charts.duplicate);
+  const createMutation = useMutation(api.charts.charts.create);
+  const updateMutation = useMutation(api.charts.charts.update);
+  const removeMutation = useMutation(api.charts.charts.remove);
+  const toggleFavoriteMutation = useMutation(api.charts.charts.toggleFavorite);
+  const duplicateMutation = useMutation(api.charts.charts.duplicate);
 
   return {
     create: async (input: {
@@ -129,7 +129,7 @@ export function useChartsMutations() {
         data?: unknown;
         withTooltip?: boolean;
         withAnimation?: boolean;
-      }
+      },
     ) => {
       const { chartType: patchType, ...rest } = patch;
       const updates: Record<string, unknown> = { id, ...rest };

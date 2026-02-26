@@ -19,7 +19,7 @@ import { ChartLibrarySelector } from "@/components/chart-library-selector";
 import {
   getChartTypesByLibrary,
   isShadcnChartType,
-} from "@/lib/chart-registry";
+} from "@/lib/chart/chart-registry";
 import { cn } from "@/lib/utils";
 
 interface ChartPreviewProps {
@@ -51,10 +51,7 @@ export function ChartPreview({
     const compatible =
       sameLibrary &&
       fromRosencharts &&
-      isChartTypeCompatible(
-        chartType as ChartTypeKey,
-        key as ChartTypeKey,
-      );
+      isChartTypeCompatible(chartType as ChartTypeKey, key as ChartTypeKey);
     if (compatible) return false;
     if (sameLibrary && isShadcnChartType(key)) {
       const shadcnCartesian = ["shadcn:bar", "shadcn:area", "shadcn:line"];
@@ -63,9 +60,7 @@ export function ChartPreview({
       const toCartesian = shadcnCartesian.includes(key);
       const fromPieLike = shadcnPieLike.includes(chartType);
       const toPieLike = shadcnPieLike.includes(key);
-      return !(
-        (fromCartesian && toCartesian) || (fromPieLike && toPieLike)
-      );
+      return !((fromCartesian && toCartesian) || (fromPieLike && toPieLike));
     }
     return true;
   };
@@ -77,10 +72,7 @@ export function ChartPreview({
     const compatible =
       sameLibrary &&
       fromRosencharts &&
-      isChartTypeCompatible(
-        chartType as ChartTypeKey,
-        newType as ChartTypeKey,
-      );
+      isChartTypeCompatible(chartType as ChartTypeKey, newType as ChartTypeKey);
     if (compatible) {
       const transformed = transformChartData(
         data,
@@ -95,10 +87,7 @@ export function ChartPreview({
       const toCartesian = shadcnCartesian.includes(newType);
       const fromPieLike = shadcnPieLike.includes(chartType);
       const toPieLike = shadcnPieLike.includes(newType);
-      if (
-        (fromCartesian && toCartesian) ||
-        (fromPieLike && toPieLike)
-      ) {
+      if ((fromCartesian && toCartesian) || (fromPieLike && toPieLike)) {
         onChartTypeChange(newType, data);
       } else {
         onIncompatibleType(newType);
@@ -110,8 +99,8 @@ export function ChartPreview({
   };
 
   const currentLabel =
-    getChartTypesByLibrary().rosencharts
-      .concat(getChartTypesByLibrary().shadcn)
+    getChartTypesByLibrary()
+      .rosencharts.concat(getChartTypesByLibrary().shadcn)
       .find((c) => c.key === chartType)?.label ?? "Select chart type";
 
   return (
@@ -138,10 +127,7 @@ export function ChartPreview({
             <Label className="text-[12px] font-medium text-[#3D4035]/60">
               Chart type
             </Label>
-            <Popover
-              open={chartPopoverOpen}
-              onOpenChange={setChartPopoverOpen}
-            >
+            <Popover open={chartPopoverOpen} onOpenChange={setChartPopoverOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"

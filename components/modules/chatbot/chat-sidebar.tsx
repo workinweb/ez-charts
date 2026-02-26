@@ -30,7 +30,7 @@ import { PROMPT_EXAMPLES } from "@/lib/prompt-examples";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
 import { useFeatureCheck } from "@/hooks/use-feature-check";
-import { getChartTypesByLibrary } from "@/lib/chart-registry";
+import { getChartTypesByLibrary } from "@/lib/chart/chart-registry";
 import { cn } from "@/lib/utils";
 import { useChatbotStore } from "@/stores/chatbot-store";
 import { useSectionStore } from "@/stores/section-store";
@@ -170,7 +170,7 @@ export function ChatSidebarContent() {
   const setChartFeedbackStore = useChatbotStore((s) => s.setChartFeedback);
   const conversationId = useChatbotStore((s) => s.conversationId);
   const updateChartResultFeedback = useMutation(
-    api.chat.updateChartResultFeedback,
+    api.chat.chat.updateChartResultFeedback,
   );
   const { canUse } = useFeatureCheck();
   const chatAllowed = canUse("chat");

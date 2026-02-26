@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { DEFAULT_CHART_KEY } from "@/lib/chart-registry";
+import { DEFAULT_CHART_KEY } from "@/lib/chart/chart-registry";
 
 export interface AttachedFile {
   file: File;
@@ -46,7 +46,10 @@ interface ChatbotState {
 
   setInput: (value: string) => void;
   setConversationId: (id: string | null) => void;
-  setChartFeedback: (messageId: string, value: "liked" | "disliked" | null) => void;
+  setChartFeedback: (
+    messageId: string,
+    value: "liked" | "disliked" | null,
+  ) => void;
   clearChartFeedback: () => void;
   clearConversation: () => void;
   addFiles: (files: FileList | File[]) => void;
@@ -106,8 +109,7 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
 
   clearChartFeedback: () => set({ chartFeedbackMap: {} }),
 
-  clearConversation: () =>
-    set({ conversationId: null, chartFeedbackMap: {} }),
+  clearConversation: () => set({ conversationId: null, chartFeedbackMap: {} }),
 
   addFiles: (files) => {
     const newFiles = Array.from(files).map((file) => ({
@@ -160,8 +162,7 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
       ),
     })),
 
-  setAttachedChartContext: (context) =>
-    set({ attachedChartContext: context }),
+  setAttachedChartContext: (context) => set({ attachedChartContext: context }),
 
   addLoadedDocument: (doc) =>
     set((s) => ({

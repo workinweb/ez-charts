@@ -13,7 +13,7 @@ import {
   Minimize2,
 } from "lucide-react";
 import { AlertCircle } from "lucide-react";
-import { renderChart } from "@/lib/chart-render";
+import { renderChart } from "@/lib/chart/chart-render";
 import { useChartByIdWithStatus } from "@/hooks/use-charts";
 import { useSlideById, useSlideByIdWithStatus } from "@/hooks/use-slides";
 import { Button } from "@/components/ui/button";
@@ -269,18 +269,18 @@ export default function SlideViewPage() {
                 height: `${chartScale}%`,
               }}
             >
-            {currentChart && (
-              <div className="shrink-0 text-center">
-                <h2 className="text-xl font-semibold text-[#3D4035] sm:text-2xl">
-                  {currentChart.title}
-                </h2>
-                <p className="mt-1 text-[13px] text-[#3D4035]/50">
-                  {currentChart.source} · {currentChart.date}
-                </p>
-              </div>
-            )}
-            <div className="flex min-h-0 flex-1 flex-col rounded-[28px] bg-white/90 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
-              <div className="flex min-h-[320px] flex-1 w-full">
+              {currentChart && (
+                <div className="shrink-0 text-center">
+                  <h2 className="text-xl font-semibold text-[#3D4035] sm:text-2xl">
+                    {currentChart.title}
+                  </h2>
+                  <p className="mt-1 text-[13px] text-[#3D4035]/50">
+                    {currentChart.source} · {currentChart.date}
+                  </p>
+                </div>
+              )}
+              <div className="flex min-h-0 flex-1 flex-col rounded-[28px] bg-white/90 p-5 shadow-sm ring-1 ring-black/[0.02] sm:rounded-[40px] sm:p-8">
+                <div className="flex min-h-[320px] flex-1 w-full">
                   {chartLoading ? (
                     <div className="flex h-[360px] w-full flex-col items-center justify-center gap-3">
                       <div className="size-8 animate-spin rounded-full border-2 border-[#6C5DD3]/20 border-t-[#6C5DD3]" />
@@ -316,10 +316,10 @@ export default function SlideViewPage() {
                   ) : (
                     chartEl
                   )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
         </div>
 
         {/* Next button */}

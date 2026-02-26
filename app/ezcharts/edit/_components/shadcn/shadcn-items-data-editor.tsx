@@ -5,7 +5,10 @@ import { Plus, Trash2, GripVertical, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { unwrapShadcnData, wrapShadcnData } from "@/lib/shadcn-chart-data";
+import {
+  unwrapShadcnData,
+  wrapShadcnData,
+} from "@/lib/chart/shadcn-chart-data";
 import { FieldRow } from "../field-row";
 
 const SHADCN_CARTESIAN = ["shadcn:bar", "shadcn:area", "shadcn:line"];
@@ -58,14 +61,14 @@ export function ShadcnItemsDataEditor({
       next[idx] = merged;
       updateRows(next);
     },
-    [rows, updateRows]
+    [rows, updateRows],
   );
 
   const removeRow = useCallback(
     (idx: number) => {
       updateRows(rows.filter((_, i) => i !== idx));
     },
-    [rows, updateRows]
+    [rows, updateRows],
   );
 
   const addRow = useCallback(() => {
@@ -80,7 +83,7 @@ export function ShadcnItemsDataEditor({
       ? Object.keys(sample).filter(
           (k) =>
             k !== catKey &&
-            typeof (sample as Record<string, unknown>)[k] === "number"
+            typeof (sample as Record<string, unknown>)[k] === "number",
         )
       : getDefaultNumericKeys(chartType);
 
@@ -90,7 +93,9 @@ export function ShadcnItemsDataEditor({
           ? `Subject ${rows.length + 1}`
           : `Row ${rows.length + 1}`,
     };
-    for (const k of numKeys.length ? numKeys : getDefaultNumericKeys(chartType)) {
+    for (const k of numKeys.length
+      ? numKeys
+      : getDefaultNumericKeys(chartType)) {
       defaults[k] = 0;
     }
     updateRows([...rows, defaults]);
@@ -141,7 +146,7 @@ export function ShadcnItemsDataEditor({
 }
 
 function getWrappedIfNeeded(
-  data: unknown
+  data: unknown,
 ): { _data: unknown; _seriesColors?: Record<string, string> } | null {
   if (data && typeof data === "object" && "_data" in data) {
     return data as { _data: unknown; _seriesColors?: Record<string, string> };
@@ -168,9 +173,7 @@ function ShadcnItemRow({
 
   const catKey = getCategoryKey(chartType);
   const label =
-    (item[catKey] as string) ??
-    (item.name as string) ??
-    `#${index + 1}`;
+    (item[catKey] as string) ?? (item.name as string) ?? `#${index + 1}`;
 
   return (
     <div className="min-w-0 rounded-xl bg-white/60 ring-1 ring-black/[0.03]">
@@ -186,7 +189,7 @@ function ShadcnItemRow({
         <ChevronDown
           className={cn(
             "size-4 text-[#3D4035]/30 transition-transform",
-            expanded && "rotate-180"
+            expanded && "rotate-180",
           )}
         />
       </button>

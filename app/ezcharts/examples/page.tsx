@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { renderChart } from "@/lib/chart-render";
+import { renderChart } from "@/lib/chart/chart-render";
 import { data } from "@/components/charts/rosencharts/fixture/exampleChartsData";
 import { shadcnExampleData } from "@/components/charts/shadcn-charts/fixture/exampleChartsData";
-import { LIBRARY_DISPLAY } from "@/lib/chart-keys";
+import { LIBRARY_DISPLAY } from "@/lib/chart/chart-keys";
 
 const TABS = [
   { id: "rosencharts", label: LIBRARY_DISPLAY.rosencharts },
@@ -26,7 +26,8 @@ export default function ExamplesPage() {
               Chart Examples
             </h1>
             <p className="text-sm text-muted-foreground sm:text-base">
-              All available chart types — {LIBRARY_DISPLAY.rosencharts} and {LIBRARY_DISPLAY.shadcn}
+              All available chart types — {LIBRARY_DISPLAY.rosencharts} and{" "}
+              {LIBRARY_DISPLAY.shadcn}
             </p>
 
             <div className="flex gap-1 rounded-xl bg-muted/50 p-1">

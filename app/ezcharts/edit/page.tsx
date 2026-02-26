@@ -4,7 +4,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { api } from "@/convex/_generated/api";
 import { useChartByIdWithStatus, useChartsMutations } from "@/hooks/use-charts";
 import { useFeatureCheck } from "@/hooks/use-feature-check";
-import { renderChart } from "@/lib/chart-render";
+import { renderChart } from "@/lib/chart/chart-render";
 import { useChartsStore } from "@/stores/charts-store";
 import { useChatbotStore } from "@/stores/chatbot-store";
 import { useQuery } from "convex/react";
@@ -57,11 +57,8 @@ function EditChartContent() {
   const chartAllowed = canUse("createChart");
   const removeUnsavedChart = useChartsStore((s) => s.removeUnsavedChart);
   const userSettings = useQuery(api.userSettings.get);
-  const {
-    setAttachedChartContext,
-    setSelectedChartKey,
-    setChatSidebarView,
-  } = useChatbotStore();
+  const { setAttachedChartContext, setSelectedChartKey, setChatSidebarView } =
+    useChatbotStore();
 
   const isCreateMode = !chartId;
 

@@ -1,17 +1,23 @@
 "use client";
 
-import { createContext, useContext, useCallback, useEffect, useRef } from "react";
+import {
+  createContext,
+  useContext,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
 import { useChat } from "@ai-sdk/react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { generateChartImageUrl } from "@/lib/chart-image-utils";
+import { generateChartImageUrl } from "@/lib/chart/chart-image-utils";
 import type {
   AttachedChartContext,
   LoadedDocument,
 } from "@/stores/chatbot-store";
 import { useChatbotStore } from "@/stores/chatbot-store";
 import { useChartsStore } from "@/stores/charts-store";
-import { fromChartKey } from "@/lib/chart-keys";
+import { fromChartKey } from "@/lib/chart/chart-keys";
 
 type UseChatReturn = ReturnType<typeof useChat>;
 
@@ -35,7 +41,9 @@ interface ChatContextValue {
   addFiles: (files: FileList | File[]) => void;
   removeFile: (index: number) => void;
   clearFiles: () => void;
-  attachedChartContext: ReturnType<typeof useChatbotStore.getState>["attachedChartContext"];
+  attachedChartContext: ReturnType<
+    typeof useChatbotStore.getState
+  >["attachedChartContext"];
   setAttachedChartContext: (ctx: AttachedChartContext | null) => void;
   /** Chart that will be sent with next message (explicit attach or current from AI Builds) */
   effectiveChartContext: EffectiveChartContext | null;
@@ -75,7 +83,12 @@ interface SerializedMessage {
 /** Parse structured output from text (JSON with message, chartType, title, data) */
 function parseStructuredOutput(
   text: string,
-): { message?: string; chartType?: string; title?: string; data?: unknown } | null {
+): {
+  message?: string;
+  chartType?: string;
+  title?: string;
+  data?: unknown;
+} | null {
   try {
     const parsed = JSON.parse(text) as Record<string, unknown>;
     if (parsed && typeof parsed === "object") return parsed;
@@ -217,10 +230,10 @@ function extractChartFromMessage(msg: {
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const chat = useChat();
-  const createConversationMutation = useMutation(api.chat.createConversation);
-  const addMessageMutation = useMutation(api.chat.addMessage);
-  const documentsCreate = useMutation(api.documents.create);
-  const generateUploadUrl = useMutation(api.documents.generateUploadUrl);
+  const createConversationMutation = useMutation(api.chat.chat.createConversation);
+  const addMessageMutation = useMutation(api.chat.chat.addMessage);
+  const documentsCreate = useMutation(api.documents.documents.create);
+  const generateUploadUrl = useMutation(api.documents.documents.generateUploadUrl);
   const {
     input,
     setInput,
@@ -248,10 +261,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const processedMessageIds = useRef<Set<string>>(new Set());
 
   /** Current chart from AI Builds history — the one user has selected (or latest). Used when no explicit attachedChartContext. */
-  const currentChartFromHistory =
-    previewChartId
-      ? unsavedCharts.find((c) => c.id === previewChartId)
-      : unsavedCharts[unsavedCharts.length - 1] ?? null;
+  const currentChartFromHistory = previewChartId
+    ? unsavedCharts.find((c) => c.id === previewChartId)
+    : (unsavedCharts[unsavedCharts.length - 1] ?? null);
   const syncedMessageIds = useRef<Set<string>>(new Set());
   const syncInProgress = useRef(false);
 
@@ -264,8 +276,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     }
     const lastMsg = messages[messages.length - 1];
     const isStreaming = status === "streaming" || status === "submitted";
-    const lastIncomplete =
-      lastMsg?.role === "assistant" && isStreaming;
+    const lastIncomplete = lastMsg?.role === "assistant" && isStreaming;
 
     const toSync: (typeof messages)[number][] = [];
     for (const msg of messages) {
@@ -297,7 +308,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             setConversationId(convId);
           }
           await addMessageMutation({
-            conversationId: convId as import("@/convex/_generated/dataModel").Id<"chatConversations">,
+            conversationId:
+              convId as import("@/convex/_generated/dataModel").Id<"chatConversations">,
             message,
             result: result ?? undefined,
           });
@@ -337,9 +349,15 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       e?.preventDefault();
       const trimmed = input.trim();
       const hasFiles = attachedFiles.some((f) => f.parsedContent);
-      const chartContext = attachedChartContext ?? (currentChartFromHistory
-        ? { title: currentChartFromHistory.title, chartType: currentChartFromHistory.chartType, data: currentChartFromHistory.data }
-        : null);
+      const chartContext =
+        attachedChartContext ??
+        (currentChartFromHistory
+          ? {
+              title: currentChartFromHistory.title,
+              chartType: currentChartFromHistory.chartType,
+              data: currentChartFromHistory.data,
+            }
+          : null);
       const hasChart = !!chartContext;
       const hasLoadedDocs = loadedDocuments.length > 0;
 
@@ -359,7 +377,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       }
       if (hasLoadedDocs) {
         const docParts = loadedDocuments.map(
-          (d) => `[Loaded document: ${d.name}]\n${d.content}`
+          (d) => `[Loaded document: ${d.name}]\n${d.content}`,
         );
         contextParts.push(...docParts);
       }
@@ -369,7 +387,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       }
       if (contextParts.length > 0) {
         const combined = contextParts.join("\n\n");
-        messageText = messageText ? `${messageText}\n\n---\n${combined}` : combined;
+        messageText = messageText
+          ? `${messageText}\n\n---\n${combined}`
+          : combined;
       }
 
       // Auto-save attached files to Convex when Save documents on DB is enabled
@@ -379,7 +399,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             const uploadUrl = await generateUploadUrl();
             const res = await fetch(uploadUrl, {
               method: "POST",
-              headers: { "Content-Type": af.file.type || "application/octet-stream" },
+              headers: {
+                "Content-Type": af.file.type || "application/octet-stream",
+              },
               body: af.file,
             });
             if (!res.ok) continue;
@@ -398,7 +420,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      const chartKey = selectedChartKey ?? (hasChart ? chartContext!.chartType : undefined);
+      const chartKey =
+        selectedChartKey ?? (hasChart ? chartContext!.chartType : undefined);
       chat.sendMessage(
         { text: messageText },
         chartKey ? { body: { selectedChartKey: chartKey } } : undefined,
@@ -434,12 +457,25 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setAttachedChartContext(null);
     syncedMessageIds.current.clear();
     processedMessageIds.current.clear();
-  }, [chat, clearConversation, clearLoadedDocuments, setInput, clearFiles, setAttachedChartContext]);
+  }, [
+    chat,
+    clearConversation,
+    clearLoadedDocuments,
+    setInput,
+    clearFiles,
+    setAttachedChartContext,
+  ]);
 
   const effectiveChartContext: EffectiveChartContext | null = (() => {
-    const ctx = attachedChartContext ?? (currentChartFromHistory
-      ? { title: currentChartFromHistory.title, chartType: currentChartFromHistory.chartType, data: currentChartFromHistory.data }
-      : null);
+    const ctx =
+      attachedChartContext ??
+      (currentChartFromHistory
+        ? {
+            title: currentChartFromHistory.title,
+            chartType: currentChartFromHistory.chartType,
+            data: currentChartFromHistory.data,
+          }
+        : null);
     if (!ctx) return null;
     return {
       ...ctx,

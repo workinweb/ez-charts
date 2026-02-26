@@ -1,20 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import type { Id } from "@/convex/_generated/dataModel";
-import {
-  OPINION_CATEGORIES,
-  CATEGORY_LABELS,
-  type OpinionCategory,
-} from "@/convex/opinions";
-import { authClient } from "@/lib/(auth)/auth-client";
+import { LandingNavbar } from "@/components/landing/sections/navbar-section";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +12,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { PaginationControls } from "@/components/ui/pagination-controls";
 import {
   Select,
   SelectContent,
@@ -31,13 +21,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { PaginationControls } from "@/components/ui/pagination-controls";
-import { MessageSquare, ThumbsUp, Loader2, Search, Plus } from "lucide-react";
-import { DEFAULT_PAGE_SIZE } from "@/hooks/use-pagination";
+import { Textarea } from "@/components/ui/textarea";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
+import {
+  CATEGORY_LABELS,
+  OPINION_CATEGORIES,
+  type OpinionCategory,
+} from "@/convex/opinions/opinions";
 import { usePagination } from "@/hooks/use-pagination";
-import { LandingNavbar } from "@/components/landing/sections/navbar-section";
+import { authClient } from "@/lib/(auth)/auth-client";
 import { cn } from "@/lib/utils";
+import { useMutation, useQuery } from "convex/react";
+import { Loader2, MessageSquare, Plus, Search, ThumbsUp } from "lucide-react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 
 const LEGACY_CATEGORY_LABELS: Record<string, string> = {
   feature: "New idea or suggestion",
@@ -164,16 +162,16 @@ export default function OpinionsPage() {
   );
   const [formError, setFormError] = useState("");
 
-  const opinions = useQuery(api.opinions.list, {
+  const opinions = useQuery(api.opinions.opinions.list, {
     category: category === "all" ? undefined : category,
     limit: 150,
     orderBy,
   });
   const myUpvotes = useQuery(
-    api.opinions.listMyUpvotes,
+    api.opinions.opinions.listMyUpvotes,
     session?.user ? {} : "skip",
   );
-  const toggleUpvote = useMutation(api.opinions.toggleUpvote);
+  const toggleUpvote = useMutation(api.opinions.opinions.toggleUpvote);
 
   const filtered = useMemo(() => {
     if (!opinions) return [];

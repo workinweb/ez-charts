@@ -1,7 +1,7 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
-import { authComponent } from "./betterAuth/auth";
-import type { Id } from "./_generated/dataModel";
+import { mutation, query } from "../_generated/server";
+import { authComponent } from "../betterAuth/auth";
+import type { Id } from "../_generated/dataModel";
 
 export const OPINION_CATEGORIES = [
   "idea",

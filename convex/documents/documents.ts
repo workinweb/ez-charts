@@ -1,6 +1,10 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
-import { TIER_LIMITS, type PlanTier } from "./tierLimits";
+import { mutation, query } from "../_generated/server";
+import {
+  getEffectiveTier,
+  TIER_LIMITS,
+  type PlanTier,
+} from "../tiers/tierLimits";
 
 // ─── Queries ────────────────────────────────────────────────────────────────
 
@@ -11,12 +15,26 @@ export const list = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return [];
     const userId = identity.subject;
-    const all = await ctx.db
-      .query("documents")
-      .withIndex("by_user_created", (q) => q.eq("userId", userId))
-      .order("desc")
-      .collect();
-    return all.filter((d) => d.isVisible !== false && d.blockedByTier !== true);
+    const [all, settings] = await Promise.all([
+      ctx.db
+        .query("documents")
+        .withIndex("by_user_created", (q) => q.eq("userId", userId))
+        .order("desc")
+        .collect(),
+      ctx.db
+        .query("userSettings")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .unique(),
+    ]);
+    const visible = all.filter(
+      (d) => d.isVisible !== false && d.blockedByTier !== true,
+    );
+    const effectiveTier = getEffectiveTier(settings);
+    const limit = TIER_LIMITS[effectiveTier].maxDocuments;
+    if (limit < Infinity && visible.length > limit) {
+      return visible.slice(0, limit);
+    }
+    return visible;
   },
 });
 
@@ -42,9 +60,28 @@ export const get = query({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return null;
-    const doc = await ctx.db.get(args.id);
+    const [doc, settings] = await Promise.all([
+      ctx.db.get(args.id),
+      ctx.db
+        .query("userSettings")
+        .withIndex("by_user", (q) => q.eq("userId", identity.subject))
+        .unique(),
+    ]);
     if (!doc || doc.userId !== identity.subject) return null;
-    if (doc.isVisible === false) return null;
+    if (doc.isVisible === false || doc.blockedByTier === true) return null;
+    const effectiveTier = getEffectiveTier(settings);
+    const limit = TIER_LIMITS[effectiveTier].maxDocuments;
+    if (limit < Infinity) {
+      const all = await ctx.db
+        .query("documents")
+        .withIndex("by_user_created", (q) => q.eq("userId", identity.subject))
+        .order("desc")
+        .collect();
+      const inLimit = all
+        .filter((d) => d.isVisible !== false && d.blockedByTier !== true)
+        .slice(0, limit);
+      if (!inLimit.some((d) => d._id === args.id)) return null;
+    }
     return doc;
   },
 });
@@ -58,6 +95,23 @@ export const getDownloadUrl = query({
     const doc = await ctx.db.get(args.id);
     if (!doc || doc.userId !== identity.subject) return null;
     if (doc.isVisible === false || doc.blockedByTier === true) return null;
+    const settings = await ctx.db
+      .query("userSettings")
+      .withIndex("by_user", (q) => q.eq("userId", identity.subject))
+      .unique();
+    const effectiveTier = getEffectiveTier(settings);
+    const limit = TIER_LIMITS[effectiveTier].maxDocuments;
+    if (limit < Infinity) {
+      const all = await ctx.db
+        .query("documents")
+        .withIndex("by_user_created", (q) => q.eq("userId", identity.subject))
+        .order("desc")
+        .collect();
+      const inLimit = all
+        .filter((d) => d.isVisible !== false && d.blockedByTier !== true)
+        .slice(0, limit);
+      if (!inLimit.some((d) => d._id === args.id)) return null;
+    }
     if (!doc.storageId) return null;
     return ctx.storage.getUrl(doc.storageId);
   },
@@ -83,8 +137,8 @@ export const create = mutation({
       .query("userSettings")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .unique();
-    const tier = (settings?.planTier ?? "free") as PlanTier;
-    const maxDocuments = TIER_LIMITS[tier].maxDocuments;
+    const effectiveTier = getEffectiveTier(settings);
+    const maxDocuments = TIER_LIMITS[effectiveTier].maxDocuments;
     if (maxDocuments === 0) {
       throw new Error(
         "Document storage is not available on the Free plan. Upgrade to Pro to save documents.",
@@ -95,10 +149,12 @@ export const create = mutation({
         .query("documents")
         .withIndex("by_user", (q) => q.eq("userId", userId))
         .collect();
-      const visible = existing.filter((d) => d.isVisible !== false && d.blockedByTier !== true);
+      const visible = existing.filter(
+        (d) => d.isVisible !== false && d.blockedByTier !== true,
+      );
       if (visible.length >= maxDocuments) {
         throw new Error(
-          `Document limit reached (${maxDocuments} for ${tier} plan). Upgrade to save more.`,
+          `Document limit reached (${maxDocuments} for ${effectiveTier} plan). Upgrade to save more.`,
         );
       }
     }

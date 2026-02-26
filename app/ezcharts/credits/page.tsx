@@ -50,13 +50,13 @@ export default function CreditsPage() {
     status: usageStatus,
     loadMore: loadMoreUsage,
   } = usePaginatedQuery(
-    api.creditUsage.listUsagePaginated,
+    api.credits.creditUsage.listUsagePaginated,
     session?.user ? {} : "skip",
     { initialNumItems: PAGE_SIZE },
   );
 
   const purchases = useQuery(
-    api.creditPurchases.list,
+    api.credits.creditPurchases.list,
     session?.user ? { limit: 10 } : "skip",
   );
 
