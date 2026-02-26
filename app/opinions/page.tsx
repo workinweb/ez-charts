@@ -261,7 +261,7 @@ export default function OpinionsPage() {
                   </Button>
                 </DialogTrigger>
                 <DialogContent
-                  className="gap-0 overflow-hidden rounded-3xl border-0 bg-gradient-to-b from-white to-[#F8F7FF] p-0 shadow-2xl shadow-[#6C5DD3]/10 ring-1 ring-[#6C5DD3]/10"
+                  className="max-h-[90dvh] gap-0 overflow-y-auto overflow-x-hidden rounded-3xl border-0 bg-gradient-to-b from-white to-[#F8F7FF] p-0 shadow-2xl shadow-[#6C5DD3]/10 ring-1 ring-[#6C5DD3]/10"
                   style={{ maxWidth: "min(896px, 90vw)" }}
                 >
                   <div className="px-10 pt-10 pb-8">
