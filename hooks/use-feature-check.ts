@@ -21,7 +21,7 @@ export interface FeatureCheckResult {
 export function useFeatureCheck() {
   const { data: session } = authClient.useSession();
   const tierUsage = useQuery(
-    api.planLimits.tierUsage,
+    api.tiers.planLimits.tierUsage,
     session?.user ? {} : "skip",
   );
 

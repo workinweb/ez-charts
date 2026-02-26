@@ -8,12 +8,13 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { authClient } from "@/lib/(auth)/auth-client";
 import { TIER_DOC, TIER_LIMITS, type PlanTier } from "@/lib/tiers/tier-limits";
 import { cn } from "@/lib/utils";
-import { ArrowRight, Coins, Zap } from "lucide-react";
+import { ArrowRight, Coins, Loader2, Zap } from "lucide-react";
 import { useState } from "react";
+import { CancelSubscriptionModal } from "./cancel-subscription-modal";
 import { DowngradeLimitModal } from "./downgrade-limit-modal";
 
 export type { PlanTier };
@@ -37,14 +38,20 @@ interface PlansDialogProps {
 export function PlansDialog({ open, onOpenChange }: PlansDialogProps) {
   const { data: session } = authClient.useSession();
   const settings = useQuery(api.userSettings.get, session?.user ? {} : "skip");
-  const charts = useQuery(api.charts.list, session?.user ? {} : "skip");
-  const slides = useQuery(api.slides.list, session?.user ? {} : "skip");
-  const documents = useQuery(api.documents.list, session?.user ? {} : "skip");
-  const hasBlockedItems = useQuery(
-    api.planLimits.hasBlockedItems,
+  const activeSubscription = useQuery(
+    api.stripe.subscriptions.getActive,
+    session?.user ? {} : "skip",
+  );
+  const charts = useQuery(api.charts.charts.list, session?.user ? {} : "skip");
+  const slides = useQuery(api.charts.slides.list, session?.user ? {} : "skip");
+  const documents = useQuery(
+    api.documents.documents.list,
     session?.user ? {} : "skip",
   );
   const upsertPlan = useMutation(api.userSettings.upsert);
+  const createCheckout = useAction(api.stripe.stripe.createCheckoutSession);
+  const [checkoutLoading, setCheckoutLoading] = useState<PlanTier | null>(null);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [downgradeModal, setDowngradeModal] = useState<{
     open: boolean;
     targetTier: PlanTier;
@@ -75,10 +82,15 @@ export function PlansDialog({ open, onOpenChange }: PlansDialogProps) {
       (tier === "pro" && currentTier === "free") ||
       (tier === "max" && currentTier !== "max");
 
-    const needsSelectionModal =
-      (isDowngrade && hasOverflowForTier(tier)) ||
-      (isUpgrade && hasBlockedItems === true);
+    // Paid user downgrading → show Cancel modal (no "choose what stays")
+    const hasPaidSub = !!(settings?.stripeCustomerId ?? activeSubscription);
+    if (isDowngrade && hasPaidSub) {
+      setCancelModalOpen(true);
+      return;
+    }
 
+    // Promo tier (no Stripe) downgrading with overflow → choose what stays
+    const needsSelectionModal = isDowngrade && hasOverflowForTier(tier);
     if (needsSelectionModal) {
       const plan = PLANS.find((p) => p.tier === tier);
       setDowngradeModal({
@@ -86,13 +98,65 @@ export function PlansDialog({ open, onOpenChange }: PlansDialogProps) {
         targetTier: tier,
         targetLabel: plan?.label ?? tier,
       });
-    } else {
+      return;
+    }
+
+    // Paid upgrade → Stripe Checkout (cancel old sub first if Pro→Max)
+    if (isUpgrade && (tier === "pro" || tier === "max")) {
       try {
-        await upsertPlan({ planTier: tier });
-        onOpenChange(false);
-      } catch {
-        // Error handling - could add toast
+        setCheckoutLoading(tier);
+        const base =
+          typeof window !== "undefined" ? window.location.origin : "";
+        const subscriptionId =
+          settings?.stripeSubscriptionId ??
+          activeSubscription?.stripeSubscriptionId;
+        const customerId =
+          settings?.stripeCustomerId ??
+          activeSubscription?.stripeCustomerId;
+        const isProToMax = currentTier === "pro" && tier === "max";
+
+        const { url } = await createCheckout({
+          plan: tier,
+          successUrl: `${base}/ezcharts/user?checkout=success`,
+          cancelUrl: `${base}/ezcharts/user`,
+          ...(isProToMax && subscriptionId && customerId
+            ? {
+                stripeCustomerId: customerId,
+                subscriptionIdToCancel: subscriptionId,
+              }
+            : {}),
+        });
+        if (url) window.location.assign(url);
+      } catch (err) {
+        console.error("Checkout error:", err);
+        setCheckoutLoading(null);
       }
+      return;
+    }
+
+    // Downgrade from paid plan without overflow → handled by Cancel modal
+    // Downgrade from promo tier (no Stripe) without overflow → direct update
+    if (isDowngrade && (currentTier === "pro" || currentTier === "max")) {
+      const customerId = settings?.stripeCustomerId;
+      if (!customerId) {
+        try {
+          await upsertPlan({ planTier: tier });
+          onOpenChange(false);
+        } catch {
+          // Error handling
+        }
+        return;
+      }
+      // Has customerId — cancel modal already shown above
+      return;
+    }
+
+    // Free tier selection → direct update
+    try {
+      await upsertPlan({ planTier: tier });
+      onOpenChange(false);
+    } catch {
+      // Error handling - could add toast
     }
   }
 
@@ -112,15 +176,12 @@ export function PlansDialog({ open, onOpenChange }: PlansDialogProps) {
             </p>
           </DialogHeader>
 
-          <div className="flex min-w-0 px-2 flex-wrap justify-center gap-5 sm:gap-6 lg:gap-8">
+          <div className="flex min-w-0 px-2 py-2 flex-wrap justify-center gap-5 sm:gap-6 lg:gap-8">
             {PLANS.map((plan) => {
               const isCurrent = currentTier === plan.tier;
               const isUpgrade =
                 (plan.tier === "pro" && currentTier === "free") ||
                 (plan.tier === "max" && currentTier !== "max");
-              const isDowngrade =
-                (plan.tier === "free" && currentTier !== "free") ||
-                (plan.tier === "pro" && currentTier === "max");
               const isPro = plan.tier === "pro";
 
               return (
@@ -183,6 +244,7 @@ export function PlansDialog({ open, onOpenChange }: PlansDialogProps) {
                         <Button
                           size="sm"
                           onClick={() => handleSelectPlan(plan.tier)}
+                          disabled={checkoutLoading !== null}
                           className={cn(
                             "gap-2 rounded-xl text-[13px] sm:text-[14px] font-semibold px-4 py-2",
                             isPro
@@ -192,8 +254,14 @@ export function PlansDialog({ open, onOpenChange }: PlansDialogProps) {
                                 : "border border-[#3D4035]/25 bg-transparent text-[#3D4035]/80 hover:bg-[#3D4035]/5",
                           )}
                         >
-                          {isUpgrade ? "Upgrade" : "Downgrade"}
-                          <ArrowRight className="size-3" />
+                          {checkoutLoading === plan.tier ? (
+                            <Loader2 className="size-3 animate-spin" />
+                          ) : (
+                            <>
+                              {isUpgrade ? "Upgrade" : "Cancel"}
+                              <ArrowRight className="size-3" />
+                            </>
+                          )}
                         </Button>
                       ) : (
                         <span
@@ -232,15 +300,31 @@ export function PlansDialog({ open, onOpenChange }: PlansDialogProps) {
               );
             })}
           </div>
+
+          <p className="mt-6 text-[12px] sm:text-[13px] text-[#3D4035]/55 text-center max-w-xl mx-auto">
+            Upgrading replaces your current plan. Unused credits from your
+            previous plan do not carry over—you&apos;ll receive the new
+            plan&apos;s credits.
+          </p>
         </div>
       </DialogContent>
 
+      <CancelSubscriptionModal
+        open={cancelModalOpen}
+        onOpenChange={setCancelModalOpen}
+        onSuccess={() => onOpenChange(false)}
+        stripeCustomerId={
+          settings?.stripeCustomerId ??
+          activeSubscription?.stripeCustomerId
+        }
+      />
       <DowngradeLimitModal
         open={downgradeModal.open}
         onOpenChange={(o) => setDowngradeModal((p) => ({ ...p, open: o }))}
         targetTier={downgradeModal.targetTier}
         targetTierLabel={downgradeModal.targetLabel}
         onSuccess={() => onOpenChange(false)}
+        hasPaidSubscription={false}
       />
     </Dialog>
   );

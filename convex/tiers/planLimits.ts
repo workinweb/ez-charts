@@ -1,6 +1,10 @@
 import { v } from "convex/values";
-import { mutation, query } from "../_generated/server";
-import { TIER_LIMITS, type PlanTier } from "../tiers/tierLimits";
+import { internalMutation, mutation, query } from "../_generated/server";
+import {
+  getEffectiveTier,
+  TIER_LIMITS,
+  type PlanTier,
+} from "../tiers/tierLimits";
 
 const planTierValidator = v.union(
   v.literal("free"),
@@ -46,23 +50,29 @@ export const tierUsage = query({
         .unique(),
     ]);
 
-    const planTier = (settings?.planTier ?? "free") as PlanTier;
-    const limits = TIER_LIMITS[planTier];
-    const creditsLimit = TIER_LIMITS[planTier].credits;
+    const effectiveTier = getEffectiveTier(settings);
+    const limits = TIER_LIMITS[effectiveTier];
+    const creditsLimit = TIER_LIMITS[effectiveTier].credits;
 
-    const chartsUsed = charts.filter(
+    const visibleCharts = charts.filter(
       (c) => c.isVisible !== false && c.blockedByTier !== true,
-    ).length;
-    const slidesUsed = slides.filter(
+    );
+    const visibleSlides = slides.filter(
       (s) => s.isVisible !== false && s.blockedByTier !== true,
-    ).length;
-    const documentsUsed = documents.filter(
+    );
+    const visibleDocs = documents.filter(
       (d) => d.isVisible !== false && d.blockedByTier !== true,
-    ).length;
+    );
+
+    const chartsUsed = visibleCharts.length;
+    const slidesUsed = visibleSlides.length;
+    const documentsUsed = visibleDocs.length;
     const creditsUsed = settings?.credits ?? creditsLimit;
 
     return {
-      planTier,
+      planTier: effectiveTier,
+      tierAvailableUntil: settings?.tierAvailableUntil ?? undefined,
+      scheduledDowngradeTier: settings?.scheduledDowngradeTier ?? undefined,
       chartsUsed,
       chartsLimit: limits.maxCharts,
       slidesUsed,
@@ -241,6 +251,8 @@ export const applyDowngradeSelection = mutation({
         planTier: args.targetTier,
         credits: TIER_LIMITS[args.targetTier].credits,
         renewDate,
+        tierAvailableUntil: undefined,
+        scheduledDowngradeTier: undefined,
         updatedAt: Date.now(),
       });
     } else {
@@ -250,6 +262,92 @@ export const applyDowngradeSelection = mutation({
         credits: TIER_LIMITS[args.targetTier].credits,
         renewDate,
         updatedAt: Date.now(),
+      });
+    }
+  },
+});
+
+/**
+ * Cron: finalize downgrades when tierAvailableUntil has passed.
+ * Sets planTier, clears tierAvailableUntil/scheduledDowngradeTier,
+ * and blocks excess items (keeping newest by createdAt).
+ */
+export const finalizeExpiredDowngrades = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now();
+    const allSettings = await ctx.db.query("userSettings").collect();
+    const expired = allSettings.filter(
+      (s) =>
+        s.tierAvailableUntil != null &&
+        s.tierAvailableUntil < now,
+    );
+    for (const settings of expired) {
+      const targetTier = (settings.scheduledDowngradeTier ?? "free") as PlanTier;
+      const limit = TIER_LIMITS[targetTier];
+
+      const [charts, slides, documents] = await Promise.all([
+        ctx.db
+          .query("charts")
+          .withIndex("by_user", (q) => q.eq("userId", settings.userId))
+          .collect(),
+        ctx.db
+          .query("slides")
+          .withIndex("by_user", (q) => q.eq("userId", settings.userId))
+          .collect(),
+        ctx.db
+          .query("documents")
+          .withIndex("by_user", (q) => q.eq("userId", settings.userId))
+          .collect(),
+      ]);
+
+      const visibleCharts = charts
+        .filter((c) => c.isVisible !== false && c.blockedByTier !== true)
+        .sort((a, b) => b.createdAt - a.createdAt);
+      const visibleSlides = slides
+        .filter((s) => s.isVisible !== false && s.blockedByTier !== true)
+        .sort((a, b) => b.createdAt - a.createdAt);
+      const visibleDocs = documents
+        .filter((d) => d.isVisible !== false && d.blockedByTier !== true)
+        .sort((a, b) => b.createdAt - a.createdAt);
+
+      const keepCharts = new Set(
+        visibleCharts.slice(0, limit.maxCharts).map((c) => c._id),
+      );
+      const keepSlides = new Set(
+        visibleSlides.slice(0, limit.maxSlides).map((s) => s._id),
+      );
+      const keepDocs = new Set(
+        visibleDocs.slice(0, limit.maxDocuments).map((d) => d._id),
+      );
+
+      for (const c of visibleCharts) {
+        await ctx.db.patch(c._id, {
+          blockedByTier: !keepCharts.has(c._id),
+          updatedAt: now,
+        });
+      }
+      for (const s of visibleSlides) {
+        await ctx.db.patch(s._id, {
+          blockedByTier: !keepSlides.has(s._id),
+          updatedAt: now,
+        });
+      }
+      for (const d of visibleDocs) {
+        await ctx.db.patch(d._id, {
+          blockedByTier: !keepDocs.has(d._id),
+          updatedAt: now,
+        });
+      }
+
+      await ctx.db.patch(settings._id, {
+        planTier: targetTier,
+        credits: TIER_LIMITS[targetTier].credits,
+        renewDate: undefined,
+        tierAvailableUntil: undefined,
+        scheduledDowngradeTier: undefined,
+        stripeSubscriptionId: undefined,
+        updatedAt: now,
       });
     }
   },

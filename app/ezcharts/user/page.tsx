@@ -37,7 +37,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import {
   BarChart3,
   Check,
@@ -143,9 +143,11 @@ export default function UserPage() {
   const setSaveDocumentsOnDb = useChatbotStore((s) => s.setSaveDocumentsOnDb);
 
   const savedSettings = useQuery(api.userSettings.get);
-  const tierUsage = useQuery(api.planLimits.tierUsage);
+  const tierUsage = useQuery(api.tiers.planLimits.tierUsage);
   const upsertSettings = useMutation(api.userSettings.upsert);
+  const createBillingPortal = useAction(api.stripe.stripe.createBillingPortalSession);
   const [saving, setSaving] = useState(false);
+  const [billingPortalLoading, setBillingPortalLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [plansDialogOpen, setPlansDialogOpen] = useState(false);
   const [buyCreditsDialogOpen, setBuyCreditsDialogOpen] = useState(false);
@@ -339,6 +341,37 @@ export default function UserPage() {
                 >
                   Change plan
                 </Button>
+                {savedSettings?.stripeCustomerId && (
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      try {
+                        setBillingPortalLoading(true);
+                        const base =
+                          typeof window !== "undefined"
+                            ? window.location.origin
+                            : "";
+                        const customerId = savedSettings?.stripeCustomerId;
+                        if (!customerId) return;
+                        const { url } = await createBillingPortal({
+                          returnUrl: `${base}/ezcharts/user`,
+                          stripeCustomerId: customerId,
+                        });
+                        if (url) window.location.href = url;
+                      } finally {
+                        setBillingPortalLoading(false);
+                      }
+                    }}
+                    disabled={billingPortalLoading}
+                    className="rounded-xl border-[#3D4035]/25 px-4 py-2 text-[14px] font-semibold text-[#3D4035] hover:bg-[#3D4035]/5"
+                  >
+                    {billingPortalLoading ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      "Manage billing"
+                    )}
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   onClick={() => setBuyCreditsDialogOpen(true)}

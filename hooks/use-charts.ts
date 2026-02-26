@@ -13,7 +13,7 @@ const PAGE_SIZE = 12;
 /** Paginated charts list from Convex. Per-user. */
 export function useChartsPaginated() {
   const result = usePaginatedQuery(
-    api.charts.listPaginated,
+    api.charts.charts.listPaginated,
     {},
     { initialNumItems: PAGE_SIZE },
   );
@@ -28,7 +28,7 @@ export function useChartFromConvex(
   id: Id<"charts"> | string | undefined,
 ): UserChart | undefined {
   const chart = useQuery(
-    api.charts.get,
+    api.charts.charts.get,
     id && typeof id === "string" && !id.startsWith("unsaved-")
       ? { id: id as Id<"charts"> }
       : "skip",
@@ -38,7 +38,7 @@ export function useChartFromConvex(
 
 /** All charts (non-paginated) for components that need full list (slides, recent). */
 export function useChartsList() {
-  const list = useQuery(api.charts.list);
+  const list = useQuery(api.charts.charts.list);
   return list?.map(convexChartToUserChart) ?? [];
 }
 
@@ -61,7 +61,7 @@ export function useChartByIdWithStatus(id: string | undefined): {
     id ? s.unsavedCharts.find((c) => c.id === id) : undefined,
   );
   const convexResult = useQuery(
-    api.charts.get,
+    api.charts.charts.get,
     id && typeof id === "string" && !id.startsWith("unsaved-")
       ? { id: id as Id<"charts"> }
       : "skip",
@@ -80,7 +80,7 @@ export function useChartsFavorites(): {
   items: ReturnType<typeof convexChartToUserChart>[];
   isLoading: boolean;
 } {
-  const list = useQuery(api.charts.listFavorites);
+  const list = useQuery(api.charts.charts.listFavorites);
   const items = list?.map(convexChartToUserChart) ?? [];
   const isLoading = list === undefined;
   return { items, isLoading };
@@ -88,11 +88,11 @@ export function useChartsFavorites(): {
 
 /** Chart mutations: create, update, remove, toggleFavorite, duplicate. */
 export function useChartsMutations() {
-  const createMutation = useMutation(api.charts.create);
-  const updateMutation = useMutation(api.charts.update);
-  const removeMutation = useMutation(api.charts.remove);
-  const toggleFavoriteMutation = useMutation(api.charts.toggleFavorite);
-  const duplicateMutation = useMutation(api.charts.duplicate);
+  const createMutation = useMutation(api.charts.charts.create);
+  const updateMutation = useMutation(api.charts.charts.update);
+  const removeMutation = useMutation(api.charts.charts.remove);
+  const toggleFavoriteMutation = useMutation(api.charts.charts.toggleFavorite);
+  const duplicateMutation = useMutation(api.charts.charts.duplicate);
 
   return {
     create: async (input: {

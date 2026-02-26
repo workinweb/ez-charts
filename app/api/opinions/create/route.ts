@@ -1,8 +1,10 @@
 import { ajOpinions } from "@/arcject/config";
 import { api } from "@/convex/_generated/api";
 import { fetchAuthMutation, fetchAuthQuery } from "@/lib/(auth)/auth-server";
-import { OPINION_CATEGORIES } from "@/convex/opinions";
-import type { OpinionCategory } from "@/convex/opinions";
+import {
+  OPINION_CATEGORIES,
+  type OpinionCategory,
+} from "@/convex/opinions/opinions";
 import { NextResponse } from "next/server";
 
 export const maxDuration = 30;
@@ -10,7 +12,7 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
   try {
     // Auth check — need userId for Arcjet and Convex
-    const userId = await fetchAuthQuery(api.opinions.getCurrentUserId);
+    const userId = await fetchAuthQuery(api.opinions.opinions.getCurrentUserId);
     if (!userId) {
       return NextResponse.json(
         { error: "Sign in to submit feedback." },
@@ -62,7 +64,7 @@ export async function POST(req: Request) {
         ? categoryCustom.trim().slice(0, 60)
         : undefined;
 
-    const opinionId = await fetchAuthMutation(api.opinions.create, {
+    const opinionId = await fetchAuthMutation(api.opinions.opinions.create, {
       content: contentStr,
       category: category as OpinionCategory,
       categoryCustom: categoryCustomStr,

@@ -3,6 +3,32 @@
  */
 export type PlanTier = "free" | "pro" | "max";
 
+/** Settings shape needed to compute effective tier (from userSettings). */
+export type SettingsForEffectiveTier = {
+  planTier?: PlanTier | null;
+  tierAvailableUntil?: number | null;
+  scheduledDowngradeTier?: PlanTier | null;
+};
+
+/**
+ * Effective tier for limits and display. When a paid user schedules downgrade
+ * (cancel_at_period_end), they keep full access until tierAvailableUntil.
+ * After that, we use scheduledDowngradeTier. If user renews, we clear those
+ * and use planTier.
+ */
+export function getEffectiveTier(
+  settings: SettingsForEffectiveTier | null,
+  now: number = Date.now(),
+): PlanTier {
+  const tier = (settings?.planTier ?? "free") as PlanTier;
+  const until = settings?.tierAvailableUntil;
+  const scheduled = (settings?.scheduledDowngradeTier ?? "free") as PlanTier;
+  if (until != null && now >= until) {
+    return scheduled;
+  }
+  return tier;
+}
+
 export const TIER_LIMITS = {
   free: {
     credits: 100,

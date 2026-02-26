@@ -17,7 +17,7 @@ export function useDashboardStats(): {
   stats: DashboardStats;
   isLoading: boolean;
 } {
-  const result = useQuery(api.charts.dashboardStats);
+  const result = useQuery(api.charts.charts.dashboardStats);
   const isLoading = result === undefined;
   const stats: DashboardStats = result ?? {
     totalCharts: 0,

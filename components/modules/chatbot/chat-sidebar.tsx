@@ -170,7 +170,7 @@ export function ChatSidebarContent() {
   const setChartFeedbackStore = useChatbotStore((s) => s.setChartFeedback);
   const conversationId = useChatbotStore((s) => s.conversationId);
   const updateChartResultFeedback = useMutation(
-    api.chat.updateChartResultFeedback,
+    api.chat.chat.updateChartResultFeedback,
   );
   const { canUse } = useFeatureCheck();
   const chatAllowed = canUse("chat");

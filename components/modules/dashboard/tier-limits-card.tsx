@@ -53,7 +53,7 @@ const ITEMS = [
 ] as const;
 
 export function TierLimitsCard() {
-  const usage = useQuery(api.planLimits.tierUsage);
+  const usage = useQuery(api.tiers.planLimits.tierUsage);
   const isLoading = usage === undefined;
 
   const planTier = usage?.planTier ?? "free";

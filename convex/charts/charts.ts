@@ -2,7 +2,11 @@ import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import { LIBRARY_DISPLAY } from "../../lib/chart/chart-keys";
-import { TIER_LIMITS, type PlanTier } from "../tiers/tierLimits";
+import {
+  getEffectiveTier,
+  TIER_LIMITS,
+  type PlanTier,
+} from "../tiers/tierLimits";
 
 // ─── Queries ────────────────────────────────────────────────────────────────
 
@@ -13,12 +17,26 @@ export const list = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return [];
     const userId = identity.subject;
-    const all = await ctx.db
-      .query("charts")
-      .withIndex("by_user_created", (q) => q.eq("userId", userId))
-      .order("desc")
-      .collect();
-    return all.filter((c) => c.isVisible !== false && c.blockedByTier !== true);
+    const [all, settings] = await Promise.all([
+      ctx.db
+        .query("charts")
+        .withIndex("by_user_created", (q) => q.eq("userId", userId))
+        .order("desc")
+        .collect(),
+      ctx.db
+        .query("userSettings")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .unique(),
+    ]);
+    const visible = all.filter(
+      (c) => c.isVisible !== false && c.blockedByTier !== true,
+    );
+    const effectiveTier = getEffectiveTier(settings);
+    const limit = TIER_LIMITS[effectiveTier].maxCharts;
+    if (limit < Infinity && visible.length > limit) {
+      return visible.slice(0, limit);
+    }
+    return visible;
   },
 });
 
@@ -69,9 +87,30 @@ export const get = query({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return null;
-    const chart = await ctx.db.get(args.id);
+    const [chart, settings] = await Promise.all([
+      ctx.db.get(args.id),
+      ctx.db
+        .query("userSettings")
+        .withIndex("by_user", (q) => q.eq("userId", identity.subject))
+        .unique(),
+    ]);
     if (!chart || chart.userId !== identity.subject) return null;
     if (chart.isVisible === false || chart.blockedByTier === true) return null;
+    const effectiveTier = getEffectiveTier(settings);
+    const limit = TIER_LIMITS[effectiveTier].maxCharts;
+    if (limit < Infinity) {
+      const visibleCharts = await ctx.db
+        .query("charts")
+        .withIndex("by_user_created", (q) => q.eq("userId", identity.subject))
+        .order("desc")
+        .collect();
+      const inLimit = visibleCharts
+        .filter(
+          (c) => c.isVisible !== false && c.blockedByTier !== true,
+        )
+        .slice(0, limit);
+      if (!inLimit.some((c) => c._id === args.id)) return null;
+    }
     return chart;
   },
 });
@@ -83,13 +122,26 @@ export const listFavorites = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return [];
     const userId = identity.subject;
-    const all = await ctx.db
-      .query("charts")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .collect();
-    return all.filter(
+    const [all, settings] = await Promise.all([
+      ctx.db
+        .query("charts")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .collect(),
+      ctx.db
+        .query("userSettings")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .unique(),
+    ]);
+    const visible = all.filter(
       (c) => c.favorited && c.isVisible !== false && c.blockedByTier !== true,
     );
+    const effectiveTier = getEffectiveTier(settings);
+    const limit = TIER_LIMITS[effectiveTier].maxCharts;
+    if (limit < Infinity && visible.length > limit) {
+      const byCreated = visible.sort((a, b) => b.createdAt - a.createdAt);
+      return byCreated.slice(0, limit);
+    }
+    return visible;
   },
 });
 
@@ -251,8 +303,8 @@ export const create = mutation({
       .query("userSettings")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .unique();
-    const tier = (settings?.planTier ?? "free") as PlanTier;
-    const maxCharts = TIER_LIMITS[tier].maxCharts;
+    const effectiveTier = getEffectiveTier(settings);
+    const maxCharts = TIER_LIMITS[effectiveTier].maxCharts;
     if (maxCharts < Infinity) {
       const existing = await ctx.db
         .query("charts")
@@ -263,7 +315,7 @@ export const create = mutation({
       );
       if (visible.length >= maxCharts) {
         throw new Error(
-          `Chart limit reached (${maxCharts} for ${tier} plan). Upgrade to save more charts.`,
+          `Chart limit reached (${maxCharts} for ${effectiveTier} plan). Upgrade to save more charts.`,
         );
       }
     }
@@ -348,8 +400,8 @@ export const duplicate = mutation({
       .query("userSettings")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .unique();
-    const tier = (settings?.planTier ?? "free") as PlanTier;
-    const maxCharts = TIER_LIMITS[tier].maxCharts;
+    const effectiveTier = getEffectiveTier(settings);
+    const maxCharts = TIER_LIMITS[effectiveTier].maxCharts;
     if (maxCharts < Infinity) {
       const existing = await ctx.db
         .query("charts")
@@ -360,7 +412,7 @@ export const duplicate = mutation({
       );
       if (visible.length >= maxCharts) {
         throw new Error(
-          `Chart limit reached (${maxCharts} for ${tier} plan). Upgrade to save more charts.`,
+          `Chart limit reached (${maxCharts} for ${effectiveTier} plan). Upgrade to save more charts.`,
         );
       }
     }

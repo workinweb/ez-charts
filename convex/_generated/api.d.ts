@@ -8,21 +8,23 @@
  * @module
  */
 
-import type * as auth from "../auth.js";
 import type * as betterAuth_auth from "../betterAuth/auth.js";
 import type * as betterAuth_sendEmail from "../betterAuth/sendEmail.js";
-import type * as charts from "../charts/charts.js";
-import type * as chat from "../chat/chat.js";
-import type * as chatCreditsConfig from "../credits/chatCreditsConfig.js";
-import type * as chatStats from "../chat/chatStats.js";
-import type * as creditPurchases from "../credits/creditPurchases.js";
-import type * as creditUsage from "../credits/creditUsage.js";
-import type * as documents from "../documents/documents.js";
+import type * as charts_charts from "../charts/charts.js";
+import type * as charts_slides from "../charts/slides.js";
+import type * as chat_chat from "../chat/chat.js";
+import type * as chat_chatStats from "../chat/chatStats.js";
+import type * as credits_chatCreditsConfig from "../credits/chatCreditsConfig.js";
+import type * as credits_creditPurchases from "../credits/creditPurchases.js";
+import type * as credits_creditUsage from "../credits/creditUsage.js";
+import type * as crons from "../crons.js";
+import type * as documents_documents from "../documents/documents.js";
 import type * as http from "../http.js";
-import type * as opinions from "../opinions.js";
-import type * as planLimits from "../tiers/planLimits.js";
-import type * as slides from "../charts/slides.js";
-import type * as tierLimits from "../tiers/tierLimits.js";
+import type * as opinions_opinions from "../opinions/opinions.js";
+import type * as stripe_stripe from "../stripe/stripe.js";
+import type * as stripe_subscriptions from "../stripe/subscriptions.js";
+import type * as tiers_planLimits from "../tiers/planLimits.js";
+import type * as tiers_tierLimits from "../tiers/tierLimits.js";
 import type * as userSettings from "../userSettings.js";
 
 import type {
@@ -32,21 +34,23 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-  auth: typeof auth;
   "betterAuth/auth": typeof betterAuth_auth;
   "betterAuth/sendEmail": typeof betterAuth_sendEmail;
-  charts: typeof charts;
-  chat: typeof chat;
-  chatCreditsConfig: typeof chatCreditsConfig;
-  chatStats: typeof chatStats;
-  creditPurchases: typeof creditPurchases;
-  creditUsage: typeof creditUsage;
-  documents: typeof documents;
+  "charts/charts": typeof charts_charts;
+  "charts/slides": typeof charts_slides;
+  "chat/chat": typeof chat_chat;
+  "chat/chatStats": typeof chat_chatStats;
+  "credits/chatCreditsConfig": typeof credits_chatCreditsConfig;
+  "credits/creditPurchases": typeof credits_creditPurchases;
+  "credits/creditUsage": typeof credits_creditUsage;
+  crons: typeof crons;
+  "documents/documents": typeof documents_documents;
   http: typeof http;
-  opinions: typeof opinions;
-  planLimits: typeof planLimits;
-  slides: typeof slides;
-  tierLimits: typeof tierLimits;
+  "opinions/opinions": typeof opinions_opinions;
+  "stripe/stripe": typeof stripe_stripe;
+  "stripe/subscriptions": typeof stripe_subscriptions;
+  "tiers/planLimits": typeof tiers_planLimits;
+  "tiers/tierLimits": typeof tiers_tierLimits;
   userSettings: typeof userSettings;
 }>;
 

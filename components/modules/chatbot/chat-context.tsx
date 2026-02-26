@@ -230,10 +230,10 @@ function extractChartFromMessage(msg: {
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const chat = useChat();
-  const createConversationMutation = useMutation(api.chat.createConversation);
-  const addMessageMutation = useMutation(api.chat.addMessage);
-  const documentsCreate = useMutation(api.documents.create);
-  const generateUploadUrl = useMutation(api.documents.generateUploadUrl);
+  const createConversationMutation = useMutation(api.chat.chat.createConversation);
+  const addMessageMutation = useMutation(api.chat.chat.addMessage);
+  const documentsCreate = useMutation(api.documents.documents.create);
+  const generateUploadUrl = useMutation(api.documents.documents.generateUploadUrl);
   const {
     input,
     setInput,

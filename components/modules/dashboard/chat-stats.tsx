@@ -6,7 +6,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
 export function ChatStats() {
-  const stats = useQuery(api.chatStats.stats);
+  const stats = useQuery(api.chat.chatStats.stats);
   const isLoading = stats === undefined;
   const conversationsCount = stats?.conversationsCount ?? 0;
   const userMessagesCount = stats?.userMessagesCount ?? 0;

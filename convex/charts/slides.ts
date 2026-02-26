@@ -1,6 +1,10 @@
 import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
-import { TIER_LIMITS, type PlanTier } from "../tiers/tierLimits";
+import {
+  getEffectiveTier,
+  TIER_LIMITS,
+  type PlanTier,
+} from "../tiers/tierLimits";
 
 // ─── Queries ────────────────────────────────────────────────────────────────
 
@@ -11,12 +15,26 @@ export const list = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return [];
     const userId = identity.subject;
-    const all = await ctx.db
-      .query("slides")
-      .withIndex("by_user_created", (q) => q.eq("userId", userId))
-      .order("desc")
-      .collect();
-    return all.filter((s) => s.isVisible !== false && s.blockedByTier !== true);
+    const [all, settings] = await Promise.all([
+      ctx.db
+        .query("slides")
+        .withIndex("by_user_created", (q) => q.eq("userId", userId))
+        .order("desc")
+        .collect(),
+      ctx.db
+        .query("userSettings")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .unique(),
+    ]);
+    const visible = all.filter(
+      (s) => s.isVisible !== false && s.blockedByTier !== true,
+    );
+    const effectiveTier = getEffectiveTier(settings);
+    const limit = TIER_LIMITS[effectiveTier].maxSlides;
+    if (limit < Infinity && visible.length > limit) {
+      return visible.slice(0, limit);
+    }
+    return visible;
   },
 });
 
@@ -42,9 +60,28 @@ export const get = query({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return null;
-    const slide = await ctx.db.get(args.id);
+    const [slide, settings] = await Promise.all([
+      ctx.db.get(args.id),
+      ctx.db
+        .query("userSettings")
+        .withIndex("by_user", (q) => q.eq("userId", identity.subject))
+        .unique(),
+    ]);
     if (!slide || slide.userId !== identity.subject) return null;
     if (slide.isVisible === false || slide.blockedByTier === true) return null;
+    const effectiveTier = getEffectiveTier(settings);
+    const limit = TIER_LIMITS[effectiveTier].maxSlides;
+    if (limit < Infinity) {
+      const all = await ctx.db
+        .query("slides")
+        .withIndex("by_user_created", (q) => q.eq("userId", identity.subject))
+        .order("desc")
+        .collect();
+      const inLimit = all
+        .filter((s) => s.isVisible !== false && s.blockedByTier !== true)
+        .slice(0, limit);
+      if (!inLimit.some((s) => s._id === args.id)) return null;
+    }
     return slide;
   },
 });
@@ -66,8 +103,8 @@ export const create = mutation({
       .query("userSettings")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .unique();
-    const tier = (settings?.planTier ?? "free") as PlanTier;
-    const maxSlides = TIER_LIMITS[tier].maxSlides;
+    const effectiveTier = getEffectiveTier(settings);
+    const maxSlides = TIER_LIMITS[effectiveTier].maxSlides;
     if (maxSlides < Infinity) {
       const existing = await ctx.db
         .query("slides")
@@ -78,7 +115,7 @@ export const create = mutation({
       );
       if (visible.length >= maxSlides) {
         throw new Error(
-          `Slide deck limit reached (${maxSlides} for ${tier} plan). Upgrade to save more.`,
+          `Slide deck limit reached (${maxSlides} for ${effectiveTier} plan). Upgrade to save more.`,
         );
       }
     }
