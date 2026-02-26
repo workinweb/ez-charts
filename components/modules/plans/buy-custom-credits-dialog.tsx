@@ -10,11 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
-import { useMutation, useQuery } from "convex/react";
+import { useAction } from "convex/react";
 import { ArrowRight, Coins, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 const CREDITS_PER_DOLLAR = 40;
+
+/** Stripe minimum is $0.50 — show minimum credits in UI */
+const MIN_CREDITS_FOR_STRIPE = Math.ceil((50 / 100) * CREDITS_PER_DOLLAR);
 
 interface BuyCustomCreditsDialogProps {
   open: boolean;
@@ -29,11 +32,9 @@ export function BuyCustomCreditsDialog({
   const [error, setError] = useState<string | null>(null);
   const credits = Math.max(0, parseInt(creditsInput, 10) || 0);
   const priceDollars = credits / CREDITS_PER_DOLLAR;
-  const canContinue = credits >= 1;
+  const canContinue = credits >= MIN_CREDITS_FOR_STRIPE;
 
-  const settings = useQuery(api.userSettings.get, open ? {} : "skip");
-  const planTier = (settings?.planTier ?? "free") as "free" | "pro" | "max";
-  const recordPurchase = useMutation(api.credits.creditPurchases.record);
+  const createCheckout = useAction(api.stripe.stripe.createCreditPurchaseCheckout);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -42,16 +43,16 @@ export function BuyCustomCreditsDialog({
     setError(null);
     setIsSubmitting(true);
     try {
-      await recordPurchase({
+      const base =
+        typeof window !== "undefined" ? window.location.origin : "";
+      const { url } = await createCheckout({
         credits,
-        planTier,
-        amountCents: Math.round(priceDollars * 100),
-        currency: "usd",
-        source: "one_time",
+        successUrl: `${base}/ezcharts/credits?checkout=success`,
+        cancelUrl: `${base}/ezcharts/credits`,
       });
-      onOpenChange(false);
+      if (url) window.location.assign(url);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to add credits");
+      setError(e instanceof Error ? e.message : "Failed to start checkout");
     } finally {
       setIsSubmitting(false);
     }
@@ -72,7 +73,8 @@ export function BuyCustomCreditsDialog({
             Buy custom credits
           </DialogTitle>
           <p className="text-[13px] text-[#3D4035]/55">
-            Add credits on demand at {CREDITS_PER_DOLLAR} credits per dollar.
+            Add credits on demand at {CREDITS_PER_DOLLAR} credits per dollar
+            (min. {MIN_CREDITS_FOR_STRIPE} credits).
           </p>
         </DialogHeader>
 
@@ -87,7 +89,7 @@ export function BuyCustomCreditsDialog({
             <Input
               id="credits-input"
               type="number"
-              min={1}
+              min={MIN_CREDITS_FOR_STRIPE}
               step={10}
               placeholder="e.g. 100"
               value={creditsInput}

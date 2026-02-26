@@ -96,6 +96,73 @@ export const createCheckoutSession = action({
   },
 });
 
+/** Credits per dollar for one-time purchases (must match buy-custom-credits-dialog) */
+const CREDITS_PER_DOLLAR = 40;
+
+/** Stripe minimum charge is $0.50 USD */
+const MIN_AMOUNT_CENTS = 50;
+
+/**
+ * Create a Stripe Checkout session for one-time credit purchase.
+ * Returns the URL to redirect the user to. On payment success, the webhook
+ * (payment_intent.succeeded) adds credits and records in creditPurchases.
+ */
+export const createCreditPurchaseCheckout = action({
+  args: {
+    credits: v.number(),
+    successUrl: v.string(),
+    cancelUrl: v.string(),
+  },
+  handler: async (ctx, { credits, successUrl, cancelUrl }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const userId = identity.subject;
+    const email = identity.email ?? undefined;
+
+    const stripeKey = process.env.STRIPE_SECRET_KEY;
+    if (!stripeKey) throw new Error("Stripe is not configured");
+
+    if (credits < 1) throw new Error("Credits must be at least 1");
+
+    const priceDollars = credits / CREDITS_PER_DOLLAR;
+    const amountCents = Math.round(priceDollars * 100);
+    if (amountCents < MIN_AMOUNT_CENTS) {
+      throw new Error(
+        `Minimum charge is $${(MIN_AMOUNT_CENTS / 100).toFixed(2)}. Purchase at least ${Math.ceil((MIN_AMOUNT_CENTS / 100) * CREDITS_PER_DOLLAR)} credits.`,
+      );
+    }
+
+    const stripe = new Stripe(stripeKey);
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: `${credits} credits`,
+              description: `One-time purchase of ${credits} credits for Ez Charts (${CREDITS_PER_DOLLAR} credits per dollar)`,
+            },
+            unit_amount: amountCents,
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      metadata: { userId, credits: String(credits) },
+      payment_intent_data: {
+        metadata: { userId, credits: String(credits) },
+      },
+      customer_email: email,
+    });
+
+    if (!session.url) throw new Error("Failed to create checkout session");
+    return { url: session.url };
+  },
+});
+
 /**
  * Create a Stripe Billing Portal session for managing subscription.
  * Pass stripeCustomerId from client (from userSettings.get) to avoid circular deps.

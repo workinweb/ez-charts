@@ -92,6 +92,28 @@ http.route({
             );
             await processSub(sub, session.metadata?.userId as string | undefined);
           }
+          // One-time credit purchase — session has metadata + payment_intent for idempotency
+          if (session.mode === "payment" && session.payment_status === "paid") {
+            const userId = session.metadata?.userId as string | undefined;
+            const creditsStr = session.metadata?.credits as string | undefined;
+            const credits = creditsStr ? parseInt(creditsStr, 10) : NaN;
+            const paymentIntentId =
+              typeof session.payment_intent === "string"
+                ? session.payment_intent
+                : (session.payment_intent as Stripe.PaymentIntent)?.id;
+            if (userId && !isNaN(credits) && credits > 0 && paymentIntentId) {
+              await ctx.runMutation(
+                internal.stripe.stripe.addCreditsFromPaymentIntent,
+                {
+                  userId,
+                  credits,
+                  paymentIntentId,
+                  amountCents: session.amount_total ?? undefined,
+                  currency: session.currency ?? undefined,
+                },
+              );
+            }
+          }
           break;
         }
         case "customer.subscription.created":
