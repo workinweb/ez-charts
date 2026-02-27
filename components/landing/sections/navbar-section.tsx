@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useChatbotStore } from "@/stores/chatbot-store";
 import { cn } from "@/lib/utils";
 import { authClient } from "@/lib/(auth)/auth-client";
 import { Button } from "@/components/ui/button";
@@ -212,6 +213,7 @@ export function LandingNavbar() {
                     <button
                       type="button"
                       onClick={async () => {
+                        useChatbotStore.getState().clearFiles();
                         await authClient.signOut();
                         router.push("/");
                       }}
@@ -303,6 +305,7 @@ export function LandingNavbar() {
                   <DropdownMenuSeparator className="my-1" />
                   <DropdownMenuItem
                     onSelect={async () => {
+                      useChatbotStore.getState().clearFiles();
                       await authClient.signOut();
                       router.push("/");
                     }}

@@ -12,6 +12,8 @@ export interface AttachedFile {
   error?: string;
   /** Set after successfully saving to DB; skip re-save on later sends */
   savedToDb?: boolean;
+  /** Vercel Blob URL; deleted when file is removed or conversation ends */
+  blobUrl?: string;
 }
 
 export type ChatSidebarView = "chat" | "settings";
@@ -67,13 +69,38 @@ interface ChatbotState {
   setSaveDocumentsOnDb: (value: boolean) => void;
 }
 
-async function parseFile(file: File): Promise<{ textContent: string }> {
-  const formData = new FormData();
-  formData.append("file", file);
+/** Upload to Blob and parse; returns { textContent, blobUrl } */
+async function uploadAndParseFile(
+  file: File,
+): Promise<{ textContent: string; blobUrl: string }> {
+  const uploadRes = await fetch("/api/blob/upload", {
+    method: "POST",
+    headers: {
+      "Content-Type": file.type || "application/octet-stream",
+      "x-file-name": encodeURIComponent(file.name),
+      "x-file-type": file.type || "application/octet-stream",
+    },
+    body: file,
+  });
+
+  const uploadData = await uploadRes.json().catch(() => ({}));
+
+  if (!uploadRes.ok) {
+    throw new Error(
+      uploadData?.error ?? `Upload failed (${uploadRes.status})`,
+    );
+  }
+
+  const blobUrl = uploadData.url as string;
 
   const res = await fetch("/api/parse-file", {
     method: "POST",
-    body: formData,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      blobUrl,
+      fileName: file.name,
+      mimeType: file.type || "",
+    }),
   });
 
   const data = await res.json().catch(() => ({}));
@@ -82,15 +109,39 @@ async function parseFile(file: File): Promise<{ textContent: string }> {
     const msg =
       typeof data?.error === "string"
         ? data.error
-        : res.status === 405
-          ? "File upload not available right now. Try again later or use a different browser."
-          : res.status === 413
-            ? "File too large (max 10 MB)"
-            : `Failed to parse file${res.status ? ` (${res.status})` : ""}`;
+        : res.status === 413
+          ? "File too large (max 10 MB)"
+          : `Failed to parse file (${res.status})`;
     throw new Error(msg);
   }
 
-  return data as { textContent: string };
+  return {
+    textContent: (data as { textContent: string }).textContent,
+    blobUrl,
+  };
+}
+
+function deleteBlobs(urls: string[]): void {
+  if (urls.length === 0) return;
+  fetch("/api/blob/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ urls }),
+  }).catch(() => {});
+}
+
+/** Call on page unload (beforeunload/pagehide) to delete orphaned blobs. Uses sendBeacon for reliability during unload. */
+export function deleteAttachedBlobsOnUnload(): void {
+  const urls = useChatbotStore
+    .getState()
+    .attachedFiles.map((f) => f.blobUrl)
+    .filter((u): u is string => !!u);
+  if (urls.length > 0 && typeof navigator?.sendBeacon === "function") {
+    navigator.sendBeacon(
+      "/api/blob/delete",
+      new Blob([JSON.stringify({ urls })], { type: "application/json" }),
+    );
+  }
 }
 
 export const useChatbotStore = create<ChatbotState>((set) => ({
@@ -132,11 +183,16 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
 
     newFiles.forEach(async (af) => {
       try {
-        const data = await parseFile(af.file);
+        const { textContent, blobUrl } = await uploadAndParseFile(af.file);
         set((s) => ({
           attachedFiles: s.attachedFiles.map((f) =>
             f.file === af.file
-              ? { ...f, parsedContent: data.textContent, parsing: false }
+              ? {
+                  ...f,
+                  parsedContent: textContent,
+                  blobUrl,
+                  parsing: false,
+                }
               : f,
           ),
         }));
@@ -158,11 +214,22 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
   },
 
   removeFile: (index) =>
-    set((s) => ({
-      attachedFiles: s.attachedFiles.filter((_, i) => i !== index),
-    })),
+    set((s) => {
+      const file = s.attachedFiles[index];
+      if (file?.blobUrl) deleteBlobs([file.blobUrl]);
+      return {
+        attachedFiles: s.attachedFiles.filter((_, i) => i !== index),
+      };
+    }),
 
-  clearFiles: () => set({ attachedFiles: [] }),
+  clearFiles: () =>
+    set((s) => {
+      const urls = s.attachedFiles
+        .map((f) => f.blobUrl)
+        .filter((u): u is string => !!u);
+      if (urls.length > 0) deleteBlobs(urls);
+      return { attachedFiles: [] };
+    }),
 
   markFileSavedToDb: (file) =>
     set((s) => ({

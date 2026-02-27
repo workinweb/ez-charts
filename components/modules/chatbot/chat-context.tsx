@@ -15,7 +15,10 @@ import type {
   AttachedChartContext,
   LoadedDocument,
 } from "@/stores/chatbot-store";
-import { useChatbotStore } from "@/stores/chatbot-store";
+import {
+  deleteAttachedBlobsOnUnload,
+  useChatbotStore,
+} from "@/stores/chatbot-store";
 import { useChartsStore } from "@/stores/charts-store";
 import { fromChartKey } from "@/lib/chart/chart-keys";
 
@@ -259,6 +262,17 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const previewChartId = useChartsStore((s) => s.previewChartId);
   const unsavedCharts = useChartsStore((s) => s.unsavedCharts);
   const processedMessageIds = useRef<Set<string>>(new Set());
+
+  // Delete blob files on page unload (refresh, close) — same as new conversation
+  useEffect(() => {
+    const handler = () => deleteAttachedBlobsOnUnload();
+    window.addEventListener("beforeunload", handler);
+    window.addEventListener("pagehide", handler);
+    return () => {
+      window.removeEventListener("beforeunload", handler);
+      window.removeEventListener("pagehide", handler);
+    };
+  }, []);
 
   /** Current chart from AI Builds history — the one user has selected (or latest). Used when no explicit attachedChartContext. */
   const currentChartFromHistory = previewChartId
