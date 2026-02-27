@@ -25,6 +25,7 @@ import { useChartById } from "@/hooks/use-charts";
 import { useFeatureCheck } from "@/hooks/use-feature-check";
 import { authClient } from "@/lib/(auth)/auth-client";
 import { TIER_LIMITS } from "@/lib/tiers/tier-limits";
+import { useChatbotStore } from "@/stores/chatbot-store";
 import { useChartsStore } from "@/stores/charts-store";
 import { useQuery } from "convex/react";
 import {
@@ -151,6 +152,7 @@ function AppNavbarInner() {
             <DropdownMenuSeparator className="my-1" />
             <DropdownMenuItem
               onSelect={async () => {
+                useChatbotStore.getState().clearFiles();
                 await authClient.signOut();
                 router.push("/");
               }}
