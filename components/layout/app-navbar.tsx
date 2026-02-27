@@ -152,9 +152,12 @@ function AppNavbarInner() {
             <DropdownMenuSeparator className="my-1" />
             <DropdownMenuItem
               onSelect={async () => {
-                useChatbotStore.getState().clearFiles();
-                await authClient.signOut();
-                router.push("/");
+                try {
+                  useChatbotStore.getState().clearFiles();
+                  await authClient.signOut();
+                } finally {
+                  router.replace("/");
+                }
               }}
               className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-red-600 hover:bg-red-50 hover:text-red-700 focus:bg-red-50"
             >

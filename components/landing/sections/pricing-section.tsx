@@ -124,7 +124,7 @@ export function PricingSection() {
                   ))}
                 </ul>
                 <Link
-                  href="/ezcharts"
+                  href={tier === "free" ? "/sign-up" : "/ezcharts"}
                   className={`block w-full rounded-full py-4 text-center text-sm font-bold uppercase tracking-wide transition-colors ${
                     isPro
                       ? "bg-white text-[#6C5DD3] shadow-lg hover:bg-slate-100"

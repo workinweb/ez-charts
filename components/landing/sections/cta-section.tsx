@@ -24,7 +24,7 @@ export function CTASection() {
           </p>
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
-              href="/ezcharts"
+              href="/sign-up"
               className="group inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-[#6C5DD3] shadow-xl transition-all hover:scale-[1.02] hover:shadow-2xl sm:w-auto"
             >
               Start free
