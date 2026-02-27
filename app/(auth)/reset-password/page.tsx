@@ -7,7 +7,7 @@ import { authClient } from "@/lib/(auth)/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { BarChart3, Loader2 } from "lucide-react";
+import { ArrowLeft, BarChart3, Loader2 } from "lucide-react";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -23,6 +23,13 @@ function ResetPasswordForm() {
   if (errorParam === "INVALID_TOKEN" || !token) {
     return (
       <div className="w-full max-w-[400px]">
+        <Link
+          href="/"
+          className="mb-4 flex items-center gap-1.5 text-[13px] font-medium text-[#3D4035]/60 transition-colors hover:text-[#3D4035]"
+        >
+          <ArrowLeft className="size-4" />
+          Back to home
+        </Link>
         <div className="rounded-[28px] bg-white p-8 shadow-sm ring-1 ring-black/[0.04] sm:rounded-[32px] sm:p-10">
           <div className="mb-8 flex flex-col items-center gap-3">
             <div className="flex size-12 items-center justify-center rounded-2xl bg-red-100">
@@ -91,6 +98,13 @@ function ResetPasswordForm() {
   if (success) {
     return (
       <div className="w-full max-w-[400px]">
+        <Link
+          href="/"
+          className="mb-4 flex items-center gap-1.5 text-[13px] font-medium text-[#3D4035]/60 transition-colors hover:text-[#3D4035]"
+        >
+          <ArrowLeft className="size-4" />
+          Back to home
+        </Link>
         <div className="rounded-[28px] bg-white p-8 shadow-sm ring-1 ring-black/[0.04] sm:rounded-[32px] sm:p-10">
           <div className="mb-8 flex flex-col items-center gap-3">
             <div className="flex size-12 items-center justify-center rounded-2xl bg-emerald-100">
@@ -117,6 +131,13 @@ function ResetPasswordForm() {
 
   return (
     <div className="w-full max-w-[400px]">
+      <Link
+        href="/"
+        className="mb-4 flex items-center gap-1.5 text-[13px] font-medium text-[#3D4035]/60 transition-colors hover:text-[#3D4035]"
+      >
+        <ArrowLeft className="size-4" />
+        Back to home
+      </Link>
       <div className="rounded-[28px] bg-white p-8 shadow-sm ring-1 ring-black/[0.04] sm:rounded-[32px] sm:p-10">
         <div className="mb-8 flex flex-col items-center gap-3">
           <div className="flex size-12 items-center justify-center rounded-2xl bg-[#6C5DD3]/10">

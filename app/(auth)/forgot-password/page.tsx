@@ -6,6 +6,7 @@ import { authClient } from "@/lib/(auth)/auth-client";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { Suspense, useState } from "react";
 
 function ForgotPasswordForm() {
@@ -44,9 +45,16 @@ function ForgotPasswordForm() {
 
   return (
     <div className="w-full max-w-[400px]">
-      <div className="rounded-[28px] bg-white p-8 shadow-sm ring-1 ring-black/[0.04] sm:rounded-[32px] sm:p-10">
-        <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="relative size-[75px] shrink-0">
+      <Link
+        href="/"
+        className="mb-4 flex items-center gap-1.5 text-[13px] font-medium text-[#3D4035]/60 transition-colors hover:text-[#3D4035]"
+      >
+        <ArrowLeft className="size-4" />
+        Back to home
+      </Link>
+      <div className="rounded-[24px] bg-white p-6 shadow-sm ring-1 ring-black/[0.04] sm:rounded-[28px] sm:p-8">
+        <div className="mb-5 flex flex-col items-center gap-2 sm:mb-6 sm:gap-3">
+          <div className="relative size-12 shrink-0 sm:size-[60px]">
             <Image
               src="/logo.png"
               alt="Logo"
@@ -78,7 +86,7 @@ function ForgotPasswordForm() {
             </span>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div className="flex flex-col gap-1.5">
               <label
                 htmlFor="email"
@@ -118,7 +126,7 @@ function ForgotPasswordForm() {
           </form>
         )}
 
-        <p className="mt-6 text-center text-[13px] text-[#3D4035]/60">
+        <p className="mt-5 text-center text-[13px] text-[#3D4035]/60">
           Remember your password?{" "}
           <Link
             href="/sign-in"

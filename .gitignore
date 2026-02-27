@@ -44,3 +44,4 @@ next-env.d.ts
 
 .agents/*
 .cursor/*
+experimental_features.md

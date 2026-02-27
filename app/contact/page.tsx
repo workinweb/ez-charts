@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { MessageCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, MessageCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,11 +47,18 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#F5F3FF] via-white to-[#EDE9FE] p-6 sm:p-8">
-      <div className="w-full max-w-[540px]">
-        <div className="rounded-[24px] bg-white p-8 shadow-lg shadow-black/5 ring-1 ring-black/[0.04] sm:rounded-[28px] sm:p-10">
-          <div className="mb-6 flex flex-col items-center gap-3">
-            <div className="relative size-[75px] shrink-0">
+    <div className="flex min-h-dvh min-h-screen items-center justify-center overflow-y-auto bg-gradient-to-br from-[#F5F3FF] via-white to-[#EDE9FE] p-4 py-6 sm:p-8">
+      <div className="w-full max-w-[480px] sm:max-w-[540px]">
+        <Link
+          href="/"
+          className="mb-4 flex items-center gap-1.5 text-[13px] font-medium text-[#3D4035]/60 transition-colors hover:text-[#3D4035]"
+        >
+          <ArrowLeft className="size-4" />
+          Back to home
+        </Link>
+        <div className="rounded-[24px] bg-white p-5 shadow-lg shadow-black/5 ring-1 ring-black/[0.04] sm:rounded-[28px] sm:p-8">
+          <div className="mb-4 flex flex-col items-center gap-2 sm:mb-5 sm:gap-3">
+            <div className="relative size-12 shrink-0 sm:size-[60px]">
               <Image
                 src="/logo.png"
                 alt="EZ Charts"
@@ -61,10 +68,10 @@ export default function ContactPage() {
               />
             </div>
             <div className="text-center">
-              <h1 className="text-[24px] font-semibold text-[#3D4035]">
+              <h1 className="text-[20px] font-semibold text-[#3D4035] sm:text-[24px]">
                 Contact us
               </h1>
-              <p className="mt-1 text-[15px] text-[#3D4035]/60">
+              <p className="mt-0.5 text-[14px] text-[#3D4035]/60 sm:mt-1 sm:text-[15px]">
                 Questions or support — we&apos;re here to help.
               </p>
             </div>
@@ -91,7 +98,7 @@ export default function ContactPage() {
               </Button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-2.5 sm:gap-3">
               <div className="flex flex-col gap-1.5">
                 <label
                   htmlFor="name"
@@ -106,7 +113,7 @@ export default function ContactPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="h-11 rounded-xl border-[#E0E0E0] text-[14px]"
+                  className="h-10 rounded-xl border-[#E0E0E0] text-[14px] sm:h-11"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
@@ -124,7 +131,7 @@ export default function ContactPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
-                  className="h-11 rounded-xl border-[#E0E0E0] text-[14px]"
+                  className="h-10 rounded-xl border-[#E0E0E0] text-[14px] sm:h-11"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
@@ -141,7 +148,7 @@ export default function ContactPage() {
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   required
-                  className="h-11 rounded-xl border-[#E0E0E0] text-[14px]"
+                  className="h-10 rounded-xl border-[#E0E0E0] text-[14px] sm:h-11"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
@@ -157,8 +164,8 @@ export default function ContactPage() {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   required
-                  rows={4}
-                  className="min-h-[100px] rounded-xl border-[#E0E0E0] text-[14px]"
+                  rows={3}
+                  className="min-h-[72px] rounded-xl border-[#E0E0E0] text-[14px] sm:min-h-[88px]"
                 />
               </div>
 
@@ -171,7 +178,7 @@ export default function ContactPage() {
               <Button
                 type="submit"
                 disabled={status === "loading"}
-                className="mt-1 h-11 rounded-xl bg-[#6C5DD3] py-5 text-[15px] font-semibold text-white hover:bg-[#5a4dbf] disabled:opacity-50"
+                className="mt-0.5 h-10 rounded-xl bg-[#6C5DD3] py-4 text-[14px] font-semibold text-white hover:bg-[#5a4dbf] disabled:opacity-50 sm:h-11"
               >
                 {status === "loading" ? (
                   <Loader2 className="size-5 animate-spin" />
@@ -182,7 +189,7 @@ export default function ContactPage() {
             </form>
           )}
 
-          <p className="mt-6 text-center text-[14px] text-[#3D4035]/60">
+          <p className="mt-4 text-center text-[13px] text-[#3D4035]/60 sm:mt-5 sm:text-[14px]">
             Back to{" "}
             <Link
               href="/"
