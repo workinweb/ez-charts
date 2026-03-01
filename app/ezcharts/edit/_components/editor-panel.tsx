@@ -22,6 +22,7 @@ const ROSENCHARTS_TABULAR_SHAPES: EditorShape[] = [
   "pie",
   "bar-image",
   "scatter",
+  "bubble",
 ];
 
 interface EditorPanelProps {

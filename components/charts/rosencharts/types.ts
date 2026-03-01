@@ -118,3 +118,12 @@ export interface ScatterChartItem {
   name: string;
   color?: string;
 }
+
+// ── Bubble ────────────────────────────────────────────────────────────
+export interface BubbleChartItem {
+  id?: string;
+  name: string;
+  sector: string;
+  value: number;
+  color?: string;
+}

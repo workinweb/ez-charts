@@ -16,6 +16,7 @@ export type EditorShape =
   | "pie" // { name, value, colorFrom?, colorTo?, logo? }
   | "treemap" // { name, subtopics, colorFrom?, colorTo? }
   | "scatter" // { xValue, yValue, name, color? }
+  | "bubble" // { name, sector, value, color? }
   | "shadcnCartesian"; // { month, desktop, mobile } — shadcn bar/area/line
 
 export type EditorTab = "data" | "style" | "settings";
@@ -52,6 +53,7 @@ export function getEditorShape(chartType: string): EditorShape {
     return "pie";
   if (chartType.includes("treemap")) return "treemap";
   if (chartType.includes("scatter")) return "scatter";
+  if (chartType.includes("bubble")) return "bubble";
   return "keyValue";
 }
 

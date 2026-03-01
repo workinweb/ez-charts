@@ -22,6 +22,7 @@ import {
   pieChartImageData,
 } from "./PieChart";
 import { scatterChartData } from "./ScatterChart";
+import { bubbleChartData } from "./BubbleChart";
 import { treeMapChartData } from "./TreemapCharts";
 
 export const data = [
@@ -214,6 +215,15 @@ export const data = [
     name: "Scatter Chart",
     chartType: "scatter",
     data: scatterChartData,
+    withTooltip: true,
+    withAnimation: true,
+  },
+
+  {
+    id: "22",
+    name: "Bubble Chart",
+    chartType: "bubble",
+    data: bubbleChartData,
     withTooltip: true,
     withAnimation: true,
   },

@@ -9,6 +9,7 @@ import {
   LineChart as LineChartIcon,
   PieChart as PieChartIcon,
   ScatterChart as ScatterChartIcon,
+  Circle,
   TrendingUp,
   Layers,
   Grid3X3,
@@ -38,6 +39,7 @@ import { HalfDonutChart } from "../PieCharts/HalfDonutChart";
 import { PieChart } from "../PieCharts/PieChart";
 import { PieChartImage } from "../PieCharts/PieChartImage";
 import { ScatterChart } from "../ScatterChart/ScatterChart";
+import { BubbleChart } from "../BubbleChart/BubbleChart";
 import { TreeMapChart } from "../TreeMapChart/TreeMapChart";
 
 import {
@@ -54,6 +56,7 @@ import {
   MultiBarData,
   PieChartItem,
   ScatterChartItem,
+  BubbleChartItem,
   SVGBarData,
   TreeMapChartItem,
   VerticalBarData,
@@ -152,6 +155,12 @@ export const chartTypes: ReadonlyArray<{
     category: "other",
     icon: ScatterChartIcon,
   },
+  {
+    key: "bubble",
+    label: "Bubble",
+    category: "other",
+    icon: Circle,
+  },
 ];
 
 export type ChartTypeKey = (typeof chartTypes)[number]["key"];
@@ -198,7 +207,7 @@ export const interchangeGroups: ReadonlyArray<ReadonlyArray<ChartTypeKey>> = [
   // ── Line charts ───────────────────────────────────────────────────
   ["line", "line-multi"],
   // ── Standalone (no interchange) ───────────────────────────────────
-  // treemap, scatter
+  // treemap, scatter, bubble
 ];
 
 /** Lookup: chartTypeKey → set of all keys it can be converted to */
@@ -337,7 +346,7 @@ export function transformChartData(
   return JSON.parse(JSON.stringify(data));
 }
 
-type ShapeFamily = "keyValue" | "pie" | "multi" | "line" | "treemap" | "scatter" | "imageBar";
+type ShapeFamily = "keyValue" | "pie" | "multi" | "line" | "treemap" | "scatter" | "bubble" | "imageBar";
 
 function getShapeFamily(chartType: string): ShapeFamily {
   if (chartType === "horizontal-bar-image") return "imageBar";
@@ -351,6 +360,7 @@ function getShapeFamily(chartType: string): ShapeFamily {
   ) return "pie";
   if (chartType.includes("treemap")) return "treemap";
   if (chartType.includes("scatter")) return "scatter";
+  if (chartType.includes("bubble")) return "bubble";
   // horizontal-bar, horizontal-bar-gradient, horizontal-bar-thin,
   // vertical-bar, breakdown, breakdown-thin, benchmark
   return "keyValue";
@@ -651,6 +661,16 @@ export const getChartTypeByName = (
           withTooltip={withTooltip}
           withAnimation={withAnimation}
           withInteractive={withInteractive}
+          className={className}
+        />
+      );
+    }
+    case "bubble": {
+      return (
+        <BubbleChart
+          data={data as unknown as BubbleChartItem[]}
+          withTooltip={withTooltip}
+          withAnimation={withAnimation}
           className={className}
         />
       );

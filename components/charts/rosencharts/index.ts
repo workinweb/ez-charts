@@ -17,6 +17,7 @@ export type {
   BenchmarkChartItem,
   TreeMapChartItem,
   ScatterChartItem,
+  BubbleChartItem,
 } from "./types";
 
 // Animated
@@ -57,6 +58,9 @@ export { PieChartImage } from "./PieCharts/PieChartImage";
 
 // Scatter
 export { ScatterChart } from "./ScatterChart/ScatterChart";
+
+// Bubble
+export { BubbleChart } from "./BubbleChart/BubbleChart";
 
 // TreeMap
 export { TreeMapChart } from "./TreeMapChart/TreeMapChart";

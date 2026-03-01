@@ -29,6 +29,7 @@ const SINGLE_COLOR_CHART_TYPES = [
   "breakdown-thin",
   "horizontal-bar-image",
   "scatter",
+  "bubble",
 ];
 
 export function StyleEditor({
@@ -60,7 +61,8 @@ export function StyleEditor({
       !chartType.includes("benchmark") &&
       !hasGradient) ||
     shape === "bar-image" ||
-    shape === "scatter";
+    shape === "scatter" ||
+    shape === "bubble";
   const hasBarMulti = shape === "bar-multi";
 
   const goToDefaults = useCallback(() => {

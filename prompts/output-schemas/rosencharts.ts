@@ -104,6 +104,15 @@ export const benchmarkSchema = z
 export const treemapSchema = z.array(treemapItem).min(1);
 export const scatterSchema = z.array(scatterPoint).min(1);
 
+const bubblePoint = z.object({
+  name: z.string().describe("Item label"),
+  sector: z.string().describe("Category/group for color"),
+  value: z.number().describe("Size of bubble"),
+  color: z.string().nullable(),
+});
+
+export const bubbleSchema = z.array(bubblePoint).min(1);
+
 /** Rosencharts chartType → schema map */
 export const ROSENCHARTS_OUTPUT_SCHEMAS: Record<string, z.ZodType<unknown>> = {
   "horizontal-bar": horizontalBarSchema,
@@ -126,4 +135,5 @@ export const ROSENCHARTS_OUTPUT_SCHEMAS: Record<string, z.ZodType<unknown>> = {
   benchmark: benchmarkSchema,
   treemap: treemapSchema,
   scatter: scatterSchema,
+  bubble: bubbleSchema,
 };

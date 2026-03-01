@@ -69,6 +69,12 @@ export function DataEditor({ shape, data, onChange }: EditorProps) {
           { xValue: 0, yValue: 0, name: `Point ${arr.length + 1}` },
         ]);
         break;
+      case "bubble":
+        onChange([
+          ...arr,
+          { name: `Item ${arr.length + 1}`, sector: "Other", value: 100 },
+        ]);
+        break;
       case "shadcnCartesian":
         const sample = (arr[0] as Record<string, unknown>) ?? {};
         const catKey = Object.keys(sample).find((k) => typeof sample[k] === "string") ?? "month";
@@ -347,6 +353,45 @@ function DataRow({
             {/* ── Shadcn Cartesian (bar/area/line) ─── */}
             {shape === "shadcnCartesian" && (
               <ShadcnCartesianEditor item={item} onUpdate={onUpdate} />
+            )}
+
+            {/* ── Bubble ───────────────────────────── */}
+            {shape === "bubble" && (
+              <>
+                <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4">
+                  <div className="min-w-0 flex-1 sm:min-w-[120px]">
+                    <FieldRow label="Name">
+                      <Input
+                        value={(item.name as string) ?? ""}
+                        onChange={(e) => onUpdate({ name: e.target.value })}
+                        className="h-8 min-w-0 rounded-lg text-[13px]"
+                      />
+                    </FieldRow>
+                  </div>
+                  <div className="min-w-0 flex-1 sm:min-w-[100px]">
+                    <FieldRow label="Sector">
+                      <Input
+                        value={(item.sector as string) ?? ""}
+                        onChange={(e) => onUpdate({ sector: e.target.value })}
+                        className="h-8 min-w-0 rounded-lg text-[13px]"
+                        placeholder="Category"
+                      />
+                    </FieldRow>
+                  </div>
+                  <div className="min-w-0 flex-1 sm:min-w-[80px] sm:max-w-[100px]">
+                    <FieldRow label="Value">
+                      <Input
+                        type="number"
+                        value={item.value as number}
+                        onChange={(e) =>
+                          onUpdate({ value: parseFloat(e.target.value) || 0 })
+                        }
+                        className="h-8 min-w-0 rounded-lg text-[13px]"
+                      />
+                    </FieldRow>
+                  </div>
+                </div>
+              </>
             )}
 
             {/* ── Scatter ──────────────────────────── */}
