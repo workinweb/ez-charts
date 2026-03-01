@@ -18,6 +18,19 @@ export const SHADCN_CARTESIAN_DEFAULT = wrapShadcnData(
   { chartType: "shadcn:bar" },
 );
 
+/** Default data for Shadcn bar-horizontal — single series only */
+export const SHADCN_BAR_HORIZONTAL_DEFAULT = wrapShadcnData(
+  [
+    { month: "January", desktop: 186 },
+    { month: "February", desktop: 305 },
+    { month: "March", desktop: 237 },
+    { month: "April", desktop: 73 },
+    { month: "May", desktop: 209 },
+    { month: "June", desktop: 214 },
+  ],
+  { chartType: "shadcn:bar-horizontal" },
+);
+
 /** Default data for Shadcn pie/radial — canonical wrapped format */
 export const SHADCN_PIE_DEFAULT = wrapShadcnData(
   [
@@ -123,6 +136,9 @@ export function getDefaultDataForChartType(chartType: string): unknown[] {
     }
     if (chartType === "shadcn:radar") {
       return JSON.parse(JSON.stringify(SHADCN_RADAR_DEFAULT));
+    }
+    if (chartType === "shadcn:bar-horizontal") {
+      return JSON.parse(JSON.stringify(SHADCN_BAR_HORIZONTAL_DEFAULT));
     }
     return JSON.parse(JSON.stringify(SHADCN_CARTESIAN_DEFAULT));
   }

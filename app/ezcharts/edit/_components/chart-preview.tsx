@@ -20,6 +20,7 @@ import {
   getChartTypesByLibrary,
   isShadcnChartType,
 } from "@/lib/chart/chart-registry";
+import { getDefaultDataForChartType } from "@/lib/chart/chart-defaults";
 import { cn } from "@/lib/utils";
 
 interface ChartPreviewProps {
@@ -54,7 +55,13 @@ export function ChartPreview({
       isChartTypeCompatible(chartType as ChartTypeKey, key as ChartTypeKey);
     if (compatible) return false;
     if (sameLibrary && isShadcnChartType(key)) {
-      const shadcnCartesian = ["shadcn:bar", "shadcn:area", "shadcn:line"];
+      const shadcnCartesian = [
+        "shadcn:bar",
+        "shadcn:bar-horizontal",
+        "shadcn:bar-stacked",
+        "shadcn:area",
+        "shadcn:line",
+      ];
       const shadcnPieLike = ["shadcn:pie", "shadcn:radial"];
       const fromCartesian = shadcnCartesian.includes(chartType);
       const toCartesian = shadcnCartesian.includes(key);
@@ -81,14 +88,24 @@ export function ChartPreview({
       );
       onChartTypeChange(newType, transformed);
     } else if (sameLibrary && isShadcnChartType(newType)) {
-      const shadcnCartesian = ["shadcn:bar", "shadcn:area", "shadcn:line"];
+      const shadcnCartesian = [
+        "shadcn:bar",
+        "shadcn:bar-horizontal",
+        "shadcn:bar-stacked",
+        "shadcn:area",
+        "shadcn:line",
+      ];
       const shadcnPieLike = ["shadcn:pie", "shadcn:radial"];
       const fromCartesian = shadcnCartesian.includes(chartType);
       const toCartesian = shadcnCartesian.includes(newType);
       const fromPieLike = shadcnPieLike.includes(chartType);
       const toPieLike = shadcnPieLike.includes(newType);
       if ((fromCartesian && toCartesian) || (fromPieLike && toPieLike)) {
-        onChartTypeChange(newType, data);
+        if (newType === "shadcn:bar-horizontal") {
+          onChartTypeChange(newType, getDefaultDataForChartType(newType));
+        } else {
+          onChartTypeChange(newType, data);
+        }
       } else {
         onIncompatibleType(newType);
       }

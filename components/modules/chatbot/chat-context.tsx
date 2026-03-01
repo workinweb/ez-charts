@@ -83,7 +83,7 @@ interface SerializedMessage {
   tokenUsage?: TokenUsage;
 }
 
-/** Parse structured output from text (JSON with message, chartType, title, data) */
+/** Parse structured output from text (JSON with message, chartType, title, data, chartSettings) */
 function parseStructuredOutput(
   text: string,
 ): {
@@ -91,6 +91,7 @@ function parseStructuredOutput(
   chartType?: string;
   title?: string;
   data?: unknown;
+  chartSettings?: Record<string, unknown>;
 } | null {
   try {
     const parsed = JSON.parse(text) as Record<string, unknown>;
@@ -210,7 +211,12 @@ function processChartData(
 /** Extract chart from structured output in a message */
 function extractChartFromMessage(msg: {
   parts?: Array<{ type?: string; text?: string }>;
-}): { chartType: string; title: string; data: unknown } | null {
+}): {
+  chartType: string;
+  title: string;
+  data: unknown;
+  chartSettings?: Record<string, unknown>;
+} | null {
   if (!msg.parts) return null;
   const combinedText = msg.parts
     .filter((p) => p?.type === "text" && p.text)
@@ -226,6 +232,10 @@ function extractChartFromMessage(msg: {
       chartType: structured.chartType,
       title: (structured.title as string) ?? "Chart",
       data: processedData,
+      ...(structured.chartSettings &&
+        Object.keys(structured.chartSettings).length > 0 && {
+          chartSettings: structured.chartSettings,
+        }),
     };
   }
   return null;

@@ -77,6 +77,7 @@ export function NewSection() {
     if (!chart) return;
     setSaving(true);
     try {
+      const chartSettings = chart.chartSettings;
       const newId = await mutations.create({
         title: saveName.trim(),
         chartType: chart.chartType,
@@ -84,6 +85,9 @@ export function NewSection() {
         source: chart.source ?? "From chat",
         withTooltip: chart.withTooltip,
         withAnimation: chart.withAnimation,
+        ...(chartSettings && Object.keys(chartSettings).length > 0 && {
+          chartSettings,
+        }),
       });
       removeUnsavedChart(chartToSave);
       setSaveDialogOpen(false);
@@ -151,7 +155,7 @@ export function NewSection() {
               {renderChart(displayChart.data, displayChart.chartType, {
                 withTooltip: displayChart.withTooltip ?? true,
                 withAnimation: displayChart.withAnimation ?? true,
-                chartSettings: (displayChart as { chartSettings?: Record<string, unknown> }).chartSettings,
+                chartSettings: displayChart.chartSettings,
                 className: "w-full",
               })}
             </div>

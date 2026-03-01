@@ -11,7 +11,13 @@ import {
 } from "@/lib/chart/shadcn-chart-data";
 import { FieldRow } from "../field-row";
 
-const SHADCN_CARTESIAN = ["shadcn:bar", "shadcn:area", "shadcn:line"];
+const SHADCN_CARTESIAN = [
+  "shadcn:bar",
+  "shadcn:bar-horizontal",
+  "shadcn:bar-stacked",
+  "shadcn:area",
+  "shadcn:line",
+];
 const SHADCN_PIE_LIKE = ["shadcn:pie", "shadcn:radial"];
 const SHADCN_RADAR = "shadcn:radar";
 

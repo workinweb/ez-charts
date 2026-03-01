@@ -10,7 +10,13 @@ interface ShadcnStyleEditorProps {
 }
 
 const SHADCN_PIE_LIKE = ["shadcn:pie", "shadcn:radial"];
-const SHADCN_CARTESIAN = ["shadcn:bar", "shadcn:area", "shadcn:line"];
+const SHADCN_CARTESIAN = [
+  "shadcn:bar",
+  "shadcn:bar-horizontal",
+  "shadcn:bar-stacked",
+  "shadcn:area",
+  "shadcn:line",
+];
 const SHADCN_RADAR = "shadcn:radar";
 
 const SERIES_COLOR_PALETTE = [

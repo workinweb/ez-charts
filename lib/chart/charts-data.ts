@@ -22,6 +22,7 @@ export interface UserChart {
   iconBg: string;
   withTooltip?: boolean;
   withAnimation?: boolean;
+  chartSettings?: Record<string, unknown>;
 }
 
 export function chartTypeToIcon(chartType: string): {

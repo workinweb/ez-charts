@@ -22,3 +22,10 @@ Always use the canonical wrapped format. Use `key: "month"` for the category col
 - `series`: array of `{ name, value }` — one per numeric series. All rows must have same series names.
 - `_seriesColors`: JSON string or `null`. Use `"{\"series1\":\"#6C5DD3\"}"` only when user requests custom colors.
 - Hex colors only (e.g. `#6C5DD3`). No Tailwind, no CSS variables.
+
+## chartSettings (optional)
+
+Include in output when user asks for display options:
+
+- **withLabels** (boolean): Show value labels on top of bars. Default `true`. Set `false` if user wants no labels.
+- Omit `chartSettings` when user does not specify.

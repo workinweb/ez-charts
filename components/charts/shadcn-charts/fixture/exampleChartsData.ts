@@ -1,4 +1,5 @@
 import { barChartData } from "./bar";
+import { barChartMultiData, barChartStackedData } from "./bar";
 import { areaChartData } from "./area";
 import { lineChartData } from "./line";
 import { pieChartData } from "./pie";
@@ -7,6 +8,8 @@ import { radialChartData } from "./radial";
 
 export const shadcnExampleData = [
   { id: "sc-1", name: "Bar Chart", chartType: "shadcn:bar", data: barChartData },
+  { id: "sc-1b", name: "Bar (Horizontal)", chartType: "shadcn:bar-horizontal", data: barChartData },
+  { id: "sc-1c", name: "Bar (Stacked)", chartType: "shadcn:bar-stacked", data: barChartStackedData },
   { id: "sc-2", name: "Area Chart", chartType: "shadcn:area", data: areaChartData },
   { id: "sc-3", name: "Line Chart", chartType: "shadcn:line", data: lineChartData },
   { id: "sc-4", name: "Pie Chart", chartType: "shadcn:pie", data: pieChartData },

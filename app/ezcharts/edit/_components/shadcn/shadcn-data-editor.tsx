@@ -10,7 +10,13 @@ import {
 } from "@/lib/chart/shadcn-chart-data";
 import { FieldRow } from "../field-row";
 
-const SHADCN_CARTESIAN = ["shadcn:bar", "shadcn:area", "shadcn:line"];
+const SHADCN_CARTESIAN = [
+  "shadcn:bar",
+  "shadcn:bar-horizontal",
+  "shadcn:bar-stacked",
+  "shadcn:area",
+  "shadcn:line",
+];
 const SHADCN_PIE_LIKE = ["shadcn:pie", "shadcn:radial"];
 const SHADCN_RADAR = "shadcn:radar";
 
@@ -232,7 +238,8 @@ function ShadcnCartesianDataEditor({
     };
   }, [rows, catKey, chartType]);
 
-  const canRemoveSeries = seriesKeys.length > 1;
+  const isSingleSeriesOnly = chartType === "shadcn:bar-horizontal";
+  const canRemoveSeries = seriesKeys.length > 1 && !isSingleSeriesOnly;
 
   return (
     <div className="flex flex-col gap-4">
@@ -241,17 +248,19 @@ function ShadcnCartesianDataEditor({
           Data points
         </h3>
         <div className="flex gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onAddSeries}
-            aria-label="Add series"
-            title="Add series"
-            className="gap-1.5 text-[12px] text-[#6C5DD3] hover:text-[#5a4dbf]"
-          >
-            <Plus className="size-3.5" />
-            Add series
-          </Button>
+          {!isSingleSeriesOnly && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onAddSeries}
+              aria-label="Add series"
+              title="Add series"
+              className="gap-1.5 text-[12px] text-[#6C5DD3] hover:text-[#5a4dbf]"
+            >
+              <Plus className="size-3.5" />
+              Add series
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"
@@ -311,18 +320,20 @@ function ShadcnCartesianDataEditor({
                 )}
               </div>
             ))}
-            <div className="flex min-w-[60px] shrink-0 items-center justify-center border-l border-black/[0.06] bg-[#3D4035]/[0.02] px-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onAddSeries}
-                aria-label="Add series"
-                title="Add series"
-                className="h-7 gap-1 px-2 text-[10px] text-[#6C5DD3] hover:text-[#5a4dbf]"
-              >
-                <Plus className="size-3" />
-              </Button>
-            </div>
+            {!isSingleSeriesOnly && (
+              <div className="flex min-w-[60px] shrink-0 items-center justify-center border-l border-black/[0.06] bg-[#3D4035]/[0.02] px-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onAddSeries}
+                  aria-label="Add series"
+                  title="Add series"
+                  className="h-7 gap-1 px-2 text-[10px] text-[#6C5DD3] hover:text-[#5a4dbf]"
+                >
+                  <Plus className="size-3" />
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Data rows */}

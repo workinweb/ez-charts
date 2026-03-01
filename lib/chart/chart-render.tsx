@@ -38,6 +38,7 @@ export function renderChart(
         seriesColors,
         withTooltip: options?.withTooltip,
         withAnimation: options?.withAnimation,
+        chartSettings: options?.chartSettings,
       },
     );
   }
