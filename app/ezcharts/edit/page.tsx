@@ -81,6 +81,7 @@ function EditChartContent() {
   );
   const [withTooltip, setWithTooltip] = useState(true);
   const [withAnimation, setWithAnimation] = useState(true);
+  const [chartSettings, setChartSettings] = useState<Record<string, unknown>>({});
   const [activeTab, setActiveTab] = useState<EditorTab>("data");
   const [dirty, setDirty] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -102,6 +103,7 @@ function EditChartContent() {
     setData(cloneData(sourceChart.data));
     setWithTooltip(sourceChart.withTooltip ?? true);
     setWithAnimation(sourceChart.withAnimation ?? true);
+    setChartSettings((sourceChart as { chartSettings?: Record<string, unknown> }).chartSettings ?? {});
     setDirty(false);
     setSaved(false);
   }, [sourceChart?.id]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -123,9 +125,10 @@ function EditChartContent() {
     return renderChart(data, chartType, {
       withTooltip,
       withAnimation,
+      chartSettings,
       className: "min-h-[320px] w-full",
     });
-  }, [data, chartType, withTooltip, withAnimation]);
+  }, [data, chartType, withTooltip, withAnimation, chartSettings]);
 
   /* ── Save handler ────────────────────────────────────────────────── */
   const [saving, setSaving] = useState(false);
@@ -146,6 +149,7 @@ function EditChartContent() {
           source: "Manual",
           withTooltip,
           withAnimation,
+          chartSettings: Object.keys(chartSettings).length ? chartSettings : undefined,
         });
         setDirty(false);
         setSaved(true);
@@ -164,6 +168,7 @@ function EditChartContent() {
           source: "From chat",
           withTooltip,
           withAnimation,
+          chartSettings: Object.keys(chartSettings).length ? chartSettings : undefined,
         });
         removeUnsavedChart(selectedId);
         setDirty(false);
@@ -178,6 +183,7 @@ function EditChartContent() {
           data,
           withTooltip,
           withAnimation,
+          chartSettings: Object.keys(chartSettings).length ? chartSettings : undefined,
         });
         setDirty(false);
         setSaved(true);
@@ -194,6 +200,7 @@ function EditChartContent() {
     data,
     withTooltip,
     withAnimation,
+    chartSettings,
     mutations,
     removeUnsavedChart,
     router,
@@ -223,21 +230,23 @@ function EditChartContent() {
       setTitle("Untitled Chart");
       setChartType(DEFAULT_CHART_TYPE);
       setData(cloneData(DEFAULT_CREATE_DATA));
-      setWithTooltip(true);
-      setWithAnimation(true);
-      setDirty(false);
-      setSaved(false);
-      return;
-    }
-    if (!sourceChart) return;
-    setTitle(sourceChart.title);
-    setChartType(sourceChart.chartType);
-    setData(cloneData(sourceChart.data));
-    setWithTooltip(sourceChart.withTooltip ?? true);
-    setWithAnimation(sourceChart.withAnimation ?? true);
+    setWithTooltip(true);
+    setWithAnimation(true);
+    setChartSettings({});
     setDirty(false);
     setSaved(false);
-  }, [isCreateMode, sourceChart]);
+    return;
+  }
+  if (!sourceChart) return;
+  setTitle(sourceChart.title);
+  setChartType(sourceChart.chartType);
+  setData(cloneData(sourceChart.data));
+  setWithTooltip(sourceChart.withTooltip ?? true);
+  setWithAnimation(sourceChart.withAnimation ?? true);
+  setChartSettings((sourceChart as { chartSettings?: Record<string, unknown> }).chartSettings ?? {});
+  setDirty(false);
+  setSaved(false);
+}, [isCreateMode, sourceChart]);
 
   /* ── Editor shape ────────────────────────────────────────────────── */
   const editorShape = chartType ? getEditorShape(chartType) : null;
@@ -316,6 +325,8 @@ function EditChartContent() {
               withAnimation={withAnimation}
               onTooltipChange={(v) => edit(setWithTooltip)(v)}
               onAnimationChange={(v) => edit(setWithAnimation)(v)}
+              chartSettings={chartSettings}
+              onChartSettingsChange={(v) => edit(setChartSettings)(v)}
               chartDataEditorMode={chartDataEditorMode}
             />
           </div>

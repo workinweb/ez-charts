@@ -12,8 +12,10 @@ import { FieldRow } from "./field-row";
  * DATA EDITOR (table-like rows per data shape)
  * ═══════════════════════════════════════════════════════════════════ */
 
-export function DataEditor({ shape, data, onChange }: EditorProps) {
+export function DataEditor({ shape, chartType = "", data, onChange }: EditorProps) {
   const arr = Array.isArray(data) ? data : [];
+  const isAreaChart = chartType === "area";
+  const hideAddSeries = isAreaChart && shape === "line";
 
   const updateRow = useCallback(
     (idx: number, patch: Record<string, unknown>) => {
@@ -69,6 +71,12 @@ export function DataEditor({ shape, data, onChange }: EditorProps) {
           { xValue: 0, yValue: 0, name: `Point ${arr.length + 1}` },
         ]);
         break;
+      case "bubble":
+        onChange([
+          ...arr,
+          { name: `Item ${arr.length + 1}`, sector: "Other", value: 100 },
+        ]);
+        break;
       case "shadcnCartesian":
         const sample = (arr[0] as Record<string, unknown>) ?? {};
         const catKey = Object.keys(sample).find((k) => typeof sample[k] === "string") ?? "month";
@@ -88,17 +96,19 @@ export function DataEditor({ shape, data, onChange }: EditorProps) {
         <h3 className="text-[13px] font-semibold tracking-wide text-[#3D4035]/60 uppercase">
           Data points
         </h3>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={addRow}
-          aria-label="Add data point"
-          title="Add data point"
-          className="gap-1.5 text-[12px] text-[#6C5DD3] hover:text-[#5a4dbf]"
-        >
-          <Plus className="size-3.5" />
-          Add
-        </Button>
+        {!hideAddSeries && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={addRow}
+            aria-label="Add data point"
+            title="Add data point"
+            className="gap-1.5 text-[12px] text-[#6C5DD3] hover:text-[#5a4dbf]"
+          >
+            <Plus className="size-3.5" />
+            Add
+          </Button>
+        )}
       </div>
 
       <div className="flex max-h-[40vh] min-w-0 flex-col gap-3 overflow-y-auto pr-2 sm:max-h-[45vh] md:max-h-[50vh] lg:max-h-[56vh]">
@@ -347,6 +357,45 @@ function DataRow({
             {/* ── Shadcn Cartesian (bar/area/line) ─── */}
             {shape === "shadcnCartesian" && (
               <ShadcnCartesianEditor item={item} onUpdate={onUpdate} />
+            )}
+
+            {/* ── Bubble ───────────────────────────── */}
+            {shape === "bubble" && (
+              <>
+                <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4">
+                  <div className="min-w-0 flex-1 sm:min-w-[120px]">
+                    <FieldRow label="Name">
+                      <Input
+                        value={(item.name as string) ?? ""}
+                        onChange={(e) => onUpdate({ name: e.target.value })}
+                        className="h-8 min-w-0 rounded-lg text-[13px]"
+                      />
+                    </FieldRow>
+                  </div>
+                  <div className="min-w-0 flex-1 sm:min-w-[100px]">
+                    <FieldRow label="Sector">
+                      <Input
+                        value={(item.sector as string) ?? ""}
+                        onChange={(e) => onUpdate({ sector: e.target.value })}
+                        className="h-8 min-w-0 rounded-lg text-[13px]"
+                        placeholder="Category"
+                      />
+                    </FieldRow>
+                  </div>
+                  <div className="min-w-0 flex-1 sm:min-w-[80px] sm:max-w-[100px]">
+                    <FieldRow label="Value">
+                      <Input
+                        type="number"
+                        value={item.value as number}
+                        onChange={(e) =>
+                          onUpdate({ value: parseFloat(e.target.value) || 0 })
+                        }
+                        className="h-8 min-w-0 rounded-lg text-[13px]"
+                      />
+                    </FieldRow>
+                  </div>
+                </div>
+              </>
             )}
 
             {/* ── Scatter ──────────────────────────── */}

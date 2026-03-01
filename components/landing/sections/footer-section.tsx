@@ -15,14 +15,14 @@ export function FooterSection() {
                 <div className="relative size-12 shrink-0">
                   <Image
                     src="/logo.png"
-                    alt="EZ Charts"
+                    alt="Ez2Chart"
                     fill
                     className="object-contain z-10"
                   />
                 </div>
                 <Image
                   src="/EZ Charts.png"
-                  alt="EZ Charts"
+                  alt="Ez2Chart"
                   width={150}
                   height={80}
                   className="h-14 translate-x-[-50px] w-auto object-contain"
@@ -50,7 +50,7 @@ export function FooterSection() {
               </li>
               <li>
                 <Link
-                  href="/ezcharts/examples"
+                  href="/examples"
                   className="transition-colors hover:text-[#6C5DD3]"
                 >
                   Templates
@@ -74,7 +74,7 @@ export function FooterSection() {
             <ul className="space-y-4 text-sm font-medium text-slate-500">
               <li>
                 <Link
-                  href="#"
+                  href="/about"
                   className="transition-colors hover:text-[#6C5DD3]"
                 >
                   About Us
@@ -94,7 +94,7 @@ export function FooterSection() {
 
         <div className="flex flex-col justify-between gap-4 border-t border-slate-100 pt-8 text-xs font-bold uppercase tracking-wider text-slate-400 md:flex-row md:items-center">
           <div className="flex flex-wrap items-center gap-2">
-            <p>© {new Date().getFullYear()} EZ Charts</p>
+            <p>© {new Date().getFullYear()} Ez2Chart</p>
             <span className="text-slate-300">·</span>
             <p>
               Powered by{" "}

@@ -9,7 +9,7 @@ import type { EditorProps } from "./editor-types";
 const NON_COLOR_CHARTS = ["line", "treemap", "shadcnCartesian"];
 
 /** Charts that use colorFrom + colorTo (gradient) */
-const GRADIENT_CHART_TYPES = ["pie", "pie-image", "benchmark"];
+const GRADIENT_CHART_TYPES = ["pie", "pie-image", "benchmark", "funnel"];
 
 /** Pie-like charts that use single colorFrom (no gradient) */
 const SINGLE_COLOR_FROM_CHART_TYPES = [
@@ -29,6 +29,7 @@ const SINGLE_COLOR_CHART_TYPES = [
   "breakdown-thin",
   "horizontal-bar-image",
   "scatter",
+  "bubble",
 ];
 
 export function StyleEditor({
@@ -36,8 +37,14 @@ export function StyleEditor({
   chartType = "",
   data,
   onChange,
+  chartSettings = {},
+  onChartSettingsChange,
 }: EditorProps) {
   const arr = Array.isArray(data) ? data : [];
+
+  const isAreaChart = chartType === "area";
+  const areaFillStyle =
+    (chartSettings.areaFillStyle as "gradient" | "full" | "outline") ?? "gradient";
 
   const updateRow = useCallback(
     (idx: number, patch: Record<string, unknown>) => {
@@ -49,7 +56,8 @@ export function StyleEditor({
   );
 
   const [gradientSync, setGradientSync] = useState(false);
-  const isNonColor = NON_COLOR_CHARTS.includes(shape);
+  const isNonColor =
+    NON_COLOR_CHARTS.includes(shape) && !isAreaChart;
   const hasGradient = GRADIENT_CHART_TYPES.includes(chartType);
   const hasSingleColorFrom =
     shape === "pie" &&
@@ -60,7 +68,8 @@ export function StyleEditor({
       !chartType.includes("benchmark") &&
       !hasGradient) ||
     shape === "bar-image" ||
-    shape === "scatter";
+    shape === "scatter" ||
+    shape === "bubble";
   const hasBarMulti = shape === "bar-multi";
 
   const goToDefaults = useCallback(() => {
@@ -79,6 +88,108 @@ export function StyleEditor({
         <Paintbrush className="mx-auto mb-2 size-8 text-[#3D4035]/15" />
         <p className="text-[13px] text-[#3D4035]/40">
           Color editing is not available for this chart type.
+        </p>
+      </div>
+    );
+  }
+
+  if (isAreaChart && onChartSettingsChange) {
+    return (
+      <div className="flex flex-col gap-4">
+        <h3 className="text-[13px] font-semibold tracking-wide text-[#3D4035]/60 uppercase">
+          Colors
+        </h3>
+        <div className="flex flex-col gap-3">
+          {areaFillStyle === "full" && (
+            <div className="flex flex-wrap items-center gap-3 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
+              <span className="min-w-0 flex-1 text-[13px] font-medium text-[#3D4035]">
+                Area color
+              </span>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={(chartSettings.areaColor as string) ?? "#c084fc"}
+                  onChange={(e) =>
+                    onChartSettingsChange({
+                      ...chartSettings,
+                      areaColor: e.target.value,
+                    })
+                  }
+                  className="size-7 cursor-pointer rounded-lg border-0 bg-transparent p-0"
+                />
+                <span className="text-xs text-[#3D4035]/60">
+                  {(chartSettings.areaColor as string) ?? "#c084fc"}
+                </span>
+              </div>
+            </div>
+          )}
+          {areaFillStyle === "gradient" && (
+            <div className="flex flex-col gap-2 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
+              <span className="text-[13px] font-medium text-[#3D4035]">
+                Gradient colors
+              </span>
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <label className="text-[11px] text-[#3D4035]/40">Top</label>
+                  <input
+                    type="color"
+                    value={(chartSettings.areaGradientTop as string) ?? "#84cc16"}
+                    onChange={(e) =>
+                      onChartSettingsChange({
+                        ...chartSettings,
+                        areaGradientTop: e.target.value,
+                      })
+                    }
+                    className="size-7 cursor-pointer rounded-lg border-0 bg-transparent p-0"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-[11px] text-[#3D4035]/40">Bottom</label>
+                  <input
+                    type="color"
+                    value={(chartSettings.areaGradientBottom as string) ?? "#14532d"}
+                    onChange={(e) =>
+                      onChartSettingsChange({
+                        ...chartSettings,
+                        areaGradientBottom: e.target.value,
+                      })
+                    }
+                    className="size-7 cursor-pointer rounded-lg border-0 bg-transparent p-0"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          {areaFillStyle === "outline" && (
+            <div className="flex flex-wrap items-center gap-3 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
+              <span className="min-w-0 flex-1 text-[13px] font-medium text-[#3D4035]">
+                Line color
+              </span>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={(chartSettings.areaOutlineColor as string) ?? "#eab308"}
+                  onChange={(e) =>
+                    onChartSettingsChange({
+                      ...chartSettings,
+                      areaOutlineColor: e.target.value,
+                    })
+                  }
+                  className="size-7 cursor-pointer rounded-lg border-0 bg-transparent p-0"
+                />
+                <span className="text-xs text-[#3D4035]/60">
+                  {(chartSettings.areaOutlineColor as string) ?? "#eab308"}
+                </span>
+              </div>
+              <p className="w-full text-[11px] text-[#3D4035]/50">
+                The area fades from this color below the line.
+              </p>
+            </div>
+          )}
+        </div>
+        <p className="text-[12px] text-[#3D4035]/50">
+          Change fill style in Settings to switch between gradient, solid, and
+          outline.
         </p>
       </div>
     );

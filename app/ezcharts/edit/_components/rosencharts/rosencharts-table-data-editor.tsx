@@ -12,7 +12,7 @@ export interface RosenchartsTableDataEditorProps {
   onChange: (data: unknown) => void;
 }
 
-/** Table-based data editor for rosencharts (keyValue, bar-multi, pie, bar-image, scatter) */
+/** Table-based data editor for rosencharts (keyValue, bar-multi, pie, bar-image, scatter, bubble) */
 export function RosenchartsTableDataEditor({
   shape,
   data,
@@ -212,6 +212,9 @@ function useTableConfig(
       case "scatter":
         updateRows([...arr, { xValue: 0, yValue: 0, name: `Point ${len + 1}` }]);
         break;
+      case "bubble":
+        updateRows([...arr, { name: `Item ${len + 1}`, sector: "Other", value: 100 }]);
+        break;
       default:
         updateRows([...arr, { key: `Item ${len + 1}`, value: 0 }]);
     }
@@ -289,6 +292,16 @@ function useTableConfig(
           { key: "name", label: "Name", type: "text" as const, removable: false, placeholder: "" },
           { key: "xValue", label: "X", type: "number" as const, removable: false, placeholder: "0" },
           { key: "yValue", label: "Y", type: "number" as const, removable: false, placeholder: "0" },
+        ],
+        canAddValueColumn: false,
+      };
+    }
+    if (shape === "bubble") {
+      return {
+        columns: [
+          { key: "name", label: "Name", type: "text" as const, removable: false, placeholder: "" },
+          { key: "sector", label: "Sector", type: "text" as const, removable: false, placeholder: "" },
+          { key: "value", label: "Value", type: "number" as const, removable: false, placeholder: "0" },
         ],
         canAddValueColumn: false,
       };

@@ -7,12 +7,12 @@ const baseUrl =
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://ezcharts.com");
 
 export const siteConfig = {
-  name: "EZ Charts",
+  name: "Ez2Chart",
   description:
     "AI-powered charts from your input or file data. Generate stunning visualizations with an AI chatbot, then refine with manual controls. No code required.",
   url: baseUrl,
   ogImage: `${baseUrl}/og.png`,
-  twitterHandle: "@ezcharts",
+  twitterHandle: "@ez2chart",
   keywords: [
     "AI charts",
     "data visualization",

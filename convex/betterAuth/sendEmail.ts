@@ -5,7 +5,7 @@ import { Resend } from "resend";
  *
  * Required in Convex: RESEND_API_KEY, EMAIL_FROM
  * Resend: Add & verify your domain at https://resend.com/domains, then use
- *   EMAIL_FROM e.g. "EZ Charts <noreply@yourdomain.com>"
+ *   EMAIL_FROM e.g. "Ez2Chart <noreply@yourdomain.com>"
  */
 async function sendEmail({
   to,
@@ -30,7 +30,6 @@ async function sendEmail({
     return;
   }
 
-  console.log("🚀 ~ sendEmail ~ from:", from);
   const resend = new Resend(apiKey);
   const { error } = await resend.emails.send({
     from,

@@ -17,6 +17,7 @@ export type {
   BenchmarkChartItem,
   TreeMapChartItem,
   ScatterChartItem,
+  BubbleChartItem,
 } from "./types";
 
 // Animated
@@ -42,6 +43,9 @@ export { BenchmarkChart } from "./BenchmarkChart/BenchmarkChart";
 export { BreakdownChart } from "./BreakdownChart/BreakdownChart";
 export { BreakdownChartThin } from "./BreakdownChart/BreakdownChartThin";
 
+// Area
+export { AreaChart } from "./AreaChart/AreaChart";
+
 // Line Charts
 export { LineChart } from "./LineCharts/LineChart";
 export { LineChartCurved } from "./LineCharts/LineChartCurved";
@@ -57,6 +61,12 @@ export { PieChartImage } from "./PieCharts/PieChartImage";
 
 // Scatter
 export { ScatterChart } from "./ScatterChart/ScatterChart";
+
+// Bubble
+export { BubbleChart } from "./BubbleChart/BubbleChart";
+
+// Funnel
+export { FunnelChart } from "./FunnelChart/FunnelChart";
 
 // TreeMap
 export { TreeMapChart } from "./TreeMapChart/TreeMapChart";

@@ -142,7 +142,7 @@ export const createCreditPurchaseCheckout = action({
             currency: "usd",
             product_data: {
               name: `${credits} credits`,
-              description: `One-time purchase of ${credits} credits for Ez Charts (${CREDITS_PER_DOLLAR} credits per dollar)`,
+              description: `One-time purchase of ${credits} credits for Ez2Chart (${CREDITS_PER_DOLLAR} credits per dollar)`,
             },
             unit_amount: amountCents,
           },

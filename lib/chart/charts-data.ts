@@ -1,5 +1,7 @@
 import {
   BarChart3,
+  Circle,
+  Filter,
   LineChart as LineChartIcon,
   PieChart as PieChartIcon,
   TrendingUp,
@@ -35,7 +37,7 @@ export function chartTypeToIcon(chartType: string): {
   ) {
     return { icon: BarChart3, iconColor: style, iconBg: "bg-[#94B49F]/30" };
   }
-  if (chartType.includes("line")) {
+  if (chartType.includes("line") || chartType.includes("area")) {
     return { icon: LineChartIcon, iconColor: style, iconBg: "bg-[#B5B2F2]/30" };
   }
   if (
@@ -51,6 +53,12 @@ export function chartTypeToIcon(chartType: string): {
   }
   if (chartType.includes("scatter")) {
     return { icon: ScatterIcon, iconColor: style, iconBg: "bg-[#e87c5c]/20" };
+  }
+  if (chartType.includes("bubble")) {
+    return { icon: Circle, iconColor: style, iconBg: "bg-[#ec4899]/20" };
+  }
+  if (chartType.includes("funnel")) {
+    return { icon: Filter, iconColor: style, iconBg: "bg-[#8b5cf6]/20" };
   }
   if (chartType.includes("shadcn:area")) {
     return { icon: TrendingUp, iconColor: style, iconBg: "bg-[#94B49F]/30" };

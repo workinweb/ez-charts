@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
-  description: "Terms and conditions for using EZ Charts.",
+  description: "Terms and conditions for using Ez2Chart.",
 };
 
 export default function TermsLayout({

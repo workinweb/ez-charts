@@ -293,6 +293,7 @@ export const create = mutation({
     favorited: v.optional(v.boolean()),
     withTooltip: v.optional(v.boolean()),
     withAnimation: v.optional(v.boolean()),
+    chartSettings: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -331,6 +332,7 @@ export const create = mutation({
       favorited: args.favorited ?? false,
       withTooltip: args.withTooltip ?? true,
       withAnimation: args.withAnimation ?? true,
+      chartSettings: args.chartSettings,
       isVisible: true,
       createdAt: now,
       updatedAt: now,
@@ -350,6 +352,7 @@ export const update = mutation({
     favorited: v.optional(v.boolean()),
     withTooltip: v.optional(v.boolean()),
     withAnimation: v.optional(v.boolean()),
+    chartSettings: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -433,6 +436,7 @@ export const duplicate = mutation({
       favorited: false,
       withTooltip: chart.withTooltip,
       withAnimation: chart.withAnimation,
+      chartSettings: chart.chartSettings,
       isVisible: true,
       createdAt: now,
       updatedAt: now,

@@ -55,7 +55,7 @@ export const ROSENCHARTS_BAR_MULTI_DEFAULT = [
   { key: "Item 1", values: [10, 20, 30] },
 ];
 
-/** Default data for Rosencharts line (single series) */
+/** Default data for Rosencharts line/area (single series) */
 export const ROSENCHARTS_LINE_DEFAULT = [
   {
     data: [
@@ -88,6 +88,30 @@ export const ROSENCHARTS_SCATTER_DEFAULT = [
   { xValue: 10, yValue: 20, name: "Point 1" },
 ];
 
+/** Default data for Rosencharts funnel */
+export const ROSENCHARTS_FUNNEL_DEFAULT = [
+  { key: "Visitors", value: 2840 },
+  { key: "Sign-ups", value: 1920 },
+  { key: "Trials", value: 847 },
+  { key: "Paid", value: 520 },
+  { key: "Churned", value: 180 },
+];
+
+/** Default data for Rosencharts bubble */
+export const ROSENCHARTS_BUBBLE_DEFAULT = [
+  { name: "Cloud", sector: "Tech", value: 2840 },
+  { name: "Mobile", sector: "Tech", value: 1920 },
+  { name: "Desktop", sector: "Tech", value: 847 },
+  { name: "Solar", sector: "Energy", value: 1560 },
+  { name: "Wind", sector: "Energy", value: 920 },
+  { name: "Gas", sector: "Energy", value: 430 },
+  { name: "Equities", sector: "Financials", value: 2130 },
+  { name: "Fixed Income", sector: "Financials", value: 1180 },
+  { name: "Cash", sector: "Financials", value: 340 },
+  { name: "Healthcare", sector: "Industrials", value: 780 },
+  { name: "Retail", sector: "Industrials", value: 520 },
+];
+
 /** Default data when creating a new chart (uses default chart type) */
 export const DEFAULT_CREATE_DATA = SHADCN_CARTESIAN_DEFAULT;
 
@@ -116,7 +140,8 @@ export function getDefaultDataForChartType(chartType: string): unknown[] {
   if (
     chartType === "line" ||
     chartType === "line-multi" ||
-    chartType === "line-curved"
+    chartType === "line-curved" ||
+    chartType === "area"
   ) {
     return JSON.parse(JSON.stringify(ROSENCHARTS_LINE_DEFAULT));
   }
@@ -133,6 +158,12 @@ export function getDefaultDataForChartType(chartType: string): unknown[] {
   }
   if (chartType.includes("scatter")) {
     return JSON.parse(JSON.stringify(ROSENCHARTS_SCATTER_DEFAULT));
+  }
+  if (chartType.includes("bubble")) {
+    return JSON.parse(JSON.stringify(ROSENCHARTS_BUBBLE_DEFAULT));
+  }
+  if (chartType.includes("funnel")) {
+    return JSON.parse(JSON.stringify(ROSENCHARTS_FUNNEL_DEFAULT));
   }
 
   // horizontal-bar, horizontal-bar-gradient, horizontal-bar-thin, vertical-bar,

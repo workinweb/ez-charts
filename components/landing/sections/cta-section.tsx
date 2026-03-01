@@ -31,7 +31,7 @@ export function CTASection() {
               <ArrowRight className="size-5 transition-transform group-hover:translate-x-0.5" />
             </Link>
             <Link
-              href="/ezcharts/examples"
+              href="/examples"
               className="inline-flex w-full max-w-xs items-center justify-center rounded-full border-2 border-white/40 bg-white/5 px-8 py-4 text-base font-bold text-white backdrop-blur-sm transition-all hover:bg-white/15 hover:border-white/60 sm:w-auto"
             >
               Explore templates

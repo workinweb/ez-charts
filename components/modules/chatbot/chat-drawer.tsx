@@ -25,11 +25,9 @@ export function ChatDrawer() {
         </Button>
       </DrawerTrigger>
 
-      <DrawerContent className="h-[85vh] rounded-t-3xl border-0 bg-[#E9EEF0] p-0">
+      <DrawerContent className="h-[85vh] rounded-t-3xl border-0 bg-[#EDE9FE] p-0">
         <div className="flex items-center justify-between border-b border-sidebar-border px-4 py-2.5">
-          <span className="text-[14px] font-semibold text-sidebar-foreground">
-            AI Chat
-          </span>
+          <span className="text-[14px] font-semibold text-sidebar-foreground"></span>
           <DrawerClose asChild>
             <Button
               variant="ghost"

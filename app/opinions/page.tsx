@@ -269,7 +269,7 @@ export default function OpinionsPage() {
                       </DialogTitle>
                       <DialogDescription className="mt-3 text-[15px] text-[#3D4035]/70 leading-relaxed">
                         Suggest a feature, report a bug, or share your thoughts.
-                        Your voice helps shape EZ Charts.
+                        Your voice helps shape Ez2Chart.
                       </DialogDescription>
                       <p className="mt-4 flex items-center gap-2 rounded-xl bg-[#6C5DD3]/8 px-4 py-2.5 text-[13px] font-medium text-[#6C5DD3] ring-1 ring-[#6C5DD3]/15">
                         You can submit up to 3 feedbacks per day.

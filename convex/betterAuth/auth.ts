@@ -16,7 +16,7 @@ export const authComponent = createClient<DataModel>(components.betterAuth);
 // Creates a fresh auth instance bound to the current Convex context.
 export const createAuth = (ctx: GenericCtx<DataModel>) => {
   return betterAuth({
-    appName: "EZ Charts",
+    appName: "Ez2Chart",
     baseURL: process.env.SITE_URL,
     database: authComponent.adapter(ctx),
     trustedOrigins: [process.env.SITE_URL ?? ""],
@@ -25,11 +25,11 @@ export const createAuth = (ctx: GenericCtx<DataModel>) => {
       sendVerificationEmail: async ({ user, url }) => {
         await sendEmail({
           to: user.email,
-          subject: "Verify your email – EZ Charts",
+          subject: "Verify your email – Ez2Chart",
           text: `Click the link below to verify your email:\n\n${url}\n\nIf you didn't sign up, you can ignore this email.`,
           html: authEmailBody({
             title: "Verify your email",
-            body: "Click the button below to verify your email address for EZ Charts.",
+            body: "Click the button below to verify your email address for Ez2Chart.",
             buttonText: "Verify email",
             url,
           }),
@@ -48,7 +48,7 @@ export const createAuth = (ctx: GenericCtx<DataModel>) => {
         // have no password to reset. Use "Set password via email" on user page instead.
         await sendEmail({
           to: user.email,
-          subject: "Reset your password – EZ Charts",
+          subject: "Reset your password – Ez2Chart",
           text: `Click the link below to reset your password:\n\n${url}\n\nIf you didn't request this, you can ignore this email. The link expires in 1 hour.`,
           html: authEmailBody({
             title: "Reset your password",

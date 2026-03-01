@@ -35,7 +35,6 @@ const navLinks = [
   { label: "Favorites", href: "/ezcharts/favorites" },
   { label: "Charts", href: "/ezcharts/charts" },
   { label: "Slides", href: "/ezcharts/slides" },
-  { label: "Opinions", href: "/opinions" },
 ];
 
 const PLAN_ICONS = { free: Coffee, pro: Zap, max: Crown } as const;

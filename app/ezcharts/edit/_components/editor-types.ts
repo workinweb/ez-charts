@@ -16,6 +16,7 @@ export type EditorShape =
   | "pie" // { name, value, colorFrom?, colorTo?, logo? }
   | "treemap" // { name, subtopics, colorFrom?, colorTo? }
   | "scatter" // { xValue, yValue, name, color? }
+  | "bubble" // { name, sector, value, color? }
   | "shadcnCartesian"; // { month, desktop, mobile } — shadcn bar/area/line
 
 export type EditorTab = "data" | "style" | "settings";
@@ -25,6 +26,8 @@ export interface EditorProps {
   data: unknown;
   onChange: (data: unknown) => void;
   chartType?: string;
+  chartSettings?: Record<string, unknown>;
+  onChartSettingsChange?: (v: Record<string, unknown>) => void;
 }
 
 export function getEditorShape(chartType: string): EditorShape {
@@ -42,7 +45,7 @@ export function getEditorShape(chartType: string): EditorShape {
     chartType === "vertical-bar-multi"
   )
     return "bar-multi";
-  if (chartType.includes("line")) return "line";
+  if (chartType.includes("line") || chartType === "area") return "line";
   if (
     chartType.includes("pie") ||
     chartType.includes("donut") ||
@@ -52,6 +55,7 @@ export function getEditorShape(chartType: string): EditorShape {
     return "pie";
   if (chartType.includes("treemap")) return "treemap";
   if (chartType.includes("scatter")) return "scatter";
+  if (chartType.includes("bubble")) return "bubble";
   return "keyValue";
 }
 

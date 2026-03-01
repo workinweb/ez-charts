@@ -9,6 +9,7 @@ import {
   LineChart as LineChartIcon,
   PieChart as PieChartIcon,
   ScatterChart as ScatterChartIcon,
+  Circle,
   TrendingUp,
   Layers,
   Grid3X3,
@@ -17,6 +18,7 @@ import {
   TreePine,
   Image,
   Donut,
+  Filter,
 } from "lucide-react";
 import { BarChartHorizontal } from "../BarChartHorizontal/BarChartHorizontal";
 import { BarChartHorizontalGradient } from "../BarChartHorizontal/BarChartHorizontalGradient";
@@ -28,6 +30,7 @@ import { BarChartVerticalMulti } from "../BarChartVertical/BarChartVerticalMulti
 import { BenchmarkChart } from "../BenchmarkChart/BenchmarkChart";
 import { BreakdownChart } from "../BreakdownChart/BreakdownChart";
 import { BreakdownChartThin } from "../BreakdownChart/BreakdownChartThin";
+import { AreaChart } from "../AreaChart/AreaChart";
 import { LineChart } from "../LineCharts/LineChart";
 import { LineChartCurved } from "../LineCharts/LineChartCurved";
 import { LineChartCurvedDeprecated } from "../LineCharts/LineChartCurvedDeprecated";
@@ -38,6 +41,8 @@ import { HalfDonutChart } from "../PieCharts/HalfDonutChart";
 import { PieChart } from "../PieCharts/PieChart";
 import { PieChartImage } from "../PieCharts/PieChartImage";
 import { ScatterChart } from "../ScatterChart/ScatterChart";
+import { BubbleChart } from "../BubbleChart/BubbleChart";
+import { FunnelChart } from "../FunnelChart/FunnelChart";
 import { TreeMapChart } from "../TreeMapChart/TreeMapChart";
 
 import {
@@ -54,6 +59,7 @@ import {
   MultiBarData,
   PieChartItem,
   ScatterChartItem,
+  BubbleChartItem,
   SVGBarData,
   TreeMapChartItem,
   VerticalBarData,
@@ -119,6 +125,7 @@ export const chartTypes: ReadonlyArray<{
     category: "line",
     icon: TrendingUp,
   },
+  { key: "area", label: "Area", category: "line", icon: TrendingUp },
   // Pie / Donut
   { key: "pie", label: "Pie", category: "pie", icon: PieChartIcon },
   {
@@ -151,6 +158,18 @@ export const chartTypes: ReadonlyArray<{
     label: "Scatter",
     category: "other",
     icon: ScatterChartIcon,
+  },
+  {
+    key: "bubble",
+    label: "Bubble",
+    category: "other",
+    icon: Circle,
+  },
+  {
+    key: "funnel",
+    label: "Funnel",
+    category: "other",
+    icon: Filter,
   },
 ];
 
@@ -186,6 +205,7 @@ export const interchangeGroups: ReadonlyArray<ReadonlyArray<ChartTypeKey>> = [
     "breakdown",
     "breakdown-thin",
     "benchmark",
+    "funnel",
     "pie",
     "pie-image",
     "donut",
@@ -196,9 +216,9 @@ export const interchangeGroups: ReadonlyArray<ReadonlyArray<ChartTypeKey>> = [
   // ── Multi‑bar (horizontal ↔ vertical) ─────────────────────────────
   ["horizontal-bar-multi", "vertical-bar-multi"],
   // ── Line charts ───────────────────────────────────────────────────
-  ["line", "line-multi"],
+  ["line", "line-multi", "area"],
   // ── Standalone (no interchange) ───────────────────────────────────
-  // treemap, scatter
+  // treemap, scatter, bubble
 ];
 
 /** Lookup: chartTypeKey → set of all keys it can be converted to */
@@ -337,12 +357,12 @@ export function transformChartData(
   return JSON.parse(JSON.stringify(data));
 }
 
-type ShapeFamily = "keyValue" | "pie" | "multi" | "line" | "treemap" | "scatter" | "imageBar";
+type ShapeFamily = "keyValue" | "pie" | "multi" | "line" | "treemap" | "scatter" | "bubble" | "imageBar";
 
 function getShapeFamily(chartType: string): ShapeFamily {
   if (chartType === "horizontal-bar-image") return "imageBar";
   if (chartType === "horizontal-bar-multi" || chartType === "vertical-bar-multi") return "multi";
-  if (chartType.includes("line")) return "line";
+  if (chartType.includes("line") || chartType.includes("area")) return "line";
   if (
     chartType.includes("pie") ||
     chartType.includes("donut") ||
@@ -351,6 +371,8 @@ function getShapeFamily(chartType: string): ShapeFamily {
   ) return "pie";
   if (chartType.includes("treemap")) return "treemap";
   if (chartType.includes("scatter")) return "scatter";
+  if (chartType.includes("bubble")) return "bubble";
+  if (chartType.includes("funnel")) return "keyValue";
   // horizontal-bar, horizontal-bar-gradient, horizontal-bar-thin,
   // vertical-bar, breakdown, breakdown-thin, benchmark
   return "keyValue";
@@ -381,6 +403,7 @@ export const getChartTypeByName = (
     withAnimation?: boolean;
     withInteractive?: boolean;
     suffix?: string;
+    chartSettings?: Record<string, unknown>;
   },
 ): JSX.Element | null => {
   const {
@@ -389,6 +412,7 @@ export const getChartTypeByName = (
     withInteractive,
     className,
     suffix,
+    chartSettings,
   } = options || {};
 
   switch (chartType) {
@@ -469,6 +493,7 @@ export const getChartTypeByName = (
         <BreakdownChart
           data={data as BreakdownChartItem[]}
           className={className}
+          withTooltip={withTooltip}
         />
       );
     }
@@ -477,6 +502,7 @@ export const getChartTypeByName = (
         <BreakdownChartThin
           data={data as BreakdownChartItem[]}
           className={className}
+          withTooltip={withTooltip}
         />
       );
     }
@@ -562,6 +588,59 @@ export const getChartTypeByName = (
         />
       );
     }
+    case "area": {
+      const areaData = data as unknown[];
+      const flatArea =
+        areaData?.length > 0 &&
+        typeof areaData[0] === "object" &&
+        areaData[0] != null &&
+        "date" in (areaData[0] as object) &&
+        "value" in (areaData[0] as object) &&
+        !("data" in (areaData[0] as object));
+      const rawArea = flatArea
+        ? (areaData as Array<{ date: string; value: number }>)
+        : null;
+      const normalizedArea = flatArea
+        ? [
+            {
+              data: rawArea!.map((d) => {
+                const dateStr = String(d.date);
+                const parsed = new Date(dateStr);
+                const dayMatch = dateStr.trim().match(/^day\s*(\d+)$/i);
+                const date =
+                  isNaN(parsed.getTime()) && dayMatch
+                    ? `2024-01-${dayMatch[1].padStart(2, "0")}`
+                    : dateStr;
+                return { ...d, date };
+              }),
+            },
+          ]
+        : (areaData as LineDataSeries[]);
+      const fillStyle =
+        (chartSettings?.areaFillStyle as "gradient" | "full" | "outline") ?? "gradient";
+      const colors =
+        chartSettings?.areaColor ||
+        chartSettings?.areaGradientTop ||
+        chartSettings?.areaGradientBottom ||
+        chartSettings?.areaOutlineColor
+          ? {
+              areaColor: chartSettings?.areaColor as string | undefined,
+              areaGradientTop: chartSettings?.areaGradientTop as string | undefined,
+              areaGradientBottom: chartSettings?.areaGradientBottom as string | undefined,
+              areaOutlineColor: chartSettings?.areaOutlineColor as string | undefined,
+            }
+          : undefined;
+      return (
+        <AreaChart
+          data={normalizedArea}
+          withTooltip={withTooltip}
+          withAnimation={withAnimation}
+          fillStyle={fillStyle}
+          colors={colors}
+          className={className}
+        />
+      );
+    }
     case "pie": {
       return (
         <PieChart
@@ -588,6 +667,7 @@ export const getChartTypeByName = (
           data={data as PieChartItem[]}
           className={className}
           suffix={suffix}
+          withTooltip={withTooltip}
         />
       );
     }
@@ -607,6 +687,7 @@ export const getChartTypeByName = (
           data={data as PieChartItem[]}
           className={className}
           suffix={suffix}
+          withTooltip={withTooltip}
         />
       );
     }
@@ -616,6 +697,7 @@ export const getChartTypeByName = (
           data={data as PieChartItem[]}
           className={className}
           suffix={suffix}
+          withTooltip={withTooltip}
         />
       );
     }
@@ -646,6 +728,26 @@ export const getChartTypeByName = (
           withTooltip={withTooltip}
           withAnimation={withAnimation}
           withInteractive={withInteractive}
+          className={className}
+        />
+      );
+    }
+    case "bubble": {
+      return (
+        <BubbleChart
+          data={data as unknown as BubbleChartItem[]}
+          withTooltip={withTooltip}
+          withAnimation={withAnimation}
+          className={className}
+        />
+      );
+    }
+    case "funnel": {
+      return (
+        <FunnelChart
+          data={data as unknown as BenchmarkChartItem[]}
+          withTooltip={withTooltip}
+          withAnimation={withAnimation}
           className={className}
         />
       );

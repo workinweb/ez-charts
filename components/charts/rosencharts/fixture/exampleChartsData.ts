@@ -22,6 +22,9 @@ import {
   pieChartImageData,
 } from "./PieChart";
 import { scatterChartData } from "./ScatterChart";
+import { bubbleChartData } from "./BubbleChart";
+import { areaChartData } from "./AreaChart";
+import { funnelChartData } from "./FunnelChart";
 import { treeMapChartData } from "./TreemapCharts";
 
 export const data = [
@@ -140,6 +143,15 @@ export const data = [
   },
 
   {
+    id: "11.5",
+    name: "Area Chart",
+    chartType: "area",
+    data: areaChartData,
+    withTooltip: true,
+    withAnimation: true,
+  },
+
+  {
     id: "13",
     name: "Pie Chart",
     chartType: "pie",
@@ -214,6 +226,24 @@ export const data = [
     name: "Scatter Chart",
     chartType: "scatter",
     data: scatterChartData,
+    withTooltip: true,
+    withAnimation: true,
+  },
+
+  {
+    id: "22",
+    name: "Bubble Chart",
+    chartType: "bubble",
+    data: bubbleChartData,
+    withTooltip: true,
+    withAnimation: true,
+  },
+
+  {
+    id: "23",
+    name: "Funnel Chart",
+    chartType: "funnel",
+    data: funnelChartData,
     withTooltip: true,
     withAnimation: true,
   },

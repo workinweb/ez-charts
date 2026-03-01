@@ -22,6 +22,7 @@ const ROSENCHARTS_TABULAR_SHAPES: EditorShape[] = [
   "pie",
   "bar-image",
   "scatter",
+  "bubble",
 ];
 
 interface EditorPanelProps {
@@ -35,6 +36,8 @@ interface EditorPanelProps {
   withAnimation: boolean;
   onTooltipChange: (v: boolean) => void;
   onAnimationChange: (v: boolean) => void;
+  chartSettings?: Record<string, unknown>;
+  onChartSettingsChange?: (v: Record<string, unknown>) => void;
   chartDataEditorMode: "table" | "items";
 }
 
@@ -51,6 +54,8 @@ export function EditorPanel({
   withAnimation,
   onTooltipChange,
   onAnimationChange,
+  chartSettings,
+  onChartSettingsChange,
   chartDataEditorMode,
 }: EditorPanelProps) {
   const useShadcnEditors = isShadcnChart(chartType);
@@ -112,6 +117,7 @@ export function EditorPanel({
             editorShape && (
               <DataEditor
                 shape={editorShape}
+                chartType={chartType}
                 data={data}
                 onChange={onDataChange}
               />
@@ -131,15 +137,20 @@ export function EditorPanel({
                 chartType={chartType}
                 data={data}
                 onChange={onDataChange}
+                chartSettings={chartSettings}
+                onChartSettingsChange={onChartSettingsChange}
               />
             )
           ))}
         {activeTab === "settings" && (
           <SettingsEditor
+            chartType={chartType}
             withTooltip={withTooltip}
             withAnimation={withAnimation}
             onTooltipChange={onTooltipChange}
             onAnimationChange={onAnimationChange}
+            chartSettings={chartSettings ?? {}}
+            onChartSettingsChange={onChartSettingsChange ?? (() => {})}
           />
         )}
       </div>

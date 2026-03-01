@@ -2,7 +2,7 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 // ─── App Data Schema ────────────────────────────────────────────────────────
-// All user-owned data tables for Ez Charts.
+// All user-owned data tables for Ez2Chart.
 // Every table includes `userId` for ownership + RLS, indexed for fast queries.
 //
 // Auth tables (user, session, account, verification) are handled by the
@@ -27,6 +27,8 @@ export default defineSchema({
     favorited: v.boolean(),
     withTooltip: v.boolean(),
     withAnimation: v.boolean(),
+    /** Chart-type-specific options (e.g. area fill style) */
+    chartSettings: v.optional(v.any()),
     /** Soft delete: false when user removes; never returned to user */
     isVisible: v.optional(v.boolean()),
     /** Blocked by plan tier limit — not shown in lists; separate from isVisible (removal) */

@@ -39,6 +39,8 @@ interface ChatbotState {
   loadedDocuments: LoadedDocument[];
   selectedChartKey: string | null;
   chatSidebarView: ChatSidebarView;
+  /** Chat sidebar collapsed (hidden off-screen) on desktop */
+  chatSidebarCollapsed: boolean;
   /** Save attached documents to DB (default: disabled) */
   saveDocumentsOnDb: boolean;
   /** Chart feedback by message id (Conversation+Message+Result) */
@@ -66,6 +68,8 @@ interface ChatbotState {
   toggleSelectedChartKey: (key: string) => void;
   setChatSidebarView: (view: ChatSidebarView) => void;
   toggleChatSidebarView: () => void;
+  setChatSidebarCollapsed: (collapsed: boolean) => void;
+  toggleChatSidebarCollapsed: () => void;
   setSaveDocumentsOnDb: (value: boolean) => void;
 }
 
@@ -151,6 +155,7 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
   loadedDocuments: [],
   selectedChartKey: DEFAULT_CHART_KEY,
   chatSidebarView: "chat",
+  chatSidebarCollapsed: false,
   saveDocumentsOnDb: false,
   chartFeedbackMap: {},
   conversationId: null,
@@ -264,6 +269,12 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
     set((s) => ({
       chatSidebarView: s.chatSidebarView === "chat" ? "settings" : "chat",
     })),
+
+  setChatSidebarCollapsed: (collapsed) =>
+    set({ chatSidebarCollapsed: collapsed }),
+
+  toggleChatSidebarCollapsed: () =>
+    set((s) => ({ chatSidebarCollapsed: !s.chatSidebarCollapsed })),
 
   setSaveDocumentsOnDb: (value) => set({ saveDocumentsOnDb: value }),
 }));

@@ -19,6 +19,7 @@ export function renderChart(
     withAnimation?: boolean;
     className?: string;
     presentationMode?: boolean;
+    chartSettings?: Record<string, unknown>;
   },
 ): JSX.Element | null {
   if (!data || !chartType) return null;
@@ -48,6 +49,7 @@ export function renderChart(
       withTooltip: options?.withTooltip,
       withAnimation: options?.withAnimation,
       className: chartClassName ?? options?.className,
+      chartSettings: options?.chartSettings,
     },
   );
 }

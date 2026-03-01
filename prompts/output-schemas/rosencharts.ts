@@ -71,6 +71,7 @@ export const verticalBarMultiSchema = z.array(multiBarItem).min(1);
 
 export const lineSchema = z.array(lineSeries).min(1).max(1);
 export const lineMultiSchema = z.array(lineSeries).min(1);
+export const areaSchema = lineSchema;
 
 export const pieSchema = z.array(pieItem).min(1);
 export const pieImageSchema = z.array(pieItem).min(1);
@@ -101,8 +102,19 @@ export const benchmarkSchema = z
   )
   .min(1);
 
+export const funnelSchema = benchmarkSchema;
+
 export const treemapSchema = z.array(treemapItem).min(1);
 export const scatterSchema = z.array(scatterPoint).min(1);
+
+const bubblePoint = z.object({
+  name: z.string().describe("Item label"),
+  sector: z.string().describe("Category/group for color"),
+  value: z.number().describe("Size of bubble"),
+  color: z.string().nullable(),
+});
+
+export const bubbleSchema = z.array(bubblePoint).min(1);
 
 /** Rosencharts chartType → schema map */
 export const ROSENCHARTS_OUTPUT_SCHEMAS: Record<string, z.ZodType<unknown>> = {
@@ -115,6 +127,7 @@ export const ROSENCHARTS_OUTPUT_SCHEMAS: Record<string, z.ZodType<unknown>> = {
   "vertical-bar-multi": verticalBarMultiSchema,
   line: lineSchema,
   "line-multi": lineMultiSchema,
+  area: areaSchema,
   pie: pieSchema,
   "pie-image": pieImageSchema,
   donut: donutSchema,
@@ -124,6 +137,8 @@ export const ROSENCHARTS_OUTPUT_SCHEMAS: Record<string, z.ZodType<unknown>> = {
   breakdown: breakdownSchema,
   "breakdown-thin": breakdownThinSchema,
   benchmark: benchmarkSchema,
+  funnel: funnelSchema,
   treemap: treemapSchema,
   scatter: scatterSchema,
+  bubble: bubbleSchema,
 };

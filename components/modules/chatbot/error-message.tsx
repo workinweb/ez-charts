@@ -49,7 +49,7 @@ export function ErrorMessage({ error }: ErrorMessageProps) {
             className="size-5 rounded-full object-cover"
           />
           <span className="text-[13px] font-semibold text-sidebar-foreground">
-            EZ Charts
+            Ez2Chart
           </span>
         </div>
       </div>
