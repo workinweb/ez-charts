@@ -30,6 +30,7 @@ import { BarChartVerticalMulti } from "../BarChartVertical/BarChartVerticalMulti
 import { BenchmarkChart } from "../BenchmarkChart/BenchmarkChart";
 import { BreakdownChart } from "../BreakdownChart/BreakdownChart";
 import { BreakdownChartThin } from "../BreakdownChart/BreakdownChartThin";
+import { AreaChart } from "../AreaChart/AreaChart";
 import { LineChart } from "../LineCharts/LineChart";
 import { LineChartCurved } from "../LineCharts/LineChartCurved";
 import { LineChartCurvedDeprecated } from "../LineCharts/LineChartCurvedDeprecated";
@@ -124,6 +125,7 @@ export const chartTypes: ReadonlyArray<{
     category: "line",
     icon: TrendingUp,
   },
+  { key: "area", label: "Area", category: "line", icon: TrendingUp },
   // Pie / Donut
   { key: "pie", label: "Pie", category: "pie", icon: PieChartIcon },
   {
@@ -214,7 +216,7 @@ export const interchangeGroups: ReadonlyArray<ReadonlyArray<ChartTypeKey>> = [
   // ── Multi‑bar (horizontal ↔ vertical) ─────────────────────────────
   ["horizontal-bar-multi", "vertical-bar-multi"],
   // ── Line charts ───────────────────────────────────────────────────
-  ["line", "line-multi"],
+  ["line", "line-multi", "area"],
   // ── Standalone (no interchange) ───────────────────────────────────
   // treemap, scatter, bubble
 ];
@@ -360,7 +362,7 @@ type ShapeFamily = "keyValue" | "pie" | "multi" | "line" | "treemap" | "scatter"
 function getShapeFamily(chartType: string): ShapeFamily {
   if (chartType === "horizontal-bar-image") return "imageBar";
   if (chartType === "horizontal-bar-multi" || chartType === "vertical-bar-multi") return "multi";
-  if (chartType.includes("line")) return "line";
+  if (chartType.includes("line") || chartType.includes("area")) return "line";
   if (
     chartType.includes("pie") ||
     chartType.includes("donut") ||
@@ -401,6 +403,7 @@ export const getChartTypeByName = (
     withAnimation?: boolean;
     withInteractive?: boolean;
     suffix?: string;
+    chartSettings?: Record<string, unknown>;
   },
 ): JSX.Element | null => {
   const {
@@ -409,6 +412,7 @@ export const getChartTypeByName = (
     withInteractive,
     className,
     suffix,
+    chartSettings,
   } = options || {};
 
   switch (chartType) {
@@ -581,6 +585,59 @@ export const getChartTypeByName = (
           withTooltip={withTooltip}
           className={className}
           withAnimation={withAnimation}
+        />
+      );
+    }
+    case "area": {
+      const areaData = data as unknown[];
+      const flatArea =
+        areaData?.length > 0 &&
+        typeof areaData[0] === "object" &&
+        areaData[0] != null &&
+        "date" in (areaData[0] as object) &&
+        "value" in (areaData[0] as object) &&
+        !("data" in (areaData[0] as object));
+      const rawArea = flatArea
+        ? (areaData as Array<{ date: string; value: number }>)
+        : null;
+      const normalizedArea = flatArea
+        ? [
+            {
+              data: rawArea!.map((d) => {
+                const dateStr = String(d.date);
+                const parsed = new Date(dateStr);
+                const dayMatch = dateStr.trim().match(/^day\s*(\d+)$/i);
+                const date =
+                  isNaN(parsed.getTime()) && dayMatch
+                    ? `2024-01-${dayMatch[1].padStart(2, "0")}`
+                    : dateStr;
+                return { ...d, date };
+              }),
+            },
+          ]
+        : (areaData as LineDataSeries[]);
+      const fillStyle =
+        (chartSettings?.areaFillStyle as "gradient" | "full" | "outline") ?? "gradient";
+      const colors =
+        chartSettings?.areaColor ||
+        chartSettings?.areaGradientTop ||
+        chartSettings?.areaGradientBottom ||
+        chartSettings?.areaOutlineColor
+          ? {
+              areaColor: chartSettings?.areaColor as string | undefined,
+              areaGradientTop: chartSettings?.areaGradientTop as string | undefined,
+              areaGradientBottom: chartSettings?.areaGradientBottom as string | undefined,
+              areaOutlineColor: chartSettings?.areaOutlineColor as string | undefined,
+            }
+          : undefined;
+      return (
+        <AreaChart
+          data={normalizedArea}
+          withTooltip={withTooltip}
+          withAnimation={withAnimation}
+          fillStyle={fillStyle}
+          colors={colors}
+          className={className}
         />
       );
     }

@@ -12,8 +12,10 @@ import { FieldRow } from "./field-row";
  * DATA EDITOR (table-like rows per data shape)
  * ═══════════════════════════════════════════════════════════════════ */
 
-export function DataEditor({ shape, data, onChange }: EditorProps) {
+export function DataEditor({ shape, chartType = "", data, onChange }: EditorProps) {
   const arr = Array.isArray(data) ? data : [];
+  const isAreaChart = chartType === "area";
+  const hideAddSeries = isAreaChart && shape === "line";
 
   const updateRow = useCallback(
     (idx: number, patch: Record<string, unknown>) => {
@@ -94,17 +96,19 @@ export function DataEditor({ shape, data, onChange }: EditorProps) {
         <h3 className="text-[13px] font-semibold tracking-wide text-[#3D4035]/60 uppercase">
           Data points
         </h3>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={addRow}
-          aria-label="Add data point"
-          title="Add data point"
-          className="gap-1.5 text-[12px] text-[#6C5DD3] hover:text-[#5a4dbf]"
-        >
-          <Plus className="size-3.5" />
-          Add
-        </Button>
+        {!hideAddSeries && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={addRow}
+            aria-label="Add data point"
+            title="Add data point"
+            className="gap-1.5 text-[12px] text-[#6C5DD3] hover:text-[#5a4dbf]"
+          >
+            <Plus className="size-3.5" />
+            Add
+          </Button>
+        )}
       </div>
 
       <div className="flex max-h-[40vh] min-w-0 flex-col gap-3 overflow-y-auto pr-2 sm:max-h-[45vh] md:max-h-[50vh] lg:max-h-[56vh]">

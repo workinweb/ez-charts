@@ -30,6 +30,7 @@ export default function ChartDetailPage() {
   const chartEl = renderChart(chart.data, chart.chartType, {
     withTooltip: chart.withTooltip ?? true,
     withAnimation: chart.withAnimation ?? true,
+    chartSettings: (chart as { chartSettings?: Record<string, unknown> }).chartSettings,
     className: "min-h-[320px] w-full",
   });
 

@@ -55,7 +55,7 @@ export const ROSENCHARTS_BAR_MULTI_DEFAULT = [
   { key: "Item 1", values: [10, 20, 30] },
 ];
 
-/** Default data for Rosencharts line (single series) */
+/** Default data for Rosencharts line/area (single series) */
 export const ROSENCHARTS_LINE_DEFAULT = [
   {
     data: [
@@ -140,7 +140,8 @@ export function getDefaultDataForChartType(chartType: string): unknown[] {
   if (
     chartType === "line" ||
     chartType === "line-multi" ||
-    chartType === "line-curved"
+    chartType === "line-curved" ||
+    chartType === "area"
   ) {
     return JSON.parse(JSON.stringify(ROSENCHARTS_LINE_DEFAULT));
   }

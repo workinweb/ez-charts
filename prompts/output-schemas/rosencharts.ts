@@ -71,6 +71,7 @@ export const verticalBarMultiSchema = z.array(multiBarItem).min(1);
 
 export const lineSchema = z.array(lineSeries).min(1).max(1);
 export const lineMultiSchema = z.array(lineSeries).min(1);
+export const areaSchema = lineSchema;
 
 export const pieSchema = z.array(pieItem).min(1);
 export const pieImageSchema = z.array(pieItem).min(1);
@@ -126,6 +127,7 @@ export const ROSENCHARTS_OUTPUT_SCHEMAS: Record<string, z.ZodType<unknown>> = {
   "vertical-bar-multi": verticalBarMultiSchema,
   line: lineSchema,
   "line-multi": lineMultiSchema,
+  area: areaSchema,
   pie: pieSchema,
   "pie-image": pieImageSchema,
   donut: donutSchema,

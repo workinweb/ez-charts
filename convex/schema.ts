@@ -27,6 +27,8 @@ export default defineSchema({
     favorited: v.boolean(),
     withTooltip: v.boolean(),
     withAnimation: v.boolean(),
+    /** Chart-type-specific options (e.g. area fill style) */
+    chartSettings: v.optional(v.any()),
     /** Soft delete: false when user removes; never returned to user */
     isVisible: v.optional(v.boolean()),
     /** Blocked by plan tier limit — not shown in lists; separate from isVisible (removal) */

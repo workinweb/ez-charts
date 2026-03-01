@@ -37,7 +37,7 @@ export function chartTypeToIcon(chartType: string): {
   ) {
     return { icon: BarChart3, iconColor: style, iconBg: "bg-[#94B49F]/30" };
   }
-  if (chartType.includes("line")) {
+  if (chartType.includes("line") || chartType.includes("area")) {
     return { icon: LineChartIcon, iconColor: style, iconBg: "bg-[#B5B2F2]/30" };
   }
   if (

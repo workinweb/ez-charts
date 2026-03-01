@@ -43,6 +43,9 @@ export { BenchmarkChart } from "./BenchmarkChart/BenchmarkChart";
 export { BreakdownChart } from "./BreakdownChart/BreakdownChart";
 export { BreakdownChartThin } from "./BreakdownChart/BreakdownChartThin";
 
+// Area
+export { AreaChart } from "./AreaChart/AreaChart";
+
 // Line Charts
 export { LineChart } from "./LineCharts/LineChart";
 export { LineChartCurved } from "./LineCharts/LineChartCurved";

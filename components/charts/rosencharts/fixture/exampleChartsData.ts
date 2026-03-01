@@ -23,6 +23,7 @@ import {
 } from "./PieChart";
 import { scatterChartData } from "./ScatterChart";
 import { bubbleChartData } from "./BubbleChart";
+import { areaChartData } from "./AreaChart";
 import { funnelChartData } from "./FunnelChart";
 import { treeMapChartData } from "./TreemapCharts";
 
@@ -137,6 +138,15 @@ export const data = [
     name: "Lines Chart Multiple",
     chartType: "line-multi",
     data: lineChartMultipleData,
+    withTooltip: true,
+    withAnimation: true,
+  },
+
+  {
+    id: "11.5",
+    name: "Area Chart",
+    chartType: "area",
+    data: areaChartData,
     withTooltip: true,
     withAnimation: true,
   },

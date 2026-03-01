@@ -26,6 +26,8 @@ export interface EditorProps {
   data: unknown;
   onChange: (data: unknown) => void;
   chartType?: string;
+  chartSettings?: Record<string, unknown>;
+  onChartSettingsChange?: (v: Record<string, unknown>) => void;
 }
 
 export function getEditorShape(chartType: string): EditorShape {
@@ -43,7 +45,7 @@ export function getEditorShape(chartType: string): EditorShape {
     chartType === "vertical-bar-multi"
   )
     return "bar-multi";
-  if (chartType.includes("line")) return "line";
+  if (chartType.includes("line") || chartType === "area") return "line";
   if (
     chartType.includes("pie") ||
     chartType.includes("donut") ||

@@ -149,8 +149,9 @@ export function NewSection() {
             </div>
             <div className="min-h-[220px] overflow-hidden rounded-xl bg-white/60 ring-1 ring-black/[0.03] p-5">
               {renderChart(displayChart.data, displayChart.chartType, {
-                withTooltip: true,
-                withAnimation: true,
+                withTooltip: displayChart.withTooltip ?? true,
+                withAnimation: displayChart.withAnimation ?? true,
+                chartSettings: (displayChart as { chartSettings?: Record<string, unknown> }).chartSettings,
                 className: "w-full",
               })}
             </div>

@@ -104,6 +104,7 @@ export function useChartsMutations() {
       favorited?: boolean;
       withTooltip?: boolean;
       withAnimation?: boolean;
+      chartSettings?: Record<string, unknown>;
     }) => {
       const { chartLibrary, chartType } =
         input.chartLibrary !== undefined
@@ -118,6 +119,7 @@ export function useChartsMutations() {
         favorited: input.favorited,
         withTooltip: input.withTooltip,
         withAnimation: input.withAnimation,
+        chartSettings: input.chartSettings,
       });
     },
     update: async (
@@ -129,6 +131,7 @@ export function useChartsMutations() {
         data?: unknown;
         withTooltip?: boolean;
         withAnimation?: boolean;
+        chartSettings?: Record<string, unknown>;
       },
     ) => {
       const { chartType: patchType, ...rest } = patch;

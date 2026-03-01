@@ -140,6 +140,7 @@ export default function SlideViewPage() {
     ? renderChart(currentChart.data, currentChart.chartType, {
         withTooltip: currentChart.withTooltip ?? true,
         withAnimation: currentChart.withAnimation ?? true,
+        chartSettings: (currentChart as { chartSettings?: Record<string, unknown> }).chartSettings,
         presentationMode: true,
       })
     : null;
