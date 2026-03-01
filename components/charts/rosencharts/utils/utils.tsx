@@ -469,6 +469,7 @@ export const getChartTypeByName = (
         <BreakdownChart
           data={data as BreakdownChartItem[]}
           className={className}
+          withTooltip={withTooltip}
         />
       );
     }
@@ -477,6 +478,7 @@ export const getChartTypeByName = (
         <BreakdownChartThin
           data={data as BreakdownChartItem[]}
           className={className}
+          withTooltip={withTooltip}
         />
       );
     }
@@ -588,6 +590,7 @@ export const getChartTypeByName = (
           data={data as PieChartItem[]}
           className={className}
           suffix={suffix}
+          withTooltip={withTooltip}
         />
       );
     }
@@ -607,6 +610,7 @@ export const getChartTypeByName = (
           data={data as PieChartItem[]}
           className={className}
           suffix={suffix}
+          withTooltip={withTooltip}
         />
       );
     }
@@ -616,6 +620,7 @@ export const getChartTypeByName = (
           data={data as PieChartItem[]}
           className={className}
           suffix={suffix}
+          withTooltip={withTooltip}
         />
       );
     }

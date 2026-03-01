@@ -67,60 +67,65 @@ export function BreakdownChartThin({
           const isHexColor = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(d.color);
           const gradient = isHexColor ? gradientFromHex(d.color) : d.color;
 
+          const barContent = (
+            <div
+              key={index}
+              className="relative"
+              style={{
+                width: `${barWidth}%`,
+                height: `${barHeight}px`,
+                left: `${xPosition}%`,
+                position: "absolute",
+              }}
+            >
+              <div
+                className={`bg-gradient-to-b ${
+                  gradient || defaulColors[index % defaulColors.length]
+                }`}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: `${cornerRadius}px`,
+                  ...(isHexColor ? gradientFromHex(d.color) : {}),
+                }}
+              />
+              <div
+                className="text-xs text-gray-400 text-center"
+                style={{
+                  left: `${xPosition + barWidth / 2}%`,
+                  top: `${barHeight + 18}px`,
+                }}
+              >
+                {d.key}
+              </div>
+            </div>
+          );
+
+          if (!withTooltip) {
+            return barContent;
+          }
+
           return (
             <ClientTooltip key={index}>
-              <TooltipTrigger>
-                <div
-                  className="relative"
-                  style={{
-                    width: `${barWidth}%`,
-                    height: `${barHeight}px`,
-                    left: `${xPosition}%`,
-                    position: "absolute",
-                  }}
-                >
+              <TooltipTrigger>{barContent}</TooltipTrigger>
+              <TooltipContent>
+                <div className="flex gap-2.5 items-center">
                   <div
-                    className={`bg-gradient-to-b ${
-                      gradient || defaulColors[index % defaulColors.length]
+                    className={`w-1 h-8 rounded-full ${
+                      d.color
+                        ? d.color
+                        : defaulColors[index % defaulColors.length]
                     }`}
                     style={{
-                      width: "100%",
-                      height: "100%",
-                      borderRadius: `${cornerRadius}px`,
-                      ...(isHexColor ? gradientFromHex(d.color) : {}),
+                      backgroundColor: d.color,
                     }}
-                  />
-                  <div
-                    className="text-xs text-gray-400 text-center"
-                    style={{
-                      left: `${xPosition + barWidth / 2}%`,
-                      top: `${barHeight + 18}px`,
-                    }}
-                  >
-                    {d.key}
+                  ></div>
+                  <div>
+                    <div>{d.key}</div>
+                    <div className="text-gray-500 text-sm/5">{d.value}</div>
                   </div>
                 </div>
-                {withTooltip && (
-                  <TooltipContent>
-                    <div className="flex gap-2.5 items-center">
-                      <div
-                        className={`w-1 h-8 rounded-full ${
-                          d.color
-                            ? d.color
-                            : defaulColors[index % defaulColors.length]
-                        }`}
-                        style={{
-                          backgroundColor: d.color,
-                        }}
-                      ></div>
-                      <div>
-                        <div>{d.key}</div>
-                        <div className="text-gray-500 text-sm/5">{d.value}</div>
-                      </div>
-                    </div>
-                  </TooltipContent>
-                )}
-              </TooltipTrigger>
+              </TooltipContent>
             </ClientTooltip>
           );
         })}
