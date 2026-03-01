@@ -65,6 +65,8 @@ const shadcnPieWrapped = z
   );
 
 export const shadcnBarSchema = shadcnCartesianData;
+export const shadcnBarHorizontalSchema = shadcnCartesianData;
+export const shadcnBarStackedSchema = shadcnCartesianData;
 export const shadcnAreaSchema = shadcnCartesianData;
 export const shadcnLineSchema = shadcnCartesianData;
 export const shadcnRadarSchema = shadcnCartesianData;
@@ -73,6 +75,8 @@ export const shadcnRadialSchema = shadcnPieWrapped;
 
 export const SHADCN_OUTPUT_SCHEMAS: Record<string, z.ZodType<unknown>> = {
   "shadcn:bar": shadcnBarSchema,
+  "shadcn:bar-horizontal": shadcnBarHorizontalSchema,
+  "shadcn:bar-stacked": shadcnBarStackedSchema,
   "shadcn:area": shadcnAreaSchema,
   "shadcn:line": shadcnLineSchema,
   "shadcn:radar": shadcnRadarSchema,

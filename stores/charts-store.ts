@@ -8,6 +8,7 @@ export interface ChartFromTool {
   chartType: string;
   title: string;
   data: unknown;
+  chartSettings?: Record<string, unknown>;
 }
 
 function chartFromToolToUserChart(tool: ChartFromTool, id: string): UserChart {
@@ -21,6 +22,7 @@ function chartFromToolToUserChart(tool: ChartFromTool, id: string): UserChart {
     favorited: false,
     withTooltip: true,
     withAnimation: true,
+    chartSettings: tool.chartSettings,
     ...chartTypeToIcon(tool.chartType),
   };
 }

@@ -10,6 +10,8 @@ import {
 
 export const SHADCN_CHART_TYPES = [
   { key: "shadcn:bar", label: "Bar", category: "bar", icon: BarChart3 },
+  { key: "shadcn:bar-horizontal", label: "Bar (Horizontal)", category: "bar", icon: BarChart3 },
+  { key: "shadcn:bar-stacked", label: "Bar (Stacked)", category: "bar", icon: BarChart3 },
   { key: "shadcn:area", label: "Area", category: "area", icon: Activity },
   { key: "shadcn:line", label: "Line", category: "line", icon: LineChartIcon },
   { key: "shadcn:pie", label: "Pie", category: "pie", icon: PieChartIcon },

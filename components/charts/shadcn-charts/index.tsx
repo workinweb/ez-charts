@@ -3,6 +3,7 @@
 import type { JSX } from "react";
 import { ShadcnAreaChart } from "./AreaChart";
 import { ShadcnBarChart } from "./BarChart";
+import { ShadcnHorizontalBarChart } from "./HorizontalBarChart";
 import { ShadcnLineChart } from "./LineChart";
 import { ShadcnPieChart } from "./PieChart";
 import { ShadcnRadarChart } from "./RadarChart";
@@ -11,7 +12,15 @@ import { inferCartesianConfig, inferPieConfig } from "./utils";
 
 export { SHADCN_CHART_TYPES } from "./utils";
 export type { ShadcnChartTypeKey } from "./utils";
-export { ShadcnAreaChart, ShadcnBarChart, ShadcnLineChart, ShadcnPieChart, ShadcnRadarChart, ShadcnRadialChart };
+export {
+  ShadcnAreaChart,
+  ShadcnBarChart,
+  ShadcnHorizontalBarChart,
+  ShadcnLineChart,
+  ShadcnPieChart,
+  ShadcnRadarChart,
+  ShadcnRadialChart,
+};
 
 export type ShadcnChartData =
   | Record<string, string | number>[] // Cartesian
@@ -23,6 +32,7 @@ export type ShadcnChartOptions = {
   seriesColors?: Record<string, string>;
   withTooltip?: boolean;
   withAnimation?: boolean;
+  chartSettings?: Record<string, unknown>;
 };
 
 /**
@@ -33,13 +43,14 @@ export type ShadcnChartOptions = {
 export function getShadcnChartByName(
   data: ShadcnChartData,
   chartType: string,
-  options?: ShadcnChartOptions
+  options?: ShadcnChartOptions,
 ): JSX.Element | null {
   const arr = Array.isArray(data) ? data : [];
   const className = options?.className ?? "min-h-[200px] w-full";
   const seriesColors = options?.seriesColors ?? {};
   const withTooltip = options?.withTooltip ?? true;
   const withAnimation = options?.withAnimation ?? true;
+  const chartSettings = options?.chartSettings ?? {};
 
   const mergeConfig = (
     config: Record<string, { label: string; color: string }>,
@@ -54,19 +65,51 @@ export function getShadcnChartByName(
   };
 
   switch (chartType) {
-    case "shadcn:bar": {
+    case "shadcn:bar":
+    case "shadcn:bar-stacked": {
       const d = arr as Record<string, string | number>[];
       const config = mergeConfig(
         inferCartesianConfig(d as Record<string, unknown>[], "month"),
         seriesColors,
       );
+      const variant =
+        chartType === "shadcn:bar-stacked" ? "stacked" : "default";
+      const withLabels =
+        (chartSettings.withLabels as boolean | undefined) ?? true;
+      const withLegend =
+        (chartSettings.withLegend as boolean | undefined) ?? true;
       return (
         <ShadcnBarChart
+          data={d}
+          config={config}
+          variant={variant}
+          className={className}
+          withTooltip={withTooltip}
+          withAnimation={withAnimation}
+          withLabels={withLabels}
+          withLegend={withLegend}
+        />
+      );
+    }
+    case "shadcn:bar-horizontal": {
+      const d = arr as Record<string, string | number>[];
+      const config = mergeConfig(
+        inferCartesianConfig(d as Record<string, unknown>[], "month"),
+        seriesColors,
+      );
+      const withLabels =
+        (chartSettings.withLabels as boolean | undefined) ?? true;
+      const categoryLabelPosition =
+        (chartSettings.categoryLabelPosition as "inside" | "outside") ?? "inside";
+      return (
+        <ShadcnHorizontalBarChart
           data={d}
           config={config}
           className={className}
           withTooltip={withTooltip}
           withAnimation={withAnimation}
+          withLabels={withLabels}
+          categoryLabelPosition={categoryLabelPosition}
         />
       );
     }

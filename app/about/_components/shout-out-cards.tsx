@@ -9,6 +9,11 @@ const SHOUT_OUTS = [
     description: "Beautiful, accessible components for the web.",
   },
   {
+    name: "Recharts",
+    href: "https://recharts.org",
+    description: "Composable charting library built on React components.",
+  },
+  {
     name: "Rosencharts",
     href: "https://www.rosencharts.com",
     description: "React charts built on D3 — copy-paste, customizable.",
