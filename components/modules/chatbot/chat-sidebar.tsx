@@ -650,16 +650,8 @@ export function ChatSidebarContent({
             className="gap-1 rounded-lg text-[12px] text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
             <Paperclip className="size-3" />
-            Add Files
+            Files
           </Button>
-          {/* <Button
-            variant="ghost"
-            size="xs"
-            className="gap-1 rounded-lg text-[12px] text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-          >
-            <MessageCircle className="size-3" />
-            Discuss
-          </Button> */}
 
           <Popover open={chartPopoverOpen} onOpenChange={setChartPopoverOpen}>
             <PopoverTrigger asChild>
