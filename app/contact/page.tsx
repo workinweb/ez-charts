@@ -61,7 +61,7 @@ export default function ContactPage() {
             <div className="relative size-12 shrink-0 sm:size-[60px]">
               <Image
                 src="/logo.png"
-                alt="EZ Charts"
+                alt="Ez2Chart"
                 fill
                 className="object-contain"
                 priority

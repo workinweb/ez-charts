@@ -16,7 +16,7 @@ export function FeaturesSection() {
           </div>
           <p className="max-w-sm pb-2 text-sm font-medium leading-relaxed text-slate-500">
             Whether you prefer talking to an AI or editing data and colors
-            yourself, EZ Charts has the tools you need.
+            yourself, Ez2Chart has the tools you need.
           </p>
         </div>
 

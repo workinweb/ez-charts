@@ -13,7 +13,7 @@ function isPublicPath(pathname: string): boolean {
   if (pathname === "/sign-in" || pathname === "/sign-up") return true;
   if (pathname === "/forgot-password" || pathname === "/reset-password")
     return true;
-  if (pathname === "/contact") return true;
+  if (pathname === "/about" || pathname === "/contact") return true;
   if (pathname === "/privacy" || pathname === "/terms") return true;
   if (pathname === "/examples") return true;
   if (pathname.startsWith("/present/")) return true;

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Opinions & Feedback",
-  description: "Share your feedback and upvote others' ideas for Ez2Chart.",
+  title: "About Us",
+  description: "Learn about Ez2Chart and the team behind it. Brought to you by WorkinWeb.",
 };
 
-export default function OpinionsLayout({
+export default function AboutLayout({
   children,
 }: {
   children: React.ReactNode;

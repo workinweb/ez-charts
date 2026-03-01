@@ -18,7 +18,7 @@ export default function TermsPage() {
                 1. Acceptance of Terms
               </h2>
               <p>
-                By accessing or using EZ Charts, you agree to be bound by these
+                By accessing or using Ez2Chart, you agree to be bound by these
                 Terms of Service. If you do not agree to these terms, please do
                 not use our services.
               </p>
@@ -29,7 +29,7 @@ export default function TermsPage() {
                 2. Description of Service
               </h2>
               <p>
-                EZ Charts provides AI-powered data visualization tools that
+                Ez2Chart provides AI-powered data visualization tools that
                 allow users to create charts, graphs, and presentations. Our
                 services include chat-based chart generation, manual editing,
                 and slide deck creation.
@@ -55,7 +55,7 @@ export default function TermsPage() {
                 4. Intellectual Property
               </h2>
               <p>
-                The EZ Charts platform, including its design, features, and
+                The Ez2Chart platform, including its design, features, and
                 underlying technology, is owned by us or our licensors. You
                 retain ownership of the data and content you create. By using
                 our service, you grant us a limited license to process your
@@ -79,7 +79,7 @@ export default function TermsPage() {
                 6. Limitation of Liability
               </h2>
               <p>
-                To the fullest extent permitted by law, EZ Charts shall not be
+                To the fullest extent permitted by law, Ez2Chart shall not be
                 liable for any indirect, incidental, special, consequential, or
                 punitive damages arising from your use of the service. Our total
                 liability shall not exceed the amount you paid us in the twelve

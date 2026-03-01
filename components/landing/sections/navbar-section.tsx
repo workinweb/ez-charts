@@ -87,14 +87,14 @@ export function LandingNavbar() {
             <div className="relative size-12 shrink-0">
               <Image
                 src="/logo.png"
-                alt="EZ Charts"
+                alt="Ez2Chart"
                 fill
                 className="object-contain z-10"
               />
             </div>
             <Image
               src="/EZ Charts.png"
-              alt="EZ Charts"
+              alt="Ez2Chart"
               width={150}
               height={80}
               className="h-14 translate-x-[-50px] w-auto object-contain"

@@ -9,6 +9,8 @@ import {
 import {
   BarChart3,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   FileSpreadsheet,
   FileText,
   Loader2,
@@ -139,7 +141,9 @@ function formatFileSize(bytes: number) {
 }
 
 /** Inner content reused by both the desktop sidebar and the mobile drawer */
-export function ChatSidebarContent() {
+export function ChatSidebarContent({
+  showCollapseButton = false,
+}: { showCollapseButton?: boolean } = {}) {
   const {
     messages,
     input,
@@ -163,6 +167,7 @@ export function ChatSidebarContent() {
     toggleSelectedChartKey,
     chatSidebarView,
     toggleChatSidebarView,
+    toggleChatSidebarCollapsed,
   } = useChatbotStore();
   const setActiveSection = useSectionStore((s) => s.setActiveSection);
   const router = useRouter();
@@ -249,7 +254,7 @@ export function ChatSidebarContent() {
                 />
 
                 <p className="text-[13px] font-semibold text-sidebar-foreground">
-                  EZ Charts
+                  Ez2Chart
                 </p>
                 <p className="text-center text-[13px] leading-relaxed text-sidebar-foreground/50">
                   Ask me to create a chart, analyze data, or upload a file to
@@ -288,7 +293,7 @@ export function ChatSidebarContent() {
                           className="size-5 rounded-full object-cover"
                         />
                         <span className="text-[13px] font-semibold text-sidebar-foreground">
-                          EZ Charts
+                          Ez2Chart
                         </span>
                       </div>
                     </div>
@@ -341,7 +346,7 @@ export function ChatSidebarContent() {
                     }}
                     className="inline font-medium text-[#6C5DD3] underline-offset-2 hover:underline hover:text-[#5a4dbf]"
                   >
-                    See it
+                    Take me there
                   </button>
                 </p>
                 <div className="mt-2 flex items-center gap-1">
@@ -394,7 +399,7 @@ export function ChatSidebarContent() {
                         className="size-5 rounded-full object-cover"
                       />
                       <span className="text-[13px] font-semibold text-sidebar-foreground">
-                        EZ Charts
+                        Ez2Chart
                       </span>
                     </div>
                   </div>
@@ -481,7 +486,10 @@ export function ChatSidebarContent() {
               {attachedFiles.map((af, idx) => {
                 const Icon = getFileIcon(af.name);
                 return (
-                  <div key={`${af.name}-${idx}`} className="flex flex-col gap-1">
+                  <div
+                    key={`${af.name}-${idx}`}
+                    className="flex flex-col gap-1"
+                  >
                     <div
                       className={`flex items-center gap-1.5 self-start rounded-lg px-2.5 py-1.5 text-[11px] ${
                         af.error
@@ -586,6 +594,19 @@ export function ChatSidebarContent() {
       </div>
 
       <div className="flex shrink-0 items-center gap-2 border-t border-sidebar-border px-4 py-2.5">
+        {showCollapseButton && (
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            type="button"
+            onClick={toggleChatSidebarCollapsed}
+            aria-label="Hide chat sidebar"
+            title="Hide chat sidebar"
+            className="text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+        )}
         <Button
           variant="ghost"
           size="icon-xs"
@@ -676,11 +697,45 @@ export function ChatSidebarContent() {
   );
 }
 
-/** Desktop sidebar — hidden on mobile */
+const SIDEBAR_WIDTHS =
+  "w-[320px] min-w-[320px] xl:w-[360px] xl:min-w-[360px] 2xl:w-[386px] 2xl:min-w-[386px]";
+
+/** Desktop sidebar — hidden on mobile, can collapse with translate animation */
 export function ChatSidebar() {
+  const collapsed = useChatbotStore((s) => s.chatSidebarCollapsed);
+  const toggleCollapsed = useChatbotStore((s) => s.toggleChatSidebarCollapsed);
+
   return (
-    <aside className="hidden h-full shrink-0 lg:flex lg:w-[320px] lg:min-w-[320px] xl:w-[360px] xl:min-w-[360px] 2xl:w-[386px] 2xl:min-w-[386px]">
-      <ChatSidebarContent />
-    </aside>
+    <>
+      {/* Expand tab when collapsed — fixed on left edge */}
+      {collapsed && (
+        <button
+          type="button"
+          onClick={toggleCollapsed}
+          aria-label="Show chat sidebar"
+          className="fixed left-0 top-1/2 z-50 hidden h-14 w-6 -translate-y-1/2 lg:flex items-center justify-center rounded-r-md border border-l-0 border-slate-200 bg-[#E9EEF0] text-slate-600 shadow-md transition-colors hover:bg-slate-200 hover:text-slate-900"
+        >
+          <ChevronRight className="size-4" />
+        </button>
+      )}
+
+      <div
+        className={cn(
+          "hidden h-full shrink-0 overflow-hidden transition-[width] duration-300 ease-out lg:block",
+          collapsed ? "w-0 min-w-0" : SIDEBAR_WIDTHS,
+        )}
+      >
+        <aside
+          className={cn(
+            "flex h-full transition-transform duration-300 ease-out",
+            collapsed && "-translate-x-full",
+          )}
+        >
+          <div className="flex h-full w-[320px] min-w-[320px] flex-col xl:w-[360px] xl:min-w-[360px] 2xl:w-[386px] 2xl:min-w-[386px]">
+            <ChatSidebarContent showCollapseButton />
+          </div>
+        </aside>
+      </div>
+    </>
   );
 }

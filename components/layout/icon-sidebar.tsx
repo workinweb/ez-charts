@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useChatbotStore } from "@/stores";
 import type { SectionKey } from "@/stores/section-store";
 import { useSectionStore } from "@/stores/section-store";
 import {
@@ -62,6 +63,8 @@ function IconBtn({
 export function IconSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const collapsed = useChatbotStore((s) => s.chatSidebarCollapsed);
+
   const { activeSection, setActiveSection } = useSectionStore();
   const isOnHome = pathname === "/ezcharts" || pathname === "/ezcharts/";
 
@@ -73,7 +76,12 @@ export function IconSidebar() {
   };
 
   return (
-    <aside className="hidden h-full w-18 shrink-0 flex-col items-center gap-3 bg-background py-4 pl-3 rounded-l-3xl md:flex">
+    <aside
+      className={cn(
+        "hidden h-full w-18 shrink-0 flex-col items-center gap-3 bg-background py-4 pl-3 transition-[border-radius] duration-300 ease-out md:flex",
+        !collapsed && "rounded-l-3xl",
+      )}
+    >
       <div className="flex flex-1 flex-col items-center justify-center rounded-2xl bg-white/80 p-1.5 shadow-sm ring-1 ring-black/[0.04]">
         <div className="flex flex-col items-center gap-1 ">
           {mainIcons.map((item) => (

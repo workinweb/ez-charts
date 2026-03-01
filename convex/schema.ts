@@ -2,7 +2,7 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 // ─── App Data Schema ────────────────────────────────────────────────────────
-// All user-owned data tables for Ez Charts.
+// All user-owned data tables for Ez2Chart.
 // Every table includes `userId` for ownership + RLS, indexed for fast queries.
 //
 // Auth tables (user, session, account, verification) are handled by the
