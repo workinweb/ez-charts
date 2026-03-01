@@ -9,7 +9,7 @@ import type { EditorProps } from "./editor-types";
 const NON_COLOR_CHARTS = ["line", "treemap", "shadcnCartesian"];
 
 /** Charts that use colorFrom + colorTo (gradient) */
-const GRADIENT_CHART_TYPES = ["pie", "pie-image", "benchmark"];
+const GRADIENT_CHART_TYPES = ["pie", "pie-image", "benchmark", "funnel"];
 
 /** Pie-like charts that use single colorFrom (no gradient) */
 const SINGLE_COLOR_FROM_CHART_TYPES = [

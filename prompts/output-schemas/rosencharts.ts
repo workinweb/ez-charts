@@ -101,6 +101,8 @@ export const benchmarkSchema = z
   )
   .min(1);
 
+export const funnelSchema = benchmarkSchema;
+
 export const treemapSchema = z.array(treemapItem).min(1);
 export const scatterSchema = z.array(scatterPoint).min(1);
 
@@ -133,6 +135,7 @@ export const ROSENCHARTS_OUTPUT_SCHEMAS: Record<string, z.ZodType<unknown>> = {
   breakdown: breakdownSchema,
   "breakdown-thin": breakdownThinSchema,
   benchmark: benchmarkSchema,
+  funnel: funnelSchema,
   treemap: treemapSchema,
   scatter: scatterSchema,
   bubble: bubbleSchema,

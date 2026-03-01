@@ -1,6 +1,7 @@
 import {
   BarChart3,
   Circle,
+  Filter,
   LineChart as LineChartIcon,
   PieChart as PieChartIcon,
   TrendingUp,
@@ -55,6 +56,9 @@ export function chartTypeToIcon(chartType: string): {
   }
   if (chartType.includes("bubble")) {
     return { icon: Circle, iconColor: style, iconBg: "bg-[#ec4899]/20" };
+  }
+  if (chartType.includes("funnel")) {
+    return { icon: Filter, iconColor: style, iconBg: "bg-[#8b5cf6]/20" };
   }
   if (chartType.includes("shadcn:area")) {
     return { icon: TrendingUp, iconColor: style, iconBg: "bg-[#94B49F]/30" };

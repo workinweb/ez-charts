@@ -88,6 +88,15 @@ export const ROSENCHARTS_SCATTER_DEFAULT = [
   { xValue: 10, yValue: 20, name: "Point 1" },
 ];
 
+/** Default data for Rosencharts funnel */
+export const ROSENCHARTS_FUNNEL_DEFAULT = [
+  { key: "Visitors", value: 2840 },
+  { key: "Sign-ups", value: 1920 },
+  { key: "Trials", value: 847 },
+  { key: "Paid", value: 520 },
+  { key: "Churned", value: 180 },
+];
+
 /** Default data for Rosencharts bubble */
 export const ROSENCHARTS_BUBBLE_DEFAULT = [
   { name: "Cloud", sector: "Tech", value: 2840 },
@@ -151,6 +160,9 @@ export function getDefaultDataForChartType(chartType: string): unknown[] {
   }
   if (chartType.includes("bubble")) {
     return JSON.parse(JSON.stringify(ROSENCHARTS_BUBBLE_DEFAULT));
+  }
+  if (chartType.includes("funnel")) {
+    return JSON.parse(JSON.stringify(ROSENCHARTS_FUNNEL_DEFAULT));
   }
 
   // horizontal-bar, horizontal-bar-gradient, horizontal-bar-thin, vertical-bar,

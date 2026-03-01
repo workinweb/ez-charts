@@ -23,6 +23,7 @@ import {
 } from "./PieChart";
 import { scatterChartData } from "./ScatterChart";
 import { bubbleChartData } from "./BubbleChart";
+import { funnelChartData } from "./FunnelChart";
 import { treeMapChartData } from "./TreemapCharts";
 
 export const data = [
@@ -224,6 +225,15 @@ export const data = [
     name: "Bubble Chart",
     chartType: "bubble",
     data: bubbleChartData,
+    withTooltip: true,
+    withAnimation: true,
+  },
+
+  {
+    id: "23",
+    name: "Funnel Chart",
+    chartType: "funnel",
+    data: funnelChartData,
     withTooltip: true,
     withAnimation: true,
   },

@@ -62,6 +62,9 @@ export { ScatterChart } from "./ScatterChart/ScatterChart";
 // Bubble
 export { BubbleChart } from "./BubbleChart/BubbleChart";
 
+// Funnel
+export { FunnelChart } from "./FunnelChart/FunnelChart";
+
 // TreeMap
 export { TreeMapChart } from "./TreeMapChart/TreeMapChart";
 

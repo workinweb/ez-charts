@@ -18,6 +18,7 @@ import {
   TreePine,
   Image,
   Donut,
+  Filter,
 } from "lucide-react";
 import { BarChartHorizontal } from "../BarChartHorizontal/BarChartHorizontal";
 import { BarChartHorizontalGradient } from "../BarChartHorizontal/BarChartHorizontalGradient";
@@ -40,6 +41,7 @@ import { PieChart } from "../PieCharts/PieChart";
 import { PieChartImage } from "../PieCharts/PieChartImage";
 import { ScatterChart } from "../ScatterChart/ScatterChart";
 import { BubbleChart } from "../BubbleChart/BubbleChart";
+import { FunnelChart } from "../FunnelChart/FunnelChart";
 import { TreeMapChart } from "../TreeMapChart/TreeMapChart";
 
 import {
@@ -161,6 +163,12 @@ export const chartTypes: ReadonlyArray<{
     category: "other",
     icon: Circle,
   },
+  {
+    key: "funnel",
+    label: "Funnel",
+    category: "other",
+    icon: Filter,
+  },
 ];
 
 export type ChartTypeKey = (typeof chartTypes)[number]["key"];
@@ -195,6 +203,7 @@ export const interchangeGroups: ReadonlyArray<ReadonlyArray<ChartTypeKey>> = [
     "breakdown",
     "breakdown-thin",
     "benchmark",
+    "funnel",
     "pie",
     "pie-image",
     "donut",
@@ -361,6 +370,7 @@ function getShapeFamily(chartType: string): ShapeFamily {
   if (chartType.includes("treemap")) return "treemap";
   if (chartType.includes("scatter")) return "scatter";
   if (chartType.includes("bubble")) return "bubble";
+  if (chartType.includes("funnel")) return "keyValue";
   // horizontal-bar, horizontal-bar-gradient, horizontal-bar-thin,
   // vertical-bar, breakdown, breakdown-thin, benchmark
   return "keyValue";
@@ -669,6 +679,16 @@ export const getChartTypeByName = (
       return (
         <BubbleChart
           data={data as unknown as BubbleChartItem[]}
+          withTooltip={withTooltip}
+          withAnimation={withAnimation}
+          className={className}
+        />
+      );
+    }
+    case "funnel": {
+      return (
+        <FunnelChart
+          data={data as unknown as BenchmarkChartItem[]}
           withTooltip={withTooltip}
           withAnimation={withAnimation}
           className={className}
