@@ -29,10 +29,16 @@ export function buildOutputSchema(selectedChartKey?: string) {
     data: dataSchema.describe("The data to create the chart with"),
     message: z.string().describe("The Message to display the user"),
     chartSettings: z
-      .record(z.string(), z.union([z.string(), z.number(), z.boolean()]))
+      .object({
+        withLabels: z.boolean().optional(),
+        withLegend: z.boolean().optional(),
+        categoryLabelPosition: z
+          .enum(["inside", "outside"])
+          .optional(),
+      })
       .optional()
       .describe(
-        "Optional display options per chart type. Bar charts: withLabels (boolean), withLegend (boolean, stacked only), categoryLabelPosition ('inside'|'outside', horizontal only). Omit when not needed.",
+        "Optional display options. Bar: withLabels, withLegend (stacked only), categoryLabelPosition (horizontal only). Omit when not needed.",
       ),
   });
 }
