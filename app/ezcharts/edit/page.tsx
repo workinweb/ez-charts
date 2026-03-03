@@ -80,13 +80,11 @@ function EditChartContent() {
   const [data, setData] = useState<unknown>(
     isCreateMode ? cloneData(DEFAULT_CREATE_DATA) : null,
   );
-  console.log("🚀 ~ EditChartContent ~ data:", data);
   const [withTooltip, setWithTooltip] = useState(true);
   const [withAnimation, setWithAnimation] = useState(true);
   const [chartSettings, setChartSettings] = useState<Record<string, unknown>>(
     {},
   );
-  console.log("🚀 ~ EditChartContent ~ chartSettings:", chartSettings);
   const [activeTab, setActiveTab] = useState<EditorTab>("data");
   const [dirty, setDirty] = useState(false);
   const [saved, setSaved] = useState(false);
