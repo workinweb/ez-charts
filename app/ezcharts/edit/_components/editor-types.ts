@@ -32,14 +32,20 @@ export interface EditorProps {
 
 export function getEditorShape(chartType: string): EditorShape {
   if (chartType.startsWith("shadcn:")) {
-    if (chartType === "shadcn:pie" || chartType === "shadcn:radial")
+    if (
+      chartType === "shadcn:pie" ||
+      chartType === "shadcn:donut" ||
+      chartType === "shadcn:radial"
+    )
       return "pie";
+    if (chartType === "shadcn:pie-stacked") return "shadcnCartesian";
     if (chartType === "shadcn:radar") return "shadcnCartesian";
     if (
       [
         "shadcn:bar",
         "shadcn:bar-horizontal",
         "shadcn:bar-stacked",
+        "shadcn:pie-stacked",
         "shadcn:area",
         "shadcn:line",
       ].includes(chartType)

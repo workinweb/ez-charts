@@ -9,7 +9,7 @@ interface ShadcnStyleEditorProps {
   onChange: (data: unknown) => void;
 }
 
-const SHADCN_PIE_LIKE = ["shadcn:pie", "shadcn:radial"];
+const SHADCN_PIE_LIKE = ["shadcn:pie", "shadcn:donut", "shadcn:radial"];
 const SHADCN_CARTESIAN = [
   "shadcn:bar",
   "shadcn:bar-horizontal",

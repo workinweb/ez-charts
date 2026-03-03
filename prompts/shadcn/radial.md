@@ -22,3 +22,8 @@ Same format as shadcn:pie. Each row = one segment.
 - `series`: exactly one item — `{ "name": "value", "value": number }`.
 - `_seriesColors`: JSON string or `null`. Use only when user requests custom colors.
 - Hex colors only.
+
+## chartSettings (optional)
+
+- `withLabels` (boolean): Show segment names inside bars. Default `false`.
+- `withGrid` (boolean): Show polar grid circles. Default `false`.

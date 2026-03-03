@@ -71,6 +71,7 @@ export const shadcnAreaSchema = shadcnCartesianData;
 export const shadcnLineSchema = shadcnCartesianData;
 export const shadcnRadarSchema = shadcnCartesianData;
 export const shadcnPieSchema = shadcnPieWrapped;
+export const shadcnDonutSchema = shadcnPieWrapped;
 export const shadcnRadialSchema = shadcnPieWrapped;
 
 export const SHADCN_OUTPUT_SCHEMAS: Record<string, z.ZodType<unknown>> = {
@@ -81,5 +82,6 @@ export const SHADCN_OUTPUT_SCHEMAS: Record<string, z.ZodType<unknown>> = {
   "shadcn:line": shadcnLineSchema,
   "shadcn:radar": shadcnRadarSchema,
   "shadcn:pie": shadcnPieSchema,
+  "shadcn:donut": shadcnDonutSchema,
   "shadcn:radial": shadcnRadialSchema,
 };

@@ -7,9 +7,21 @@ Same wrapped format. Each row = one segment. Use `key: "name"` and `series: [{ n
 ```json
 {
   "_data": [
-    { "key": "name", "value": "Technology", "series": [{ "name": "value", "value": 548 }] },
-    { "key": "name", "value": "Utilities", "series": [{ "name": "value", "value": 412 }] },
-    { "key": "name", "value": "Materials", "series": [{ "name": "value", "value": 287 }] }
+    {
+      "key": "name",
+      "value": "Technology",
+      "series": [{ "name": "value", "value": 548 }]
+    },
+    {
+      "key": "name",
+      "value": "Utilities",
+      "series": [{ "name": "value", "value": 412 }]
+    },
+    {
+      "key": "name",
+      "value": "Materials",
+      "series": [{ "name": "value", "value": 287 }]
+    }
   ],
   "_seriesColors": null
 }

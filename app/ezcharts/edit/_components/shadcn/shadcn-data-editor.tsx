@@ -10,7 +10,7 @@ import {
 } from "@/lib/chart/shadcn-chart-data";
 import { FieldRow } from "../field-row";
 
-const SHADCN_PIE_LIKE = ["shadcn:pie", "shadcn:radial"];
+const SHADCN_PIE_LIKE = ["shadcn:pie", "shadcn:donut", "shadcn:radial"];
 
 /** Default series when no data — generic names to avoid desktop/mobile hardcoding */
 function getDefaultNumericKeys(chartType: string): string[] {

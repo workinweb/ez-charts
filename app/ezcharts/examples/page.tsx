@@ -51,9 +51,11 @@ export default function ExamplesPage() {
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((item) => {
               const chart = renderChart(item.data, item.chartType, {
-                withTooltip: "withTooltip" in item ? item.withTooltip : true,
-                withAnimation:
-                  "withAnimation" in item ? item.withAnimation : true,
+                chartSettings: {
+                  withTooltip: "withTooltip" in item ? item.withTooltip : true,
+                  withAnimation:
+                    "withAnimation" in item ? item.withAnimation : true,
+                },
                 className: "min-h-[200px] w-full",
               });
 

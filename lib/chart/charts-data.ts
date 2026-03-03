@@ -67,7 +67,7 @@ export function chartTypeToIcon(chartType: string): {
   if (chartType.includes("shadcn:radar")) {
     return { icon: Grid3X3, iconColor: style, iconBg: "bg-[#6C5DD3]/20" };
   }
-  if (chartType.includes("shadcn:radial")) {
+  if (chartType.includes("shadcn:radial") || chartType.includes("shadcn:donut")) {
     return { icon: PieChartIcon, iconColor: style, iconBg: "bg-[#6CB4EE]/30" };
   }
   return { icon: TrendingUp, iconColor: style, iconBg: "bg-[#6C5DD3]/30" };

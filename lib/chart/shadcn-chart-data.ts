@@ -121,7 +121,9 @@ export function wrapShadcnData(
   const catKey =
     options.categoryKey ?? inferCategoryKey(rows, options.chartType);
   const isPieLike =
-    options.chartType === "shadcn:pie" || options.chartType === "shadcn:radial";
+    options.chartType === "shadcn:pie" ||
+    options.chartType === "shadcn:donut" ||
+    options.chartType === "shadcn:radial";
   const seriesColors = options.seriesColors ?? null;
 
   const _data: WrappedRow[] = rows.map((row) => {

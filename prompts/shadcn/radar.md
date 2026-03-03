@@ -15,6 +15,12 @@ Same structure as shadcn:bar but use `key: "subject"` for the category column.
 }
 ```
 
+## chartSettings (optional)
+
+- `withLegend` (boolean): Show series legend. Default `false`.
+- `radarGridType`: "polygon" | "polygon-no-lines" | "circle" | "circle-no-lines" | "filled" | "circle-filled" | "none". Default "polygon".
+- `radarLinesOnly` (boolean): No fill, stroke only. Default `false`.
+
 ## Rules
 
 - `key`: must be `"subject"` for radar.

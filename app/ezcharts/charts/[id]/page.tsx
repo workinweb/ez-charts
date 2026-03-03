@@ -3,7 +3,7 @@
 import { useParams, notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Presentation, Copy, Pencil } from "lucide-react";
-import { renderChart } from "@/lib/chart/chart-render";
+import { getMergedChartSettings, renderChart } from "@/lib/chart/chart-render";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useChartByIdWithStatus, useChartsMutations } from "@/hooks/use-charts";
 import { Button } from "@/components/ui/button";
@@ -28,9 +28,7 @@ export default function ChartDetailPage() {
   }
 
   const chartEl = renderChart(chart.data, chart.chartType, {
-    withTooltip: chart.withTooltip ?? true,
-    withAnimation: chart.withAnimation ?? true,
-    chartSettings: (chart as { chartSettings?: Record<string, unknown> }).chartSettings,
+    chartSettings: getMergedChartSettings(chart),
     className: "min-h-[320px] w-full",
   });
 

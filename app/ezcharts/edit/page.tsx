@@ -126,15 +126,28 @@ function EditChartContent() {
   );
 
   /* ── Live preview ────────────────────────────────────────────────── */
+  const mergedChartSettings = useMemo(
+    () => ({ withTooltip, withAnimation, ...chartSettings }),
+    [withTooltip, withAnimation, chartSettings],
+  );
+  const handleActiveIndexChange = useCallback(
+    (index: number) => {
+      edit(setChartSettings)((prev: Record<string, unknown>) => ({
+        ...prev,
+        activeIndex: index,
+      }));
+    },
+    [edit],
+  );
   const previewEl = useMemo(() => {
     if (!data || !chartType) return null;
     return renderChart(data, chartType, {
-      withTooltip,
-      withAnimation,
-      chartSettings,
+      chartSettings: mergedChartSettings,
       className: "min-h-[320px] w-full",
+      onActiveIndexChange:
+        chartType === "shadcn:donut" ? handleActiveIndexChange : undefined,
     });
-  }, [data, chartType, withTooltip, withAnimation, chartSettings]);
+  }, [data, chartType, mergedChartSettings, handleActiveIndexChange]);
 
   /* ── Save handler ────────────────────────────────────────────────── */
   const [saving, setSaving] = useState(false);
@@ -224,6 +237,7 @@ function EditChartContent() {
       title: title || "Untitled Chart",
       chartType,
       data: data ?? [],
+      chartSettings: { withTooltip, withAnimation, ...chartSettings },
     });
     setSelectedChartKey(chartType);
     setChatSidebarView("chat");
@@ -231,6 +245,9 @@ function EditChartContent() {
     title,
     chartType,
     data,
+    withTooltip,
+    withAnimation,
+    chartSettings,
     setAttachedChartContext,
     setSelectedChartKey,
     setChatSidebarView,

@@ -41,6 +41,18 @@ export const SHADCN_PIE_DEFAULT = wrapShadcnData(
   { chartType: "shadcn:pie" },
 );
 
+/** Default data for Shadcn pie-stacked — Cartesian (category + 2 series) */
+export const SHADCN_PIE_STACKED_DEFAULT = wrapShadcnData(
+  [
+    { month: "Jan", desktop: 186, mobile: 80 },
+    { month: "Feb", desktop: 305, mobile: 200 },
+    { month: "Mar", desktop: 237, mobile: 120 },
+    { month: "Apr", desktop: 173, mobile: 190 },
+    { month: "May", desktop: 209, mobile: 130 },
+  ],
+  { chartType: "shadcn:pie-stacked" },
+);
+
 /** Default data for Shadcn radar — canonical wrapped format */
 export const SHADCN_RADAR_DEFAULT = wrapShadcnData(
   [
@@ -131,8 +143,15 @@ export const DEFAULT_CREATE_DATA = SHADCN_CARTESIAN_DEFAULT;
 /** Get default data for a chart type */
 export function getDefaultDataForChartType(chartType: string): unknown[] {
   if (chartType.startsWith("shadcn:")) {
-    if (chartType === "shadcn:pie" || chartType === "shadcn:radial") {
+    if (
+      chartType === "shadcn:pie" ||
+      chartType === "shadcn:donut" ||
+      chartType === "shadcn:radial"
+    ) {
       return JSON.parse(JSON.stringify(SHADCN_PIE_DEFAULT));
+    }
+    if (chartType === "shadcn:pie-stacked") {
+      return JSON.parse(JSON.stringify(SHADCN_PIE_STACKED_DEFAULT));
     }
     if (chartType === "shadcn:radar") {
       return JSON.parse(JSON.stringify(SHADCN_RADAR_DEFAULT));

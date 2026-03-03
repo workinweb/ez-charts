@@ -12,7 +12,7 @@ import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useChartsMutations } from "@/hooks/use-charts";
 import { useFeatureCheck } from "@/hooks/use-feature-check";
-import { renderChart } from "@/lib/chart/chart-render";
+import { getMergedChartSettings, renderChart } from "@/lib/chart/chart-render";
 import { cn } from "@/lib/utils";
 import { useChartsStore } from "@/stores/charts-store";
 import { Pencil, Save, Sparkles } from "lucide-react";
@@ -77,17 +77,15 @@ export function NewSection() {
     if (!chart) return;
     setSaving(true);
     try {
-      const chartSettings = chart.chartSettings;
+      const merged = getMergedChartSettings(chart);
       const newId = await mutations.create({
         title: saveName.trim(),
         chartType: chart.chartType,
         data: chart.data,
         source: chart.source ?? "From chat",
-        withTooltip: chart.withTooltip,
-        withAnimation: chart.withAnimation,
-        ...(chartSettings && Object.keys(chartSettings).length > 0 && {
-          chartSettings,
-        }),
+        withTooltip: (merged.withTooltip as boolean) ?? true,
+        withAnimation: (merged.withAnimation as boolean) ?? true,
+        chartSettings: Object.keys(merged).length > 0 ? merged : undefined,
       });
       removeUnsavedChart(chartToSave);
       setSaveDialogOpen(false);
@@ -153,9 +151,7 @@ export function NewSection() {
             </div>
             <div className="min-h-[220px] overflow-hidden rounded-xl bg-white/60 ring-1 ring-black/[0.03] p-5">
               {renderChart(displayChart.data, displayChart.chartType, {
-                withTooltip: displayChart.withTooltip ?? true,
-                withAnimation: displayChart.withAnimation ?? true,
-                chartSettings: displayChart.chartSettings,
+                chartSettings: getMergedChartSettings(displayChart),
                 className: "w-full",
               })}
             </div>
