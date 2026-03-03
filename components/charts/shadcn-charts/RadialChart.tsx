@@ -1,6 +1,11 @@
 "use client";
 
-import { RadialBar, RadialBarChart as RechartsRadialBarChart } from "recharts";
+import {
+  LabelList,
+  PolarGrid,
+  RadialBar,
+  RadialBarChart as RechartsRadialBarChart,
+} from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -14,6 +19,10 @@ export interface ShadcnRadialChartProps {
   className?: string;
   withTooltip?: boolean;
   withAnimation?: boolean;
+  /** Show segment labels inside bars */
+  withLabels?: boolean;
+  /** Show polar grid circles */
+  withGrid?: boolean;
 }
 
 const DEFAULT_COLORS = [
@@ -30,6 +39,8 @@ export function ShadcnRadialChart({
   className,
   withTooltip = true,
   withAnimation = true,
+  withLabels = false,
+  withGrid = false,
 }: ShadcnRadialChartProps) {
   const max = Math.max(...data.map((d) => d.value), 1);
   const dataWithFill = data.map((item, i) => ({
@@ -48,7 +59,22 @@ export function ShadcnRadialChart({
         barCategoryGap="10%"
       >
         {withTooltip && <ChartTooltip content={<ChartTooltipContent />} />}
-        <RadialBar dataKey="value" cornerRadius={4} isAnimationActive={withAnimation} />
+        {withGrid && <PolarGrid gridType="circle" />}
+        <RadialBar
+          dataKey="value"
+          cornerRadius={4}
+          isAnimationActive={withAnimation}
+          background={withLabels}
+        >
+          {withLabels && (
+            <LabelList
+              position="insideStart"
+              dataKey="name"
+              className="fill-white capitalize mix-blend-luminosity"
+              fontSize={11}
+            />
+          )}
+        </RadialBar>
       </RechartsRadialBarChart>
     </ChartContainer>
   );

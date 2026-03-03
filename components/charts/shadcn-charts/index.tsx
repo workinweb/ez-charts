@@ -237,6 +237,19 @@ export function getShadcnChartByName(
         inferCartesianConfig(d as Record<string, unknown>[], categoryKey),
         seriesColors,
       );
+      const radarGridType =
+        (chartSettings.radarGridType as
+          | "polygon"
+          | "polygon-no-lines"
+          | "circle"
+          | "circle-no-lines"
+          | "filled"
+          | "circle-filled"
+          | "none") ?? "polygon";
+      const radarLinesOnly =
+        (chartSettings.radarLinesOnly as boolean | undefined) ?? false;
+      const radarWithLegend =
+        (chartSettings.withLegend as boolean | undefined) ?? false;
       return (
         <ShadcnRadarChart
           data={d}
@@ -245,12 +258,19 @@ export function getShadcnChartByName(
           categoryKey={categoryKey}
           withTooltip={withTooltip}
           withAnimation={withAnimation}
+          radarGridType={radarGridType}
+          radarLinesOnly={radarLinesOnly}
+          withLegend={radarWithLegend}
         />
       );
     }
     case "shadcn:radial": {
       const d = arr as { name: string; value: number; fill?: string }[];
       const config = inferPieConfig(d);
+      const radialWithLabels =
+        (chartSettings.withLabels as boolean | undefined) ?? false;
+      const radialWithGrid =
+        (chartSettings.withGrid as boolean | undefined) ?? false;
       return (
         <ShadcnRadialChart
           data={d}
@@ -258,6 +278,8 @@ export function getShadcnChartByName(
           className={className}
           withTooltip={withTooltip}
           withAnimation={withAnimation}
+          withLabels={radialWithLabels}
+          withGrid={radialWithGrid}
         />
       );
     }

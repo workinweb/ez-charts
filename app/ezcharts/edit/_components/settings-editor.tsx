@@ -46,6 +46,9 @@ export function SettingsEditor({
   const isPieChart = chartType === "shadcn:pie";
   const isPieStackedChart = chartType === "shadcn:pie-stacked";
   const isDonutChart = chartType === "shadcn:donut";
+  const isRadialChart = chartType === "shadcn:radial";
+  const isRadarChart = chartType === "shadcn:radar";
+  const isSimpleRadialChart = chartType === "shadcn:radial-simple";
   const withCenterText =
     (chartSettings.withCenterText as boolean | undefined) ?? false;
   const centerTextMode =
@@ -238,6 +241,143 @@ export function SettingsEditor({
                   ...chartSettings,
                   withActiveSector: v,
                   activeIndex: v ? (activeIndex >= 0 ? activeIndex : 0) : -1,
+                })
+              }
+            />
+          </div>
+        </>
+      )}
+
+      {isRadialChart && (
+        <>
+          <div className="flex items-center justify-between gap-4 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
+            <div>
+              <p className="text-[14px] font-medium text-[#3D4035]">Labels</p>
+              <p className="text-[12px] text-[#3D4035]/50">
+                Show segment names inside bars
+              </p>
+            </div>
+            <Switch
+              checked={(chartSettings.withLabels as boolean | undefined) ?? false}
+              onCheckedChange={(v) =>
+                onChartSettingsChange({ ...chartSettings, withLabels: v })
+              }
+            />
+          </div>
+          <div className="flex items-center justify-between gap-4 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
+            <div>
+              <p className="text-[14px] font-medium text-[#3D4035]">Grid</p>
+              <p className="text-[12px] text-[#3D4035]/50">
+                Show polar grid circles
+              </p>
+            </div>
+            <Switch
+              checked={(chartSettings.withGrid as boolean | undefined) ?? false}
+              onCheckedChange={(v) =>
+                onChartSettingsChange({ ...chartSettings, withGrid: v })
+              }
+            />
+          </div>
+        </>
+      )}
+
+      {isSimpleRadialChart && (
+        <div className="flex flex-col gap-2 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
+          <div>
+            <p className="text-[14px] font-medium text-[#3D4035]">Variant</p>
+            <p className="text-[12px] text-[#3D4035]/50">
+              Normal, active (hover), or stacked half
+            </p>
+          </div>
+          <Select
+            value={
+              (chartSettings.radialVariant as "normal" | "active" | "stacked-half") ??
+              "normal"
+            }
+            onValueChange={(v) =>
+              onChartSettingsChange({
+                ...chartSettings,
+                radialVariant: v as "normal" | "active" | "stacked-half",
+              })
+            }
+          >
+            <SelectTrigger className="h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="normal">Normal</SelectItem>
+              <SelectItem value="active">Active (highlight on hover)</SelectItem>
+              <SelectItem value="stacked-half">Stacked (half)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {isRadarChart && (
+        <>
+          <div className="flex items-center justify-between gap-4 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
+            <div>
+              <p className="text-[14px] font-medium text-[#3D4035]">Legend</p>
+              <p className="text-[12px] text-[#3D4035]/50">
+                Show series legend
+              </p>
+            </div>
+            <Switch
+              checked={(chartSettings.withLegend as boolean | undefined) ?? false}
+              onCheckedChange={(v) =>
+                onChartSettingsChange({ ...chartSettings, withLegend: v })
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-2 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
+            <div>
+              <p className="text-[14px] font-medium text-[#3D4035]">Grid</p>
+              <p className="text-[12px] text-[#3D4035]/50">
+                Grid style (polygon, circle, filled, etc.)
+              </p>
+            </div>
+            <Select
+              value={
+                (chartSettings.radarGridType as string) ?? "polygon"
+              }
+              onValueChange={(v) =>
+                onChartSettingsChange({
+                  ...chartSettings,
+                  radarGridType: v,
+                })
+              }
+            >
+              <SelectTrigger className="h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="polygon">Polygon</SelectItem>
+                <SelectItem value="polygon-no-lines">Lines only (grid)</SelectItem>
+                <SelectItem value="circle">Circle</SelectItem>
+                <SelectItem value="circle-no-lines">Circle (no radial lines)</SelectItem>
+                <SelectItem value="filled">Filled</SelectItem>
+                <SelectItem value="circle-filled">Circle filled</SelectItem>
+                <SelectItem value="none">None</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center justify-between gap-4 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
+            <div>
+              <p className="text-[14px] font-medium text-[#3D4035]">
+                Lines only
+              </p>
+              <p className="text-[12px] text-[#3D4035]/50">
+                No fill, stroke only (data as lines)
+              </p>
+            </div>
+            <Switch
+              checked={
+                (chartSettings.radarLinesOnly as boolean | undefined) ?? false
+              }
+              onCheckedChange={(v) =>
+                onChartSettingsChange({
+                  ...chartSettings,
+                  radarLinesOnly: v,
                 })
               }
             />

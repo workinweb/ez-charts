@@ -27,6 +27,28 @@ export const chartSettingsSchema = z
     /** Category label position: on bar or outside on axis (horizontal bar only) */
     categoryLabelPosition: z.enum(["inside", "outside"]).nullable(),
 
+    // ── Shadcn radial ──
+    /** Radial: show polar grid circles */
+    withGrid: z.boolean().nullable(),
+    /** Simple Radial: "normal" | "active" | "stacked-half" */
+    radialVariant: z.enum(["normal", "active", "stacked-half"]).nullable(),
+
+    // ── Shadcn radar ──
+    /** Radar grid: polygon, polygon-no-lines, circle, circle-no-lines, filled, circle-filled, none */
+    radarGridType: z
+      .enum([
+        "polygon",
+        "polygon-no-lines",
+        "circle",
+        "circle-no-lines",
+        "filled",
+        "circle-filled",
+        "none",
+      ])
+      .nullable(),
+    /** Radar: lines only (no fill, stroke only) */
+    radarLinesOnly: z.boolean().nullable(),
+
     // ── Shadcn line ──
     /** Line interpolation: curved, linear, or step */
     lineType: z.enum(["curved", "linear", "step"]).nullable(),
@@ -47,7 +69,7 @@ export const chartSettingsSchema = z
   })
   .nullable()
   .describe(
-    "Display options. withTooltip and withAnimation default to true; omit or set false to disable. Bar: withLabels, withLegend, categoryLabelPosition. Pie/Donut: withLegend. Donut: withCenterText, withActiveSector (enable clickable legend). Line: lineType. Area: areaFillStyle, areaColor, areaGradientTop, areaGradientBottom, areaOutlineColor. Omit when not needed.",
+    "Display options. withTooltip and withAnimation default to true; omit or set false to disable. Bar: withLabels, withLegend, categoryLabelPosition. Pie/Donut: withLegend. Donut: withCenterText, withActiveSector (enable clickable legend). Radial: withLabels (segment names in bars), withGrid (polar circles). Simple Radial: radialVariant. Radar: withLegend, radarGridType, radarLinesOnly. Line: lineType. Area: areaFillStyle, areaColor, areaGradientTop, areaGradientBottom, areaOutlineColor. Omit when not needed.",
   );
 
 export type ChartSettings = z.infer<typeof chartSettingsSchema>;
