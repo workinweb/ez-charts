@@ -13,8 +13,7 @@ const ABOUT_PIE_DATA = [
 
 export function AboutChart() {
   const chart = renderChart(ABOUT_PIE_DATA, "shadcn:pie", {
-    withTooltip: true,
-    withAnimation: true,
+    chartSettings: { withTooltip: true, withAnimation: true },
     className: "min-h-[220px] w-full sm:min-h-[260px] lg:min-h-[280px]",
   });
 

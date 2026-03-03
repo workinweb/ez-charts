@@ -12,6 +12,7 @@ export interface ChartFromTool {
 }
 
 function chartFromToolToUserChart(tool: ChartFromTool, id: string): UserChart {
+  const settings = tool.chartSettings ?? {};
   return {
     id,
     title: tool.title,
@@ -20,8 +21,8 @@ function chartFromToolToUserChart(tool: ChartFromTool, id: string): UserChart {
     source: "From chat",
     date: "Just now",
     favorited: false,
-    withTooltip: true,
-    withAnimation: true,
+    withTooltip: (settings.withTooltip as boolean | undefined) ?? true,
+    withAnimation: (settings.withAnimation as boolean | undefined) ?? true,
     chartSettings: tool.chartSettings,
     ...chartTypeToIcon(tool.chartType),
   };

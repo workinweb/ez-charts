@@ -13,7 +13,7 @@ import {
   Minimize2,
 } from "lucide-react";
 import { AlertCircle } from "lucide-react";
-import { renderChart } from "@/lib/chart/chart-render";
+import { getMergedChartSettings, renderChart } from "@/lib/chart/chart-render";
 import { useChartByIdWithStatus } from "@/hooks/use-charts";
 import { useSlideById, useSlideByIdWithStatus } from "@/hooks/use-slides";
 import { Button } from "@/components/ui/button";
@@ -138,9 +138,7 @@ export default function SlideViewPage() {
 
   const chartEl = currentChart
     ? renderChart(currentChart.data, currentChart.chartType, {
-        withTooltip: currentChart.withTooltip ?? true,
-        withAnimation: currentChart.withAnimation ?? true,
-        chartSettings: (currentChart as { chartSettings?: Record<string, unknown> }).chartSettings,
+        chartSettings: getMergedChartSettings(currentChart),
         presentationMode: true,
       })
     : null;

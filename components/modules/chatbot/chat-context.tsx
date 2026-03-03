@@ -445,6 +445,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
               title: currentChartFromHistory.title,
               chartType: currentChartFromHistory.chartType,
               data: currentChartFromHistory.data,
+              chartSettings: {
+                withTooltip: currentChartFromHistory.withTooltip,
+                withAnimation: currentChartFromHistory.withAnimation,
+                ...(currentChartFromHistory as { chartSettings?: Record<string, unknown> }).chartSettings,
+              },
             }
           : null);
       const hasChart = !!chartContext;
@@ -471,7 +476,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         contextParts.push(...docParts);
       }
       if (hasChart && chartContext) {
-        const chartCtx = `[Attached chart: ${chartContext.title}]\nChart type: ${chartContext.chartType}\nData:\n${JSON.stringify(chartContext.data, null, 2)}`;
+        let chartCtx = `[Attached chart: ${chartContext.title}]\nChart type: ${chartContext.chartType}\nData:\n${JSON.stringify(chartContext.data, null, 2)}`;
+        if (chartContext.chartSettings && Object.keys(chartContext.chartSettings).length > 0) {
+          chartCtx += `\nCurrent chartSettings (preserve or update when user asks for display changes):\n${JSON.stringify(chartContext.chartSettings, null, 2)}`;
+        }
         contextParts.push(chartCtx);
       }
       if (contextParts.length > 0) {
@@ -563,6 +571,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             title: currentChartFromHistory.title,
             chartType: currentChartFromHistory.chartType,
             data: currentChartFromHistory.data,
+            chartSettings: (currentChartFromHistory as { chartSettings?: Record<string, unknown> }).chartSettings,
           }
         : null);
     if (!ctx) return null;

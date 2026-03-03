@@ -32,8 +32,7 @@ export type ShadcnChartOptions = {
   seriesColors?: Record<string, string>;
   /** Category key from data (e.g. "key" from _data, "month", "subject"). Inferred from data when not provided. */
   categoryKey?: string;
-  withTooltip?: boolean;
-  withAnimation?: boolean;
+  /** Full display config: withTooltip, withAnimation, withLabels, lineType, etc. */
   chartSettings?: Record<string, unknown>;
 };
 
@@ -57,9 +56,9 @@ export function getShadcnChartByName(
           (k) => typeof (arr[0] as Record<string, unknown>)[k] === "string",
         ) ?? "month")
       : "month");
-  const withTooltip = options?.withTooltip ?? true;
-  const withAnimation = options?.withAnimation ?? true;
   const chartSettings = options?.chartSettings ?? {};
+  const withTooltip = (chartSettings.withTooltip as boolean | undefined) ?? true;
+  const withAnimation = (chartSettings.withAnimation as boolean | undefined) ?? true;
 
   const mergeConfig = (
     config: Record<string, { label: string; color: string }>,

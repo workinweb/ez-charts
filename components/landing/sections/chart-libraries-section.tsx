@@ -43,8 +43,10 @@ export function ChartLibrariesSection() {
 
   const item = CHART_SAMPLES[index];
   const chart = renderChart(item.data, item.chartType, {
-    withTooltip: "withTooltip" in item ? item.withTooltip : true,
-    withAnimation: "withAnimation" in item ? item.withAnimation : true,
+    chartSettings: {
+      withTooltip: "withTooltip" in item ? item.withTooltip : true,
+      withAnimation: "withAnimation" in item ? item.withAnimation : true,
+    },
     className: "min-h-[280px] w-full",
   });
 

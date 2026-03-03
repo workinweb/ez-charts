@@ -22,6 +22,8 @@ export interface AttachedChartContext {
   title: string;
   chartType: string;
   data: unknown;
+  /** Full display config: withTooltip, withAnimation, withLabels, lineType, etc. */
+  chartSettings?: Record<string, unknown>;
 }
 
 /** Document from DB loaded as context for the AI chat */

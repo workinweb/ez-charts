@@ -398,22 +398,15 @@ export const getChartTypeByName = (
 
   chartType: string,
   options?: {
-    withTooltip?: boolean;
     className?: string;
-    withAnimation?: boolean;
     withInteractive?: boolean;
     suffix?: string;
     chartSettings?: Record<string, unknown>;
   },
 ): JSX.Element | null => {
-  const {
-    withTooltip = true,
-    withAnimation,
-    withInteractive,
-    className,
-    suffix,
-    chartSettings,
-  } = options || {};
+  const { withInteractive, className, suffix, chartSettings = {} } = options || {};
+  const withTooltip = (chartSettings.withTooltip as boolean | undefined) ?? true;
+  const withAnimation = (chartSettings.withAnimation as boolean | undefined) ?? true;
 
   switch (chartType) {
     case "horizontal-bar": {
