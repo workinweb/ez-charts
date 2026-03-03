@@ -40,11 +40,17 @@ import { useChatbotStore } from "@/stores/chatbot-store";
 const ACCEPTED_FILE_TYPES =
   ".csv,.xlsx,.xls,.pdf,.json,.txt,.tsv,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/pdf,application/json,text/plain,text/tab-separated-values";
 
-function getFileIcon(name: string) {
-  const ext = name.split(".").pop()?.toLowerCase();
-  if (ext === "csv" || ext === "xlsx" || ext === "xls") return FileSpreadsheet;
-  if (ext === "json") return FileJson;
-  return FileText;
+const FILE_ICONS: Record<string, typeof FileText> = {
+  csv: FileSpreadsheet,
+  xlsx: FileSpreadsheet,
+  xls: FileSpreadsheet,
+  json: FileJson,
+};
+
+function DocumentIcon({ name, className, strokeWidth }: { name: string; className?: string; strokeWidth?: number }) {
+  const ext = name.split(".").pop()?.toLowerCase() ?? "";
+  const Icon = FILE_ICONS[ext] ?? FileText;
+  return <Icon className={className} strokeWidth={strokeWidth} />;
 }
 
 function formatSize(bytes: number): string {
@@ -109,7 +115,6 @@ function DocumentRow({
     }
   };
 
-  const Icon = getFileIcon(doc.name);
   const canDownload = !!downloadUrl || !doc.storageId;
 
   const controlButtonClass =
@@ -123,7 +128,7 @@ function DocumentRow({
           "bg-[#6CB4EE]/30",
         )}
       >
-        <Icon className="size-7 text-[#3D4035]" strokeWidth={2} />
+        <DocumentIcon name={doc.name} className="size-7 text-[#3D4035]" strokeWidth={2} />
       </div>
 
       <div className="min-w-0 flex-1 basis-32">

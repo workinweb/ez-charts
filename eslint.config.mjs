@@ -5,6 +5,13 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    files: ["components/charts/rosencharts/**/*.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/ban-ts-comment": "off",
+      "react-hooks/immutability": "warn",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

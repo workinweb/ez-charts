@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Heart } from "lucide-react";
+import type { Id } from "@/convex/_generated/dataModel";
 import {
   Card,
   CardContent,
@@ -64,7 +65,7 @@ export function RecentCharts() {
 
                 <button
                   type="button"
-                  onClick={() => mutations.toggleFavorite(chart.id as any)}
+                  onClick={() => mutations.toggleFavorite(chart.id as Id<"charts">)}
                   className="shrink-0 rounded-full p-2 text-[#3D4035]/40 transition-colors hover:bg-black/[0.04] hover:text-[#3D4035]/70"
                   aria-label={chart.favorited ? "Remove from favorites" : "Add to favorites"}
                   title={chart.favorited ? "Remove from favorites" : "Add to favorites"}

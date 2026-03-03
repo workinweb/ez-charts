@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts-nocheck - rosencharts excluded from tsconfig
 import React, { CSSProperties } from "react";
 import type { BreakdownChartItem } from "../types";
 import { gradientFromHex } from "../utils/utils";
@@ -25,7 +25,10 @@ export function BreakdownChart({
   const totalValue = data.reduce((acc, d) => acc + d.value, 0);
   const barHeight = 54;
   const totalWidth = totalValue + gap * (data.length - 1);
-  let cumulativeWidth = 0;
+  const xPositions = data.reduce<number[]>((acc, _, i) => {
+    acc.push(i === 0 ? 0 : acc[i - 1]! + ((data[i - 1]!.value / totalWidth) * 100) + gap);
+    return acc;
+  }, []);
 
   const cornerRadius = 4; // Adjust this value to change the roundness
 
@@ -63,8 +66,7 @@ export function BreakdownChart({
         {/* Bars with Gradient Fill */}
         {data.map((d, index) => {
           const barWidth = (d.value / totalWidth) * 100;
-          const xPosition = cumulativeWidth;
-          cumulativeWidth += barWidth + gap;
+          const xPosition = xPositions[index] ?? 0;
           const isHexColor = d.color ? /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(d.color) : false;
           const gradient = isHexColor ? gradientFromHex(d.color!) : d.color;
 

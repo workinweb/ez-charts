@@ -2,6 +2,7 @@
 
 import { Navbar } from "@/components/layout/navbar";
 import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 import { useChartByIdWithStatus, useChartsMutations } from "@/hooks/use-charts";
 import { useFeatureCheck } from "@/hooks/use-feature-check";
 import { renderChart } from "@/lib/chart/chart-render";
@@ -79,7 +80,6 @@ function EditChartContent() {
   const [data, setData] = useState<unknown>(
     isCreateMode ? cloneData(DEFAULT_CREATE_DATA) : null,
   );
-  console.log("🚀 ~ EditChartContent ~ data:", data);
   const [withTooltip, setWithTooltip] = useState(true);
   const [withAnimation, setWithAnimation] = useState(true);
   const [chartSettings, setChartSettings] = useState<Record<string, unknown>>(
@@ -187,7 +187,7 @@ function EditChartContent() {
         prevChartIdRef.current = newId;
         router.replace(`/ezcharts/edit?chart=${newId}`);
       } else {
-        await mutations.update(selectedId as any, {
+        await mutations.update(selectedId as Id<"charts">, {
           title,
           chartType,
           data,
