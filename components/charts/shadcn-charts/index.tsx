@@ -57,8 +57,12 @@ export function getShadcnChartByName(
         ) ?? "month")
       : "month");
   const chartSettings = options?.chartSettings ?? {};
-  const withTooltip = (chartSettings.withTooltip as boolean | undefined) ?? true;
-  const withAnimation = (chartSettings.withAnimation as boolean | undefined) ?? true;
+  const withTooltip =
+    (chartSettings.withTooltip as boolean | undefined) ?? true;
+  const withAnimation =
+    (chartSettings.withAnimation as boolean | undefined) ?? true;
+  const withLegend =
+    (chartSettings.withLegend as boolean | undefined) ?? true;
 
   const mergeConfig = (
     config: Record<string, { label: string; color: string }>,
@@ -84,8 +88,6 @@ export function getShadcnChartByName(
         chartType === "shadcn:bar-stacked" ? "stacked" : "default";
       const withLabels =
         (chartSettings.withLabels as boolean | undefined) ?? true;
-      const withLegend =
-        (chartSettings.withLegend as boolean | undefined) ?? true;
       return (
         <ShadcnBarChart
           data={d}
@@ -109,7 +111,8 @@ export function getShadcnChartByName(
       const withLabels =
         (chartSettings.withLabels as boolean | undefined) ?? true;
       const categoryLabelPosition =
-        (chartSettings.categoryLabelPosition as "inside" | "outside") ?? "inside";
+        (chartSettings.categoryLabelPosition as "inside" | "outside") ??
+        "inside";
       return (
         <ShadcnHorizontalBarChart
           data={d}
@@ -170,6 +173,7 @@ export function getShadcnChartByName(
           className={className}
           withTooltip={withTooltip}
           withAnimation={withAnimation}
+          withLegend={withLegend}
         />
       );
     }

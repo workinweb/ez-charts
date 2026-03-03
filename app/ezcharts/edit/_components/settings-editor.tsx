@@ -29,11 +29,10 @@ export function SettingsEditor({
   onChartSettingsChange,
 }: SettingsEditorProps) {
   const areaFillStyle =
-    (chartSettings.areaFillStyle as "gradient" | "full" | "outline") ?? "gradient";
-  const withLabels =
-    (chartSettings.withLabels as boolean | undefined) ?? true;
-  const withLegend =
-    (chartSettings.withLegend as boolean | undefined) ?? true;
+    (chartSettings.areaFillStyle as "gradient" | "full" | "outline") ??
+    "gradient";
+  const withLabels = (chartSettings.withLabels as boolean | undefined) ?? true;
+  const withLegend = (chartSettings.withLegend as boolean | undefined) ?? true;
 
   const lineType =
     (chartSettings.lineType as "curved" | "linear" | "step") ?? "curved";
@@ -44,6 +43,7 @@ export function SettingsEditor({
     chartType === "shadcn:bar-horizontal";
   const isStackedBar = chartType === "shadcn:bar-stacked";
   const isHorizontalBar = chartType === "shadcn:bar-horizontal";
+  const isPieChart = chartType === "shadcn:pie";
   const categoryLabelPosition =
     (chartSettings.categoryLabelPosition as "inside" | "outside") ?? "inside";
 
@@ -73,9 +73,7 @@ export function SettingsEditor({
         <div className="flex items-center justify-between gap-4 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
           <div>
             <p className="text-[14px] font-medium text-[#3D4035]">Labels</p>
-            <p className="text-[12px] text-[#3D4035]/50">
-              Show values on bars
-            </p>
+            <p className="text-[12px] text-[#3D4035]/50">Show values on bars</p>
           </div>
           <Switch
             checked={withLabels}
@@ -116,12 +114,14 @@ export function SettingsEditor({
         </div>
       )}
 
-      {isStackedBar && (
+      {(isStackedBar || isPieChart) && (
         <div className="flex items-center justify-between gap-4 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
           <div>
             <p className="text-[14px] font-medium text-[#3D4035]">Legend</p>
             <p className="text-[12px] text-[#3D4035]/50">
-              Show series legend
+              {isPieChart
+                ? "Show segment legend below chart"
+                : "Show series legend"}
             </p>
           </div>
           <Switch
@@ -165,7 +165,9 @@ export function SettingsEditor({
       {chartType === "area" && (
         <div className="flex flex-col gap-2 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
           <div>
-            <p className="text-[14px] font-medium text-[#3D4035]">Area fill style</p>
+            <p className="text-[14px] font-medium text-[#3D4035]">
+              Area fill style
+            </p>
             <p className="text-[12px] text-[#3D4035]/50">
               Gradient, solid, or outlined
             </p>

@@ -3,6 +3,8 @@
 import { Cell, Pie, PieChart as RechartsPieChart } from "recharts";
 import {
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
@@ -14,6 +16,7 @@ export interface ShadcnPieChartProps {
   className?: string;
   withTooltip?: boolean;
   withAnimation?: boolean;
+  withLegend?: boolean;
 }
 
 const DEFAULT_COLORS = [
@@ -30,6 +33,7 @@ export function ShadcnPieChart({
   className,
   withTooltip = true,
   withAnimation = true,
+  withLegend = true,
 }: ShadcnPieChartProps) {
   const dataWithFill = data.map((item, i) => ({
     ...item,
@@ -48,13 +52,21 @@ export function ShadcnPieChart({
           innerRadius={0}
           outerRadius="70%"
           paddingAngle={2}
-          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+          label={({ name, percent }) =>
+            `${name} ${(percent * 100).toFixed(0)}%`
+          }
           isAnimationActive={withAnimation}
         >
           {dataWithFill.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={entry.fill} />
           ))}
         </Pie>
+        {withLegend && (
+          <ChartLegend
+            content={<ChartLegendContent nameKey="name" />}
+            className="-translate-y-2 flex-wrap gap-2 *:basis-1/4 *:justify-center"
+          />
+        )}
       </RechartsPieChart>
     </ChartContainer>
   );
