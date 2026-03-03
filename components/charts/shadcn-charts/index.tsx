@@ -7,9 +7,10 @@ import { ShadcnHorizontalBarChart } from "./HorizontalBarChart";
 import { ShadcnLineChart } from "./LineChart";
 import { ShadcnDonutChart } from "./DonutChart";
 import { ShadcnPieChart } from "./PieChart";
+import { ShadcnPieStackedChart } from "./PieStackedChart";
 import { ShadcnRadarChart } from "./RadarChart";
 import { ShadcnRadialChart } from "./RadialChart";
-import { inferCartesianConfig, inferPieConfig } from "./utils";
+import { inferCartesianConfig, inferPieConfig, inferStackedPieConfig } from "./utils";
 
 export { SHADCN_CHART_TYPES } from "./utils";
 export type { ShadcnChartTypeKey } from "./utils";
@@ -20,6 +21,7 @@ export {
   ShadcnHorizontalBarChart,
   ShadcnLineChart,
   ShadcnPieChart,
+  ShadcnPieStackedChart,
   ShadcnRadarChart,
   ShadcnRadialChart,
 };
@@ -164,6 +166,25 @@ export function getShadcnChartByName(
           lineType={lineType}
           withTooltip={withTooltip}
           withAnimation={withAnimation}
+        />
+      );
+    }
+    case "shadcn:pie-stacked": {
+      const d = arr as Record<string, string | number>[];
+      const stackedConfig = inferStackedPieConfig(
+        d as Record<string, unknown>[],
+        categoryKey,
+      ) as Record<string, { label: string; color: string }>;
+      const config = mergeConfig(stackedConfig, seriesColors);
+      return (
+        <ShadcnPieStackedChart
+          data={d}
+          config={config}
+          className={className}
+          categoryKey={categoryKey}
+          withTooltip={withTooltip}
+          withAnimation={withAnimation}
+          withLegend={withLegend}
         />
       );
     }

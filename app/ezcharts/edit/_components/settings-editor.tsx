@@ -44,6 +44,7 @@ export function SettingsEditor({
   const isStackedBar = chartType === "shadcn:bar-stacked";
   const isHorizontalBar = chartType === "shadcn:bar-horizontal";
   const isPieChart = chartType === "shadcn:pie";
+  const isPieStackedChart = chartType === "shadcn:pie-stacked";
   const isDonutChart = chartType === "shadcn:donut";
   const withCenterText =
     (chartSettings.withCenterText as boolean | undefined) ?? false;
@@ -123,12 +124,12 @@ export function SettingsEditor({
         </div>
       )}
 
-      {(isStackedBar || isPieChart || isDonutChart) && (
+      {(isStackedBar || isPieChart || isPieStackedChart || isDonutChart) && (
         <div className="flex items-center justify-between gap-4 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
           <div>
             <p className="text-[14px] font-medium text-[#3D4035]">Legend</p>
             <p className="text-[12px] text-[#3D4035]/50">
-              {isPieChart || isDonutChart
+              {isPieChart || isPieStackedChart || isDonutChart
                 ? "Show segment legend below chart"
                 : "Show series legend"}
             </p>

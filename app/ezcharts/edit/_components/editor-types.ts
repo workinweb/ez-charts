@@ -38,12 +38,14 @@ export function getEditorShape(chartType: string): EditorShape {
       chartType === "shadcn:radial"
     )
       return "pie";
+    if (chartType === "shadcn:pie-stacked") return "shadcnCartesian";
     if (chartType === "shadcn:radar") return "shadcnCartesian";
     if (
       [
         "shadcn:bar",
         "shadcn:bar-horizontal",
         "shadcn:bar-stacked",
+        "shadcn:pie-stacked",
         "shadcn:area",
         "shadcn:line",
       ].includes(chartType)

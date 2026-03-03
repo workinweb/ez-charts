@@ -59,6 +59,7 @@ export function ChartPreview({
         "shadcn:bar",
         "shadcn:bar-horizontal",
         "shadcn:bar-stacked",
+        "shadcn:pie-stacked",
         "shadcn:area",
         "shadcn:line",
       ];
@@ -92,6 +93,7 @@ export function ChartPreview({
         "shadcn:bar",
         "shadcn:bar-horizontal",
         "shadcn:bar-stacked",
+        "shadcn:pie-stacked",
         "shadcn:area",
         "shadcn:line",
       ];
