@@ -26,7 +26,7 @@ EXAMPLES:
 - "Disable tooltips" → chartSettings: { withTooltip: false }; message: "Tooltips disabled."
 - "Turn off animation" → chartSettings: { withAnimation: false }; message: "Animation off."
 
-When the user asks for display/style changes, include chartSettings with the relevant keys. withTooltip and withAnimation default to true; only include them when setting to false. Other keys: withLabels, withLegend, categoryLabelPosition, lineType, areaFillStyle, areaColor, areaGradientTop, areaGradientBottom, areaOutlineColor. Omit chartSettings when not needed.
+When the user asks for display/style changes, include chartSettings with the relevant keys. withTooltip and withAnimation default to true; only include them when setting to false. Other keys: withLabels, withLegend, withCenterText, centerTextMode (donut: "total"|"active"), withActiveSector (donut: enable clickable legend to highlight segment), categoryLabelPosition, lineType, areaFillStyle, areaColor, areaGradientTop, areaGradientBottom, areaOutlineColor. Omit chartSettings when not needed.
 `;
 
 export const GUARDRAIL_SYSTEM_PROMPT = `You are a content classifier. Set isRelevant: true if the user message is about charts, data visualization, data analysis, file or data uploads, platform usage, or is a greeting. Set isRelevant: false for anything unrelated to these topics or for harmful content. When in doubt, lean toward true.`;

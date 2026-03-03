@@ -62,7 +62,7 @@ export function ChartPreview({
         "shadcn:area",
         "shadcn:line",
       ];
-      const shadcnPieLike = ["shadcn:pie", "shadcn:radial"];
+      const shadcnPieLike = ["shadcn:pie", "shadcn:donut", "shadcn:radial"];
       const fromCartesian = shadcnCartesian.includes(chartType);
       const toCartesian = shadcnCartesian.includes(key);
       const fromPieLike = shadcnPieLike.includes(chartType);
@@ -95,7 +95,7 @@ export function ChartPreview({
         "shadcn:area",
         "shadcn:line",
       ];
-      const shadcnPieLike = ["shadcn:pie", "shadcn:radial"];
+      const shadcnPieLike = ["shadcn:pie", "shadcn:donut", "shadcn:radial"];
       const fromCartesian = shadcnCartesian.includes(chartType);
       const toCartesian = shadcnCartesian.includes(newType);
       const fromPieLike = shadcnPieLike.includes(chartType);

@@ -15,6 +15,7 @@ export const SHADCN_CHART_TYPES = [
   { key: "shadcn:area", label: "Area", category: "area", icon: Activity },
   { key: "shadcn:line", label: "Line", category: "line", icon: LineChartIcon },
   { key: "shadcn:pie", label: "Pie", category: "pie", icon: PieChartIcon },
+  { key: "shadcn:donut", label: "Donut", category: "pie", icon: PieChartIcon },
   { key: "shadcn:radar", label: "Radar", category: "radar", icon: Radar },
   { key: "shadcn:radial", label: "Radial", category: "radial", icon: Gauge },
 ] as const;

@@ -130,13 +130,24 @@ function EditChartContent() {
     () => ({ withTooltip, withAnimation, ...chartSettings }),
     [withTooltip, withAnimation, chartSettings],
   );
+  const handleActiveIndexChange = useCallback(
+    (index: number) => {
+      edit(setChartSettings)((prev: Record<string, unknown>) => ({
+        ...prev,
+        activeIndex: index,
+      }));
+    },
+    [edit],
+  );
   const previewEl = useMemo(() => {
     if (!data || !chartType) return null;
     return renderChart(data, chartType, {
       chartSettings: mergedChartSettings,
       className: "min-h-[320px] w-full",
+      onActiveIndexChange:
+        chartType === "shadcn:donut" ? handleActiveIndexChange : undefined,
     });
-  }, [data, chartType, mergedChartSettings]);
+  }, [data, chartType, mergedChartSettings, handleActiveIndexChange]);
 
   /* ── Save handler ────────────────────────────────────────────────── */
   const [saving, setSaving] = useState(false);

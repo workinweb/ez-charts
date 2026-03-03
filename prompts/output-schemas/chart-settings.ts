@@ -14,8 +14,16 @@ export const chartSettingsSchema = z
     // ── Shadcn bar (bar, bar-stacked, bar-horizontal) ──
     /** Show values on bars */
     withLabels: z.boolean().nullable(),
-    /** Show series legend (stacked bar only) */
+    /** Show series/segment legend (stacked bar, pie, donut) */
     withLegend: z.boolean().nullable(),
+    /** Show total or active value in donut center */
+    withCenterText: z.boolean().nullable(),
+    /** Donut center: "total" or "active" (active segment value) */
+    centerTextMode: z.enum(["total", "active"]).nullable(),
+    /** Donut: enable active sector (click legend to highlight segment). When true, segment pops out. */
+    withActiveSector: z.boolean().nullable(),
+    /** Donut: index of segment to highlight when withActiveSector is true. Set by clicking legend. */
+    activeIndex: z.number().nullable(),
     /** Category label position: on bar or outside on axis (horizontal bar only) */
     categoryLabelPosition: z.enum(["inside", "outside"]).nullable(),
 
@@ -39,7 +47,7 @@ export const chartSettingsSchema = z
   })
   .nullable()
   .describe(
-    "Display options. withTooltip and withAnimation default to true; omit or set false to disable. Bar: withLabels, withLegend, categoryLabelPosition. Line: lineType. Area: areaFillStyle, areaColor, areaGradientTop, areaGradientBottom, areaOutlineColor. Omit when not needed.",
+    "Display options. withTooltip and withAnimation default to true; omit or set false to disable. Bar: withLabels, withLegend, categoryLabelPosition. Pie/Donut: withLegend. Donut: withCenterText, withActiveSector (enable clickable legend). Line: lineType. Area: areaFillStyle, areaColor, areaGradientTop, areaGradientBottom, areaOutlineColor. Omit when not needed.",
   );
 
 export type ChartSettings = z.infer<typeof chartSettingsSchema>;

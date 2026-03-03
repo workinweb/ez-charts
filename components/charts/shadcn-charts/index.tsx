@@ -5,6 +5,7 @@ import { ShadcnAreaChart } from "./AreaChart";
 import { ShadcnBarChart } from "./BarChart";
 import { ShadcnHorizontalBarChart } from "./HorizontalBarChart";
 import { ShadcnLineChart } from "./LineChart";
+import { ShadcnDonutChart } from "./DonutChart";
 import { ShadcnPieChart } from "./PieChart";
 import { ShadcnRadarChart } from "./RadarChart";
 import { ShadcnRadialChart } from "./RadialChart";
@@ -15,6 +16,7 @@ export type { ShadcnChartTypeKey } from "./utils";
 export {
   ShadcnAreaChart,
   ShadcnBarChart,
+  ShadcnDonutChart,
   ShadcnHorizontalBarChart,
   ShadcnLineChart,
   ShadcnPieChart,
@@ -34,6 +36,8 @@ export type ShadcnChartOptions = {
   categoryKey?: string;
   /** Full display config: withTooltip, withAnimation, withLabels, lineType, etc. */
   chartSettings?: Record<string, unknown>;
+  /** Donut: when provided, legend items are clickable to select active segment. */
+  onActiveIndexChange?: (index: number) => void;
 };
 
 /**
@@ -174,6 +178,35 @@ export function getShadcnChartByName(
           withTooltip={withTooltip}
           withAnimation={withAnimation}
           withLegend={withLegend}
+        />
+      );
+    }
+    case "shadcn:donut": {
+      const d = arr as { name: string; value: number; fill?: string }[];
+      const config = inferPieConfig(d);
+      const withCenterText =
+        (chartSettings.withCenterText as boolean | undefined) ?? false;
+      const centerTextMode =
+        (chartSettings.centerTextMode as "total" | "active") ?? "total";
+      const activeIndex =
+        (chartSettings.activeIndex as number | undefined) ?? -1;
+      const withActiveSector =
+        (chartSettings.withActiveSector as boolean | undefined) ??
+        (activeIndex >= 0);
+      const onActiveIndexChange = options?.onActiveIndexChange;
+      return (
+        <ShadcnDonutChart
+          data={d}
+          config={config}
+          className={className}
+          withTooltip={withTooltip}
+          withAnimation={withAnimation}
+          withLegend={withLegend}
+          withCenterText={withCenterText}
+          centerTextMode={centerTextMode}
+          withActiveSector={withActiveSector}
+          activeIndex={activeIndex}
+          onActiveIndexChange={onActiveIndexChange}
         />
       );
     }

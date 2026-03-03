@@ -40,6 +40,8 @@ export function renderChart(
     className?: string;
     presentationMode?: boolean;
     chartSettings?: Record<string, unknown>;
+    /** Donut: when provided, legend items are clickable to select active segment. */
+    onActiveIndexChange?: (index: number) => void;
   },
 ): JSX.Element | null {
   if (!data || !chartType) return null;
@@ -66,6 +68,7 @@ export function renderChart(
         seriesColors,
         categoryKey,
         chartSettings,
+        onActiveIndexChange: options?.onActiveIndexChange,
       },
     );
   }

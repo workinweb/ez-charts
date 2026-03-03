@@ -131,7 +131,11 @@ export const DEFAULT_CREATE_DATA = SHADCN_CARTESIAN_DEFAULT;
 /** Get default data for a chart type */
 export function getDefaultDataForChartType(chartType: string): unknown[] {
   if (chartType.startsWith("shadcn:")) {
-    if (chartType === "shadcn:pie" || chartType === "shadcn:radial") {
+    if (
+      chartType === "shadcn:pie" ||
+      chartType === "shadcn:donut" ||
+      chartType === "shadcn:radial"
+    ) {
       return JSON.parse(JSON.stringify(SHADCN_PIE_DEFAULT));
     }
     if (chartType === "shadcn:radar") {

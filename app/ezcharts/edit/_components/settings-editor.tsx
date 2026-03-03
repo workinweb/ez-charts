@@ -44,6 +44,15 @@ export function SettingsEditor({
   const isStackedBar = chartType === "shadcn:bar-stacked";
   const isHorizontalBar = chartType === "shadcn:bar-horizontal";
   const isPieChart = chartType === "shadcn:pie";
+  const isDonutChart = chartType === "shadcn:donut";
+  const withCenterText =
+    (chartSettings.withCenterText as boolean | undefined) ?? false;
+  const centerTextMode =
+    (chartSettings.centerTextMode as "total" | "active") ?? "total";
+  const activeIndex = (chartSettings.activeIndex as number | undefined) ?? -1;
+  const withActiveSector =
+    (chartSettings.withActiveSector as boolean | undefined) ??
+    (activeIndex >= 0);
   const categoryLabelPosition =
     (chartSettings.categoryLabelPosition as "inside" | "outside") ?? "inside";
 
@@ -114,12 +123,12 @@ export function SettingsEditor({
         </div>
       )}
 
-      {(isStackedBar || isPieChart) && (
+      {(isStackedBar || isPieChart || isDonutChart) && (
         <div className="flex items-center justify-between gap-4 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
           <div>
             <p className="text-[14px] font-medium text-[#3D4035]">Legend</p>
             <p className="text-[12px] text-[#3D4035]/50">
-              {isPieChart
+              {isPieChart || isDonutChart
                 ? "Show segment legend below chart"
                 : "Show series legend"}
             </p>
@@ -160,6 +169,79 @@ export function SettingsEditor({
             </SelectContent>
           </Select>
         </div>
+      )}
+
+      {isDonutChart && (
+        <>
+          <div className="flex items-center justify-between gap-4 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
+            <div>
+              <p className="text-[14px] font-medium text-[#3D4035]">
+                Center text
+              </p>
+              <p className="text-[12px] text-[#3D4035]/50">
+                Show value in donut center
+              </p>
+            </div>
+            <Switch
+              checked={withCenterText}
+              onCheckedChange={(v) =>
+                onChartSettingsChange({
+                  ...chartSettings,
+                  withCenterText: v,
+                })
+              }
+            />
+          </div>
+          {withCenterText && (
+            <div className="flex flex-col gap-2 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
+              <div>
+                <p className="text-[14px] font-medium text-[#3D4035]">
+                  Center shows
+                </p>
+                <p className="text-[12px] text-[#3D4035]/50">
+                  Total or active segment value
+                </p>
+              </div>
+              <Select
+                value={centerTextMode}
+                onValueChange={(v) =>
+                  onChartSettingsChange({
+                    ...chartSettings,
+                    centerTextMode: v as "total" | "active",
+                  })
+                }
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="total">Total</SelectItem>
+                  <SelectItem value="active">Active segment value</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          <div className="flex items-center justify-between gap-4 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
+            <div>
+              <p className="text-[14px] font-medium text-[#3D4035]">
+                Active sector
+              </p>
+              <p className="text-[12px] text-[#3D4035]/50">
+                Click legend to highlight segment (pops out)
+              </p>
+            </div>
+            <Switch
+              checked={withActiveSector}
+              onCheckedChange={(v) =>
+                onChartSettingsChange({
+                  ...chartSettings,
+                  withActiveSector: v,
+                  activeIndex: v ? (activeIndex >= 0 ? activeIndex : 0) : -1,
+                })
+              }
+            />
+          </div>
+        </>
       )}
 
       {chartType === "area" && (
