@@ -45,7 +45,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 const PLAN_ICONS = { free: Coffee, pro: Zap, max: Crown } as const;
 
@@ -77,17 +77,10 @@ function AppNavbarInner() {
 
   // Read last-edited chart ID from the Zustand store
   const lastEditedChartId = useChartsStore((s) => s.lastEditedChartId);
-  const setLastEditedChartId = useChartsStore((s) => s.setLastEditedChartId);
+  // const setLastEditedChartId = useChartsStore((s) => s.setLastEditedChartId);
 
   const chartFromUrl =
     pathname === "/ezcharts/edit" ? searchParams.get("chart") : null;
-
-  // Sync URL → store when the URL has a chart param (no effect; runs during render)
-  const prevChartFromUrlRef = useRef<string | null>(null);
-  if (chartFromUrl && chartFromUrl !== prevChartFromUrlRef.current) {
-    prevChartFromUrlRef.current = chartFromUrl;
-    setLastEditedChartId(chartFromUrl);
-  }
 
   const editingChartId = chartFromUrl ?? lastEditedChartId;
   const isEditingChart = pathname === "/ezcharts/edit" && !!chartFromUrl;
