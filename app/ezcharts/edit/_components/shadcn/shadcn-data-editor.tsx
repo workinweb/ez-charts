@@ -10,23 +10,11 @@ import {
 } from "@/lib/chart/shadcn-chart-data";
 import { FieldRow } from "../field-row";
 
-const SHADCN_CARTESIAN = [
-  "shadcn:bar",
-  "shadcn:bar-horizontal",
-  "shadcn:bar-stacked",
-  "shadcn:area",
-  "shadcn:line",
-];
 const SHADCN_PIE_LIKE = ["shadcn:pie", "shadcn:radial"];
-const SHADCN_RADAR = "shadcn:radar";
-
-function getCategoryKey(chartType: string): string {
-  return chartType === SHADCN_RADAR ? "subject" : "month";
-}
 
 /** Default series when no data — generic names to avoid desktop/mobile hardcoding */
 function getDefaultNumericKeys(chartType: string): string[] {
-  if (chartType === SHADCN_RADAR) return ["A", "B", "C"];
+  if (chartType === "shadcn:radar") return ["A", "B", "C"];
   return ["series1", "series2", "series3"];
 }
 
@@ -42,7 +30,7 @@ export function ShadcnDataEditor({
   data,
   onChange,
 }: ShadcnDataEditorProps) {
-  const { rows } = unwrapShadcnData(data);
+  const { rows, categoryKey } = unwrapShadcnData(data, chartType);
 
   const updateRows = useCallback(
     (next: Record<string, string | number>[]) => {
@@ -84,19 +72,18 @@ export function ShadcnDataEditor({
       updateRows([...rows, { name: `Slice ${rows.length + 1}`, value: 0 }]);
       return;
     }
-    const catKey = getCategoryKey(chartType);
     const sample = rows[0];
     const numKeys = sample
       ? Object.keys(sample).filter(
           (k) =>
-            k !== catKey &&
+            k !== categoryKey &&
             typeof (sample as Record<string, unknown>)[k] === "number",
         )
       : getDefaultNumericKeys(chartType);
 
     const defaults: Record<string, string | number> = {
-      [catKey]:
-        chartType === SHADCN_RADAR
+      [categoryKey]:
+        chartType === "shadcn:radar"
           ? `Subject ${rows.length + 1}`
           : `Row ${rows.length + 1}`,
     };
@@ -106,15 +93,14 @@ export function ShadcnDataEditor({
       defaults[k] = 0;
     }
     updateRows([...rows, defaults]);
-  }, [chartType, rows, updateRows, isPieLike]);
+  }, [chartType, rows, updateRows, isPieLike, categoryKey]);
 
   const addSeries = useCallback(() => {
-    const catKey = getCategoryKey(chartType);
     const sample = rows[0];
     const numKeys = sample
       ? Object.keys(sample).filter(
           (k) =>
-            k !== catKey &&
+            k !== categoryKey &&
             typeof (sample as Record<string, unknown>)[k] === "number",
         )
       : [];
@@ -129,12 +115,12 @@ export function ShadcnDataEditor({
       string | number
     >[];
     if (next.length === 0)
-      next.push({ [catKey]: "Row 1", [name]: 0 } as Record<
+      next.push({ [categoryKey]: "Row 1", [name]: 0 } as Record<
         string,
         string | number
       >);
     updateRows(next);
-  }, [chartType, rows, updateRows]);
+  }, [chartType, rows, updateRows, categoryKey]);
 
   const removeSeries = useCallback(
     (key: string) => {
@@ -182,6 +168,7 @@ export function ShadcnDataEditor({
     <ShadcnCartesianDataEditor
       chartType={chartType}
       rows={rows}
+      categoryKey={categoryKey}
       onUpdateRows={updateRows}
       onAddRow={addRow}
       onAddSeries={addSeries}
@@ -206,6 +193,7 @@ function getWrappedIfNeeded(
 function ShadcnCartesianDataEditor({
   chartType,
   rows,
+  categoryKey,
   onUpdateRows,
   onAddRow,
   onAddSeries,
@@ -215,6 +203,7 @@ function ShadcnCartesianDataEditor({
 }: {
   chartType: string;
   rows: Record<string, string | number>[];
+  categoryKey: string;
   onUpdateRows: (rows: Record<string, string | number>[]) => void;
   onAddRow: () => void;
   onAddSeries: () => void;
@@ -222,21 +211,20 @@ function ShadcnCartesianDataEditor({
   onRenameSeries: (oldKey: string, newKey: string) => void;
   onRemoveRow: (idx: number) => void;
 }) {
-  const catKey = getCategoryKey(chartType);
   const { seriesKeys, allKeys } = useMemo(() => {
     const sample = rows[0];
     const numeric = sample
       ? Object.keys(sample).filter(
           (k) =>
-            k !== catKey &&
+            k !== categoryKey &&
             typeof (sample as Record<string, unknown>)[k] === "number",
         )
       : getDefaultNumericKeys(chartType);
     return {
       seriesKeys: numeric,
-      allKeys: [catKey, ...numeric],
+      allKeys: [categoryKey, ...numeric],
     };
-  }, [rows, catKey, chartType]);
+  }, [rows, categoryKey, chartType]);
 
   const isSingleSeriesOnly = chartType === "shadcn:bar-horizontal";
   const canRemoveSeries = seriesKeys.length > 1 && !isSingleSeriesOnly;
@@ -284,9 +272,9 @@ function ShadcnCartesianDataEditor({
                 key={k}
                 className="flex min-w-[90px] flex-1 items-center gap-1 border-r border-black/[0.06] last:border-r-0"
               >
-                {k === catKey ? (
+                {k === categoryKey ? (
                   <span className="px-2 py-2 text-[11px] font-semibold uppercase text-[#3D4035]/70">
-                    {catKey}
+                    {categoryKey}
                   </span>
                 ) : (
                   <div className="flex min-w-0 flex-1 items-center gap-1 px-1 py-2">

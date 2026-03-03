@@ -28,12 +28,17 @@ export function buildOutputSchema(selectedChartKey?: string) {
     title: z.string().describe("Chart title"),
     data: dataSchema.describe("The data to create the chart with"),
     message: z.string().describe("The Message to display the user"),
-    chartSettings: z
-      .record(z.string(), z.union([z.string(), z.number(), z.boolean()]))
-      .optional()
-      .describe(
-        "Optional display options per chart type. Bar charts: withLabels (boolean), withLegend (boolean, stacked only), categoryLabelPosition ('inside'|'outside', horizontal only). Omit when not needed.",
-      ),
+    // chartSettings: z
+    //   .object({
+    //     withLabels: z.boolean().nullable().optional(),
+    //     withLegend: z.boolean().nullable().optional(),
+    //     categoryLabelPosition: z.string().nullable().optional(),
+    //   })
+    //   .nullable()
+    //   .optional()
+    //   .describe(
+    //     "Optional display options. Bar: withLabels, withLegend (stacked only), categoryLabelPosition (horizontal only). Omit when not needed.",
+    //   ),
   });
 }
 

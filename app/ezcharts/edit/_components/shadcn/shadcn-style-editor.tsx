@@ -33,7 +33,7 @@ export function ShadcnStyleEditor({
   data,
   onChange,
 }: ShadcnStyleEditorProps) {
-  const { rows, seriesColors } = unwrapShadcnData(data);
+  const { rows, seriesColors } = unwrapShadcnData(data, chartType);
 
   const isPieLike = SHADCN_PIE_LIKE.includes(chartType);
   const isCartesian =

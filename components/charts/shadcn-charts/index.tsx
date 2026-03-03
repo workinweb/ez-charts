@@ -30,6 +30,8 @@ export type ShadcnChartData =
 export type ShadcnChartOptions = {
   className?: string;
   seriesColors?: Record<string, string>;
+  /** Category key from data (e.g. "key" from _data, "month", "subject"). Inferred from data when not provided. */
+  categoryKey?: string;
   withTooltip?: boolean;
   withAnimation?: boolean;
   chartSettings?: Record<string, unknown>;
@@ -48,6 +50,13 @@ export function getShadcnChartByName(
   const arr = Array.isArray(data) ? data : [];
   const className = options?.className ?? "min-h-[200px] w-full";
   const seriesColors = options?.seriesColors ?? {};
+  const categoryKey =
+    options?.categoryKey ??
+    (arr[0] && typeof arr[0] === "object" && arr[0] !== null
+      ? (Object.keys(arr[0] as object).find(
+          (k) => typeof (arr[0] as Record<string, unknown>)[k] === "string",
+        ) ?? "month")
+      : "month");
   const withTooltip = options?.withTooltip ?? true;
   const withAnimation = options?.withAnimation ?? true;
   const chartSettings = options?.chartSettings ?? {};
@@ -69,7 +78,7 @@ export function getShadcnChartByName(
     case "shadcn:bar-stacked": {
       const d = arr as Record<string, string | number>[];
       const config = mergeConfig(
-        inferCartesianConfig(d as Record<string, unknown>[], "month"),
+        inferCartesianConfig(d as Record<string, unknown>[], categoryKey),
         seriesColors,
       );
       const variant =
@@ -84,6 +93,7 @@ export function getShadcnChartByName(
           config={config}
           variant={variant}
           className={className}
+          categoryKey={categoryKey}
           withTooltip={withTooltip}
           withAnimation={withAnimation}
           withLabels={withLabels}
@@ -94,7 +104,7 @@ export function getShadcnChartByName(
     case "shadcn:bar-horizontal": {
       const d = arr as Record<string, string | number>[];
       const config = mergeConfig(
-        inferCartesianConfig(d as Record<string, unknown>[], "month"),
+        inferCartesianConfig(d as Record<string, unknown>[], categoryKey),
         seriesColors,
       );
       const withLabels =
@@ -106,6 +116,7 @@ export function getShadcnChartByName(
           data={d}
           config={config}
           className={className}
+          categoryKey={categoryKey}
           withTooltip={withTooltip}
           withAnimation={withAnimation}
           withLabels={withLabels}
@@ -116,7 +127,7 @@ export function getShadcnChartByName(
     case "shadcn:area": {
       const d = arr as Record<string, string | number>[];
       const config = mergeConfig(
-        inferCartesianConfig(d as Record<string, unknown>[], "month"),
+        inferCartesianConfig(d as Record<string, unknown>[], categoryKey),
         seriesColors,
       );
       return (
@@ -124,6 +135,7 @@ export function getShadcnChartByName(
           data={d}
           config={config}
           className={className}
+          categoryKey={categoryKey}
           withTooltip={withTooltip}
           withAnimation={withAnimation}
         />
@@ -132,7 +144,7 @@ export function getShadcnChartByName(
     case "shadcn:line": {
       const d = arr as Record<string, string | number>[];
       const config = mergeConfig(
-        inferCartesianConfig(d as Record<string, unknown>[], "month"),
+        inferCartesianConfig(d as Record<string, unknown>[], categoryKey),
         seriesColors,
       );
       return (
@@ -140,6 +152,7 @@ export function getShadcnChartByName(
           data={d}
           config={config}
           className={className}
+          categoryKey={categoryKey}
           withTooltip={withTooltip}
           withAnimation={withAnimation}
         />
@@ -161,7 +174,7 @@ export function getShadcnChartByName(
     case "shadcn:radar": {
       const d = arr as Record<string, string | number>[];
       const config = mergeConfig(
-        inferCartesianConfig(d as Record<string, unknown>[], "subject"),
+        inferCartesianConfig(d as Record<string, unknown>[], categoryKey),
         seriesColors,
       );
       return (
@@ -169,6 +182,7 @@ export function getShadcnChartByName(
           data={d}
           config={config}
           className={className}
+          categoryKey={categoryKey}
           withTooltip={withTooltip}
           withAnimation={withAnimation}
         />

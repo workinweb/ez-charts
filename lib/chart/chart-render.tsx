@@ -29,13 +29,17 @@ export function renderChart(
     : options?.className;
 
   if (chartType.startsWith("shadcn:")) {
-    const { rows, seriesColors } = unwrapShadcnData(data);
+    const { rows, seriesColors, categoryKey } = unwrapShadcnData(
+      data,
+      chartType,
+    );
     return getShadcnChartByName(
       rows as Parameters<typeof getShadcnChartByName>[0],
       chartType,
       {
         className: chartClassName ?? options?.className,
         seriesColors,
+        categoryKey,
         withTooltip: options?.withTooltip,
         withAnimation: options?.withAnimation,
         chartSettings: options?.chartSettings,

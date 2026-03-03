@@ -186,6 +186,14 @@ export function ChatSidebarContent({
     !isLoading &&
     lastMsg?.role === "assistant" &&
     messageHasCompletedChart(lastMsg);
+  const lastMsgStructuredOutput = lastMsgHasChart
+    ? parseStructuredOutput(
+        (lastMsg?.parts as Array<{ type?: string; text?: string }> | undefined)
+          ?.filter((p) => p?.type === "text" && p.text)
+          .map((p) => p.text!)
+          .join("") ?? "",
+      )
+    : null;
   const hasParsing = attachedFiles.some((f) => f.parsing);
   const hasChartContext = !!effectiveChartContext;
   const hasLoadedDocs = loadedDocuments.length > 0;
@@ -349,6 +357,19 @@ export function ChatSidebarContent({
                     Take me there
                   </button>
                 </p>
+
+                {process.env.NEXT_PUBLIC_IS_DEV_MODE &&
+                  lastMsgStructuredOutput && (
+                    <details className="mt-2">
+                      <summary className="cursor-pointer select-none text-[11px] text-sidebar-foreground/40 hover:text-sidebar-foreground/60">
+                        Chart response
+                      </summary>
+                      <pre className="mt-1.5 max-h-52 overflow-auto rounded-lg bg-black/5 p-2 text-[10px] leading-relaxed text-sidebar-foreground/60">
+                        {JSON.stringify(lastMsgStructuredOutput, null, 2)}
+                      </pre>
+                    </details>
+                  )}
+
                 <div className="mt-2 flex items-center gap-1">
                   <span className="mr-1 text-[11px] text-sidebar-foreground/50">
                     Rate our response
