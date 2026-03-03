@@ -147,12 +147,15 @@ export function getShadcnChartByName(
         inferCartesianConfig(d as Record<string, unknown>[], categoryKey),
         seriesColors,
       );
+      const lineType =
+        (chartSettings.lineType as "curved" | "linear" | "step") ?? "curved";
       return (
         <ShadcnLineChart
           data={d}
           config={config}
           className={className}
           categoryKey={categoryKey}
+          lineType={lineType}
           withTooltip={withTooltip}
           withAnimation={withAnimation}
         />

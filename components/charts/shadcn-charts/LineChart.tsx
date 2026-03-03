@@ -15,12 +15,21 @@ import {
 } from "@/components/ui/chart";
 import { toChartColorVar } from "@/lib/utils";
 
+export type ShadcnLineType = "curved" | "linear" | "step";
+
+const RECHARTS_LINE_TYPES: Record<ShadcnLineType, "monotone" | "linear" | "step"> = {
+  curved: "monotone",
+  linear: "linear",
+  step: "step",
+};
+
 export interface ShadcnLineChartProps {
   data: Record<string, string | number>[];
   config: ChartConfig;
   className?: string;
   categoryKey?: string;
   seriesKeys?: string[];
+  lineType?: ShadcnLineType;
   withTooltip?: boolean;
   withAnimation?: boolean;
 }
@@ -36,10 +45,12 @@ export function ShadcnLineChart({
   className,
   categoryKey = "month",
   seriesKeys,
+  lineType = "curved",
   withTooltip = true,
   withAnimation = true,
 }: ShadcnLineChartProps) {
   const keys = seriesKeys ?? getSeriesKeys(data, categoryKey);
+  const rechartsType = RECHARTS_LINE_TYPES[lineType];
   return (
     <ChartContainer config={config} className={className}>
       <RechartsLineChart data={data} margin={{ left: 12, right: 12 }}>
@@ -55,11 +66,11 @@ export function ShadcnLineChart({
         {keys.map((key) => (
           <Line
             key={key}
-            type="monotone"
+            type={rechartsType}
             dataKey={key}
             stroke={`var(--color-${toChartColorVar(key)})`}
             strokeWidth={2}
-            dot={{ fill: `var(--color-${toChartColorVar(key)})` }}
+            dot={false}
             isAnimationActive={withAnimation}
           />
         ))}

@@ -35,6 +35,9 @@ export function SettingsEditor({
   const withLegend =
     (chartSettings.withLegend as boolean | undefined) ?? true;
 
+  const lineType =
+    (chartSettings.lineType as "curved" | "linear" | "step") ?? "curved";
+
   const isBarChart =
     chartType === "shadcn:bar" ||
     chartType === "shadcn:bar-stacked" ||
@@ -127,6 +130,35 @@ export function SettingsEditor({
               onChartSettingsChange({ ...chartSettings, withLegend: v })
             }
           />
+        </div>
+      )}
+
+      {chartType === "shadcn:line" && (
+        <div className="flex flex-col gap-2 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
+          <div>
+            <p className="text-[14px] font-medium text-[#3D4035]">Line type</p>
+            <p className="text-[12px] text-[#3D4035]/50">
+              Curved, linear, or step
+            </p>
+          </div>
+          <Select
+            value={lineType}
+            onValueChange={(v) =>
+              onChartSettingsChange({
+                ...chartSettings,
+                lineType: v as "curved" | "linear" | "step",
+              })
+            }
+          >
+            <SelectTrigger className="h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="curved">Curved</SelectItem>
+              <SelectItem value="linear">Linear</SelectItem>
+              <SelectItem value="step">Step</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       )}
 
