@@ -11,22 +11,10 @@ import {
 } from "@/lib/chart/shadcn-chart-data";
 import { FieldRow } from "../field-row";
 
-const SHADCN_CARTESIAN = [
-  "shadcn:bar",
-  "shadcn:bar-horizontal",
-  "shadcn:bar-stacked",
-  "shadcn:area",
-  "shadcn:line",
-];
 const SHADCN_PIE_LIKE = ["shadcn:pie", "shadcn:radial"];
-const SHADCN_RADAR = "shadcn:radar";
-
-function getCategoryKey(chartType: string): string {
-  return chartType === SHADCN_RADAR ? "subject" : "month";
-}
 
 function getDefaultNumericKeys(chartType: string): string[] {
-  if (chartType === SHADCN_RADAR) return ["A", "B", "C"];
+  if (chartType === "shadcn:radar") return ["A", "B", "C"];
   return ["series1", "series2", "series3"];
 }
 
@@ -42,7 +30,7 @@ export function ShadcnItemsDataEditor({
   data,
   onChange,
 }: ShadcnItemsDataEditorProps) {
-  const { rows } = unwrapShadcnData(data);
+  const { rows, categoryKey } = unwrapShadcnData(data, chartType);
 
   const updateRows = useCallback(
     (next: Record<string, string | number>[]) => {
@@ -83,19 +71,18 @@ export function ShadcnItemsDataEditor({
       updateRows([...rows, { name: `Slice ${rows.length + 1}`, value: 0 }]);
       return;
     }
-    const catKey = getCategoryKey(chartType);
     const sample = rows[0];
     const numKeys = sample
       ? Object.keys(sample).filter(
           (k) =>
-            k !== catKey &&
+            k !== categoryKey &&
             typeof (sample as Record<string, unknown>)[k] === "number",
         )
       : getDefaultNumericKeys(chartType);
 
     const defaults: Record<string, string | number> = {
-      [catKey]:
-        chartType === SHADCN_RADAR
+      [categoryKey]:
+        chartType === "shadcn:radar"
           ? `Subject ${rows.length + 1}`
           : `Row ${rows.length + 1}`,
     };
@@ -105,7 +92,7 @@ export function ShadcnItemsDataEditor({
       defaults[k] = 0;
     }
     updateRows([...rows, defaults]);
-  }, [chartType, rows, updateRows]);
+  }, [chartType, rows, updateRows, categoryKey]);
 
   const isPieLike = SHADCN_PIE_LIKE.includes(chartType);
 
@@ -133,6 +120,7 @@ export function ShadcnItemsDataEditor({
           <ShadcnItemRow
             key={idx}
             chartType={chartType}
+            categoryKey={categoryKey}
             isPieLike={isPieLike}
             item={item as Record<string, string | number>}
             index={idx}
@@ -162,6 +150,7 @@ function getWrappedIfNeeded(
 
 function ShadcnItemRow({
   chartType,
+  categoryKey,
   isPieLike,
   item,
   index,
@@ -169,6 +158,7 @@ function ShadcnItemRow({
   onRemove,
 }: {
   chartType: string;
+  categoryKey: string;
   isPieLike: boolean;
   item: Record<string, string | number>;
   index: number;
@@ -177,9 +167,8 @@ function ShadcnItemRow({
 }) {
   const [expanded, setExpanded] = useState(false);
 
-  const catKey = getCategoryKey(chartType);
   const label =
-    (item[catKey] as string) ?? (item.name as string) ?? `#${index + 1}`;
+    (item[categoryKey] as string) ?? (item.name as string) ?? `#${index + 1}`;
 
   return (
     <div className="min-w-0 rounded-xl bg-white/60 ring-1 ring-black/[0.03]">
@@ -225,15 +214,15 @@ function ShadcnItemRow({
               </>
             ) : (
               <>
-                <FieldRow label={catKey}>
+                <FieldRow label={categoryKey}>
                   <Input
-                    value={String(item[catKey] ?? "")}
-                    onChange={(e) => onUpdate({ [catKey]: e.target.value })}
+                    value={String(item[categoryKey] ?? "")}
+                    onChange={(e) => onUpdate({ [categoryKey]: e.target.value })}
                     className="h-8 min-w-0 rounded-lg text-[13px]"
                   />
                 </FieldRow>
                 {Object.entries(item)
-                  .filter(([k]) => k !== catKey && typeof item[k] === "number")
+                  .filter(([k]) => k !== categoryKey && typeof item[k] === "number")
                   .map(([k, v]) => (
                     <FieldRow key={k} label={k}>
                       <Input

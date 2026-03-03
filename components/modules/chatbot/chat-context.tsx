@@ -182,12 +182,77 @@ function serializeMessage(
   return { message, result };
 }
 
-/** Process chart data: inject image/logo URLs for image-style charts */
+/**
+ * Detect key-value shaped Rosencharts (horizontal-bar, vertical-bar, breakdown,
+ * benchmark, funnel, pie, donut, fillable, half-donut …).
+ * These are the charts where `value` must be a number and extra fields like
+ * `series` are not part of the schema.
+ */
+function isKeyValueChart(chartType: string): boolean {
+  if (chartType.startsWith("shadcn:")) return false;
+  if (
+    chartType === "horizontal-bar-multi" ||
+    chartType === "vertical-bar-multi"
+  )
+    return false;
+  if (chartType.includes("line") || chartType.includes("area")) return false;
+  if (
+    chartType.includes("treemap") ||
+    chartType.includes("scatter") ||
+    chartType.includes("bubble")
+  )
+    return false;
+  return true;
+}
+
+/** Process chart data: unwrap Shadcn-style wrapper if present, coerce value to
+ *  number for key-value charts, and inject image/logo URLs for image-style charts. */
 function processChartData(
   chartType: string,
   data: unknown,
 ): Array<Record<string, unknown>> {
-  let processed = (data as Array<Record<string, unknown>>) ?? [];
+  // Unwrap { _data: [...], _seriesColors: ... } if the model used the Shadcn
+  // format for a Rosencharts chart.
+  let rawData: unknown = data;
+  if (
+    !chartType.startsWith("shadcn:") &&
+    rawData !== null &&
+    typeof rawData === "object" &&
+    !Array.isArray(rawData) &&
+    "_data" in (rawData as object)
+  ) {
+    const inner = (rawData as Record<string, unknown>)._data;
+    if (Array.isArray(inner)) rawData = inner;
+  }
+
+  let processed = (rawData as Array<Record<string, unknown>>) ?? [];
+
+  // Coerce string → number for key-value chart items.
+  // The AI occasionally returns value as a string (e.g. "18450") or wraps the
+  // real number inside a `series` array. Normalize both cases here.
+  if (isKeyValueChart(chartType) && Array.isArray(processed)) {
+    processed = processed.map((item) => {
+      if (typeof item.value === "number") return item;
+      const fromString =
+        typeof item.value === "string" ? Number(item.value) : NaN;
+      const seriesArr = Array.isArray(item.series)
+        ? (item.series as Array<{ value?: unknown }>)
+        : [];
+      const fromSeries =
+        seriesArr.length > 0 && typeof seriesArr[0]?.value === "number"
+          ? (seriesArr[0].value as number)
+          : NaN;
+      const coerced = !isNaN(fromString)
+        ? fromString
+        : !isNaN(fromSeries)
+          ? fromSeries
+          : 0;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { series: _series, ...rest } = item;
+      return { ...rest, value: coerced };
+    });
+  }
+
   if (chartType === "horizontal-bar-image") {
     processed = processed.map((item) => {
       const key = (item.key as string) ?? (item.name as string) ?? "";

@@ -38,20 +38,45 @@ function isWrappedRow(row: unknown): row is WrappedRow {
   );
 }
 
-/** Transform wrapped row { key, value, series } → flat { [key]: value, [s.name]: s.value } */
+/** Transform wrapped row { key, value, series } → flat row.
+ * row.key = column name, row.value = category label → flat[row.key] = row.value. */
 function flattenWrappedRow(row: WrappedRow): Record<string, string | number> {
   const flat: Record<string, string | number> = { [row.key]: row.value };
   for (const s of row.series ?? []) flat[s.name] = s.value;
   return flat;
 }
 
-/** Unwrap shadcn data: raw array or wrapped { _data, _seriesColors }. Normalizes wrapped format to flat rows. */
-export function unwrapShadcnData(data: unknown): {
+/** Infer category key from first row: "key" (from _data), "month", "subject", or first string column. */
+function inferCategoryKey(
+  rows: Record<string, string | number>[],
+  chartType?: string,
+): string {
+  const first = rows[0];
+  if (!first) return chartType === "shadcn:radar" ? "subject" : "month";
+  if ("key" in first) return "key";
+  if (chartType === "shadcn:radar" && "subject" in first) return "subject";
+  const strKey = Object.keys(first).find(
+    (k) => typeof first[k] === "string",
+  );
+  return strKey ?? "month";
+}
+
+/** Unwrap shadcn data: raw array or wrapped { _data, _seriesColors }. Normalizes wrapped format to flat rows.
+ * Returns categoryKey: "key" when from wrapped _data, else inferred from first row. */
+export function unwrapShadcnData(
+  data: unknown,
+  chartType?: string,
+): {
   rows: Record<string, string | number>[];
   seriesColors?: Record<string, string>;
+  categoryKey: string;
 } {
   if (Array.isArray(data)) {
-    return { rows: data as Record<string, string | number>[] };
+    const rows = data as Record<string, string | number>[];
+    return {
+      rows,
+      categoryKey: inferCategoryKey(rows, chartType),
+    };
   }
   if (data && typeof data === "object" && "_data" in data) {
     const obj = data as {
@@ -73,12 +98,18 @@ export function unwrapShadcnData(data: unknown): {
       return row as Record<string, string | number>;
     });
 
-    return { rows, seriesColors };
+    const firstWrapped = rawRows.find((r) => isWrappedRow(r)) as
+      | WrappedRow
+      | undefined;
+    const resolvedCategoryKey =
+      firstWrapped?.key ?? (chartType === "shadcn:radar" ? "subject" : "month");
+    return { rows, seriesColors, categoryKey: resolvedCategoryKey };
   }
-  return { rows: [] };
+  return { rows: [], categoryKey: "month" };
 }
 
-/** Convert flat rows to wrapped { _data, _seriesColors } format for persistence. */
+/** Convert flat rows to wrapped { _data, _seriesColors } format for persistence.
+ * Infers categoryKey from first row when not provided (uses "key" from _data, else "month"/"subject"). */
 export function wrapShadcnData(
   rows: Record<string, string | number>[],
   options: {
@@ -88,8 +119,7 @@ export function wrapShadcnData(
   },
 ): { _data: WrappedRow[]; _seriesColors: string | null } {
   const catKey =
-    options.categoryKey ??
-    (options.chartType === "shadcn:radar" ? "subject" : "month");
+    options.categoryKey ?? inferCategoryKey(rows, options.chartType);
   const isPieLike =
     options.chartType === "shadcn:pie" || options.chartType === "shadcn:radial";
   const seriesColors = options.seriesColors ?? null;
