@@ -200,7 +200,7 @@ export function DowngradeLimitModal({
                 <strong>{formatLimit(maxDocuments)} documents</strong> visible.
               </p>
               <p className="text-[#3D4035]/70">
-                Select which items stay visible. Anything you don't select will
+                Select which items stay visible. Anything you don&apos;t select will
                 be hidden (not deleted) until you upgrade again.
               </p>
             </div>

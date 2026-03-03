@@ -45,6 +45,8 @@ export function AreaChart({
   colors?: AreaColorSettings;
   className?: string;
 }) {
+  const uid = useId().replace(/:/g, "");
+
   if (!data || data.length === 0) return null;
 
   const series = data[0];
@@ -77,7 +79,6 @@ export function AreaChart({
 
   if (!linePath) return null;
 
-  const uid = useId().replace(/:/g, "");
   const gradientId = `areaGradient-${uid}`;
   const outlineGradientId = `areaOutlineGradient-${uid}`;
 

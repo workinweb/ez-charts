@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { BarChart3, Plus } from "lucide-react";
+import type { Id } from "@/convex/_generated/dataModel";
 import { Navbar } from "@/components/layout/navbar";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
 import { useChartsPaginated, useChartsMutations } from "@/hooks/use-charts";
@@ -40,16 +41,16 @@ export default function ChartsPage() {
   const paginatedItems = filtered.slice(startIdx, startIdx + DEFAULT_PAGE_SIZE);
 
   const handleRemove = async (id: string) => {
-    await mutations.remove(id as any);
+    await mutations.remove(id as Id<"charts">);
     setDeleteTarget(null);
   };
 
   const handleToggleFavorite = async (id: string) => {
-    await mutations.toggleFavorite(id as any);
+    await mutations.toggleFavorite(id as Id<"charts">);
   };
 
   const handleDuplicate = async (id: string) => {
-    await mutations.duplicate(id as any);
+    await mutations.duplicate(id as Id<"charts">);
   };
 
   return (

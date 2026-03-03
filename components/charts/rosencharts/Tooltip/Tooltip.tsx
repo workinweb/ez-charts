@@ -125,6 +125,7 @@ const TooltipContent = React.forwardRef<
   const context = useTooltipContext(CONTENT_NAME);
   const runningOnClient = typeof document !== "undefined";
   const tooltipRef = React.useRef<HTMLDivElement>(null);
+  const [position, setPosition] = React.useState<{ top: number; left: number } | null>(null);
 
   // Forward the ref
   React.useImperativeHandle(
@@ -132,28 +133,29 @@ const TooltipContent = React.forwardRef<
     () => tooltipRef.current as HTMLDivElement,
   );
 
-  // Calculate position based on viewport
-  const getTooltipPosition = () => {
-    if (!tooltipRef.current || !context.tooltip) return {};
-
+  // Calculate position in effect after ref is set (avoids accessing ref during render)
+  React.useLayoutEffect(() => {
+    if (!tooltipRef.current || !context.tooltip) {
+      setPosition(null);
+      return;
+    }
     const tooltipWidth = tooltipRef.current.offsetWidth;
     const viewportWidth = window.innerWidth;
     const willOverflowRight =
       context.tooltip.x + tooltipWidth + 10 > viewportWidth;
-
-    return {
+    setPosition({
       top: context.tooltip.y - 20,
       left: willOverflowRight
         ? context.tooltip.x - tooltipWidth - 10
         : context.tooltip.x + 10,
-    };
-  };
+    });
+  }, [context.tooltip]);
 
   if (!context.tooltip || !runningOnClient) {
     return null;
   }
 
-  const isMobile = window.innerWidth < 768;
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
   return createPortal(
     isMobile ? (
@@ -171,7 +173,7 @@ const TooltipContent = React.forwardRef<
       <div
         ref={tooltipRef}
         className="bg-white border border-zinc-200 text-zinc-900 shadow-md px-3.5 py-2 rounded-sm fixed z-[9999]"
-        style={getTooltipPosition()}
+        style={position ?? { top: context.tooltip.y - 20, left: context.tooltip.x + 10 }}
       >
         {children}
       </div>

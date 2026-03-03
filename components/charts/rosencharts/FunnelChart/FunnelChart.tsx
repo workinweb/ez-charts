@@ -51,7 +51,7 @@ export function FunnelChart({
   const gap = 8;
   const barHeight = 54;
   const maxValue = Math.max(...sorted.map((d) => d.value));
-  let cumulativeHeight = 0;
+  const yPositions = sorted.map((_, i) => i * (barHeight + gap));
 
   return (
     <div
@@ -68,8 +68,7 @@ export function FunnelChart({
     >
       {sorted.map((d, index) => {
         const barWidth = (d.value / maxValue) * 100;
-        const yPosition = cumulativeHeight;
-        cumulativeHeight += barHeight + gap;
+        const yPosition = yPositions[index] ?? 0;
 
         const hasGradient =
           d.colorFrom && d.colorTo && /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(d.colorFrom) && /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(d.colorTo);

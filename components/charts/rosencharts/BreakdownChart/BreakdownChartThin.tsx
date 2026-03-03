@@ -24,7 +24,10 @@ export function BreakdownChartThin({
   const totalValue = data.reduce((acc, d) => acc + d.value, 0);
   const barHeight = 12;
   const totalWidth = totalValue + gap * (data.length - 1);
-  let cumulativeWidth = 0;
+  const xPositions = data.reduce<number[]>((acc, d, i) => {
+    acc.push(i === 0 ? 0 : acc[i - 1]! + ((data[i - 1]!.value / totalWidth) * 100) + gap);
+    return acc;
+  }, []);
 
   const cornerRadius = 4; // Adjust this value to change the roundness
 
@@ -62,8 +65,7 @@ export function BreakdownChartThin({
         {/* Bars with Gradient Fill */}
         {data.map((d, index) => {
           const barWidth = (d.value / totalWidth) * 100;
-          const xPosition = cumulativeWidth;
-          cumulativeWidth += barWidth + gap;
+          const xPosition = xPositions[index] ?? 0;
           const isHexColor = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(d.color);
           const gradient = isHexColor ? gradientFromHex(d.color) : d.color;
 

@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Heart } from "lucide-react";
+import type { Id } from "@/convex/_generated/dataModel";
 import { Navbar } from "@/components/layout/navbar";
 import { PageSearchBar } from "@/components/layout/page-search-bar";
 import { useChartsStore } from "@/stores/charts-store";
@@ -87,9 +88,9 @@ export default function FavoritesPage() {
                       key={chart.id}
                       chart={chart}
                       showEdit={false}
-                      onDuplicate={(id) => mutations.duplicate(id as any)}
+                      onDuplicate={(id) => mutations.duplicate(id as Id<"charts">)}
                       onDelete={setDeleteTarget}
-                      onToggleFavorite={(id) => mutations.toggleFavorite(id as any)}
+                      onToggleFavorite={(id) => mutations.toggleFavorite(id as Id<"charts">)}
                     />
                   ))}
                 </div>
@@ -109,7 +110,7 @@ export default function FavoritesPage() {
         target={deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onConfirm={async (id) => {
-          await mutations.remove(id as any);
+          await mutations.remove(id as Id<"charts">);
           setDeleteTarget(null);
         }}
       />

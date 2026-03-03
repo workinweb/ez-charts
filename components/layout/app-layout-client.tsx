@@ -14,7 +14,7 @@ import {
 } from "@/lib/load-user-settings";
 import { cn } from "@/lib/utils";
 import { useChatbotStore } from "@/stores";
-import { useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 interface AppLayoutClientProps {
   children: React.ReactNode;
@@ -26,10 +26,11 @@ export function AppLayoutClient({
   initialSettings,
 }: AppLayoutClientProps) {
   const hydrated = useRef(false);
-  if (!hydrated.current) {
+  useLayoutEffect(() => {
+    if (hydrated.current) return;
     hydrated.current = true;
     hydrateUserSettingsStore(initialSettings);
-  }
+  }, [initialSettings]);
 
   const collapsed = useChatbotStore((s) => s.chatSidebarCollapsed);
 

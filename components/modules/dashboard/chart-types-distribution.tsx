@@ -36,7 +36,10 @@ export function ChartTypesDistribution() {
   const [mounted, setMounted] = useState(false);
   const { stats, isLoading } = useDashboardStats();
   const chartTypes = stats.chartTypes;
-  useLayoutEffect(() => setMounted(true), []);
+  useLayoutEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   const totalValue = chartTypes.reduce((s, t) => s + t.value, 0);
   const isEmpty = chartTypes.length === 0 || totalValue === 0;
