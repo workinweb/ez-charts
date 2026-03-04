@@ -11,23 +11,19 @@ import { Switch } from "@/components/ui/switch";
 
 interface SettingsEditorProps {
   chartType: string;
-  withTooltip: boolean;
-  withAnimation: boolean;
-  onTooltipChange: (v: boolean) => void;
-  onAnimationChange: (v: boolean) => void;
   chartSettings: Record<string, unknown>;
   onChartSettingsChange: (v: Record<string, unknown>) => void;
 }
 
 export function SettingsEditor({
   chartType,
-  withTooltip,
-  withAnimation,
-  onTooltipChange,
-  onAnimationChange,
   chartSettings,
   onChartSettingsChange,
 }: SettingsEditorProps) {
+  const withTooltip =
+    (chartSettings.withTooltip as boolean | undefined) ?? true;
+  const withAnimation =
+    (chartSettings.withAnimation as boolean | undefined) ?? true;
   const areaFillStyle =
     (chartSettings.areaFillStyle as "gradient" | "full" | "outline") ??
     "gradient";
@@ -71,7 +67,12 @@ export function SettingsEditor({
           <p className="text-[14px] font-medium text-[#3D4035]">Tooltips</p>
           <p className="text-[12px] text-[#3D4035]/50">Show value on hover</p>
         </div>
-        <Switch checked={withTooltip} onCheckedChange={onTooltipChange} />
+        <Switch
+          checked={withTooltip}
+          onCheckedChange={(v) =>
+            onChartSettingsChange({ ...chartSettings, withTooltip: v })
+          }
+        />
       </div>
 
       <div className="flex items-center justify-between gap-4 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
@@ -79,7 +80,12 @@ export function SettingsEditor({
           <p className="text-[14px] font-medium text-[#3D4035]">Animation</p>
           <p className="text-[12px] text-[#3D4035]/50">Animate chart on load</p>
         </div>
-        <Switch checked={withAnimation} onCheckedChange={onAnimationChange} />
+        <Switch
+          checked={withAnimation}
+          onCheckedChange={(v) =>
+            onChartSettingsChange({ ...chartSettings, withAnimation: v })
+          }
+        />
       </div>
 
       {isBarChart && (

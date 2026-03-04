@@ -80,8 +80,6 @@ function EditChartContent() {
   const [data, setData] = useState<unknown>(
     isCreateMode ? cloneData(DEFAULT_CREATE_DATA) : null,
   );
-  const [withTooltip, setWithTooltip] = useState(true);
-  const [withAnimation, setWithAnimation] = useState(true);
   const [chartSettings, setChartSettings] = useState<Record<string, unknown>>(
     {},
   );
@@ -104,12 +102,13 @@ function EditChartContent() {
     setTitle(sourceChart.title);
     setChartType(sourceChart.chartType);
     setData(cloneData(sourceChart.data));
-    setWithTooltip(sourceChart.withTooltip ?? true);
-    setWithAnimation(sourceChart.withAnimation ?? true);
-    setChartSettings(
-      (sourceChart as { chartSettings?: Record<string, unknown> })
-        .chartSettings ?? {},
-    );
+    const existing = (sourceChart as { chartSettings?: Record<string, unknown> })
+      .chartSettings ?? {};
+    setChartSettings({
+      ...existing,
+      withTooltip: (existing.withTooltip as boolean | undefined) ?? sourceChart.withTooltip ?? true,
+      withAnimation: (existing.withAnimation as boolean | undefined) ?? sourceChart.withAnimation ?? true,
+    });
     setDirty(false);
     setSaved(false);
   }, [sourceChart?.id]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -127,8 +126,12 @@ function EditChartContent() {
 
   /* ── Live preview ────────────────────────────────────────────────── */
   const mergedChartSettings = useMemo(
-    () => ({ withTooltip, withAnimation, ...chartSettings }),
-    [withTooltip, withAnimation, chartSettings],
+    () => ({
+      withTooltip: (chartSettings.withTooltip as boolean | undefined) ?? true,
+      withAnimation: (chartSettings.withAnimation as boolean | undefined) ?? true,
+      ...chartSettings,
+    }),
+    [chartSettings],
   );
   const handleActiveIndexChange = useCallback(
     (index: number) => {
@@ -166,8 +169,8 @@ function EditChartContent() {
           chartType,
           data,
           source: "Manual",
-          withTooltip,
-          withAnimation,
+          withTooltip: (chartSettings.withTooltip as boolean | undefined) ?? true,
+          withAnimation: (chartSettings.withAnimation as boolean | undefined) ?? true,
           chartSettings: Object.keys(chartSettings).length
             ? chartSettings
             : undefined,
@@ -187,8 +190,8 @@ function EditChartContent() {
           chartType,
           data,
           source: "From chat",
-          withTooltip,
-          withAnimation,
+          withTooltip: (chartSettings.withTooltip as boolean | undefined) ?? true,
+          withAnimation: (chartSettings.withAnimation as boolean | undefined) ?? true,
           chartSettings: Object.keys(chartSettings).length
             ? chartSettings
             : undefined,
@@ -204,8 +207,8 @@ function EditChartContent() {
           title,
           chartType,
           data,
-          withTooltip,
-          withAnimation,
+          withTooltip: (chartSettings.withTooltip as boolean | undefined) ?? true,
+          withAnimation: (chartSettings.withAnimation as boolean | undefined) ?? true,
           chartSettings: Object.keys(chartSettings).length
             ? chartSettings
             : undefined,
@@ -223,8 +226,6 @@ function EditChartContent() {
     title,
     chartType,
     data,
-    withTooltip,
-    withAnimation,
     chartSettings,
     mutations,
     removeUnsavedChart,
@@ -237,7 +238,7 @@ function EditChartContent() {
       title: title || "Untitled Chart",
       chartType,
       data: data ?? [],
-      chartSettings: { withTooltip, withAnimation, ...chartSettings },
+      chartSettings,
     });
     setSelectedChartKey(chartType);
     setChatSidebarView("chat");
@@ -245,8 +246,6 @@ function EditChartContent() {
     title,
     chartType,
     data,
-    withTooltip,
-    withAnimation,
     chartSettings,
     setAttachedChartContext,
     setSelectedChartKey,
@@ -259,8 +258,6 @@ function EditChartContent() {
       setTitle("Untitled Chart");
       setChartType(DEFAULT_CHART_TYPE);
       setData(cloneData(DEFAULT_CREATE_DATA));
-      setWithTooltip(true);
-      setWithAnimation(true);
       setChartSettings({});
       setDirty(false);
       setSaved(false);
@@ -270,12 +267,13 @@ function EditChartContent() {
     setTitle(sourceChart.title);
     setChartType(sourceChart.chartType);
     setData(cloneData(sourceChart.data));
-    setWithTooltip(sourceChart.withTooltip ?? true);
-    setWithAnimation(sourceChart.withAnimation ?? true);
-    setChartSettings(
-      (sourceChart as { chartSettings?: Record<string, unknown> })
-        .chartSettings ?? {},
-    );
+    const existing = (sourceChart as { chartSettings?: Record<string, unknown> })
+      .chartSettings ?? {};
+    setChartSettings({
+      ...existing,
+      withTooltip: (existing.withTooltip as boolean | undefined) ?? sourceChart.withTooltip ?? true,
+      withAnimation: (existing.withAnimation as boolean | undefined) ?? sourceChart.withAnimation ?? true,
+    });
     setDirty(false);
     setSaved(false);
   }, [isCreateMode, sourceChart]);
@@ -353,10 +351,6 @@ function EditChartContent() {
               editorShape={editorShape}
               data={data}
               onDataChange={(d) => edit(setData)(d)}
-              withTooltip={withTooltip}
-              withAnimation={withAnimation}
-              onTooltipChange={(v) => edit(setWithTooltip)(v)}
-              onAnimationChange={(v) => edit(setWithAnimation)(v)}
               chartSettings={chartSettings}
               onChartSettingsChange={(v) => edit(setChartSettings)(v)}
               chartDataEditorMode={chartDataEditorMode}
