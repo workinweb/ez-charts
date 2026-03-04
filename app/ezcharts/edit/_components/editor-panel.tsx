@@ -32,10 +32,6 @@ interface EditorPanelProps {
   editorShape: EditorShape | null;
   data: unknown;
   onDataChange: (data: unknown) => void;
-  withTooltip: boolean;
-  withAnimation: boolean;
-  onTooltipChange: (v: boolean) => void;
-  onAnimationChange: (v: boolean) => void;
   chartSettings?: Record<string, unknown>;
   onChartSettingsChange?: (v: Record<string, unknown>) => void;
   chartDataEditorMode: "table" | "items";
@@ -50,10 +46,6 @@ export function EditorPanel({
   editorShape,
   data,
   onDataChange,
-  withTooltip,
-  withAnimation,
-  onTooltipChange,
-  onAnimationChange,
   chartSettings,
   onChartSettingsChange,
   chartDataEditorMode,
@@ -145,10 +137,6 @@ export function EditorPanel({
         {activeTab === "settings" && (
           <SettingsEditor
             chartType={chartType}
-            withTooltip={withTooltip}
-            withAnimation={withAnimation}
-            onTooltipChange={onTooltipChange}
-            onAnimationChange={onAnimationChange}
             chartSettings={chartSettings ?? {}}
             onChartSettingsChange={onChartSettingsChange ?? (() => {})}
           />

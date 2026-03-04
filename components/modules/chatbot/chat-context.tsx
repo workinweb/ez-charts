@@ -441,16 +441,27 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       const chartContext =
         attachedChartContext ??
         (currentChartFromHistory
-          ? {
-              title: currentChartFromHistory.title,
-              chartType: currentChartFromHistory.chartType,
-              data: currentChartFromHistory.data,
-              chartSettings: {
-                withTooltip: currentChartFromHistory.withTooltip,
-                withAnimation: currentChartFromHistory.withAnimation,
-                ...(currentChartFromHistory as { chartSettings?: Record<string, unknown> }).chartSettings,
-              },
-            }
+          ? (() => {
+              const existing =
+                (currentChartFromHistory as { chartSettings?: Record<string, unknown> })
+                  .chartSettings ?? {};
+              return {
+                title: currentChartFromHistory.title,
+                chartType: currentChartFromHistory.chartType,
+                data: currentChartFromHistory.data,
+                chartSettings: {
+                  ...existing,
+                  withTooltip:
+                    (existing.withTooltip as boolean | undefined) ??
+                    currentChartFromHistory.withTooltip ??
+                    true,
+                  withAnimation:
+                    (existing.withAnimation as boolean | undefined) ??
+                    currentChartFromHistory.withAnimation ??
+                    true,
+                },
+              };
+            })()
           : null);
       const hasChart = !!chartContext;
       const hasLoadedDocs = loadedDocuments.length > 0;
