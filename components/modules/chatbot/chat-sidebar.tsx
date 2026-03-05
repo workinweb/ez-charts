@@ -8,9 +8,11 @@ import {
 } from "@/components/ui/popover";
 import {
   BarChart3,
+  Brain,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ExternalLink,
   FileSpreadsheet,
   FileText,
   Loader2,
@@ -38,6 +40,7 @@ import { useChatbotStore } from "@/stores/chatbot-store";
 import { useSectionStore } from "@/stores/section-store";
 import { useMutation } from "convex/react";
 import { useChatContext } from "./chat-context";
+import { AttachDialog } from "./attach-dialog";
 import { ChatSettingsView } from "./chat-settings-view";
 import { ErrorMessage } from "./error-message";
 import { TypewriterText } from "./typewriter-text";
@@ -71,9 +74,16 @@ function getMessageText(msg: {
   if (msg.role === "assistant") {
     const structured = parseStructuredOutput(combined);
     if (structured?.message !== undefined) return String(structured.message);
-    return ""; // During streaming or non-JSON: don't show raw JSON
+    return "";
   }
   return combined;
+}
+
+/** Extract the assistant "message" from a text part that contains structured JSON */
+function getAssistantTextFromPart(text: string): string {
+  const structured = parseStructuredOutput(text);
+  if (structured?.message !== undefined) return String(structured.message);
+  return "";
 }
 
 /** For user messages: show only the written text + file names, not the full attached data */
@@ -124,9 +134,6 @@ function messageHasCompletedChart(msg: {
   return !!(structured?.chartType && structured.data !== undefined);
 }
 
-const ACCEPTED_FILE_TYPES =
-  ".csv,.xlsx,.xls,.pdf,.json,.txt,.tsv,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/pdf,application/json,text/plain,text/tab-separated-values";
-
 function getFileIcon(name: string) {
   const ext = name.split(".").pop()?.toLowerCase();
   if (ext === "xlsx" || ext === "xls" || ext === "csv" || ext === "tsv")
@@ -153,7 +160,6 @@ export function ChatSidebarContent({
     status,
     error,
     attachedFiles,
-    addFiles,
     removeFile,
     setAttachedChartContext,
     effectiveChartContext,
@@ -161,7 +167,6 @@ export function ChatSidebarContent({
     removeLoadedDocument,
   } = useChatContext();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const {
     selectedChartKey,
     toggleSelectedChartKey,
@@ -199,22 +204,30 @@ export function ChatSidebarContent({
   const hasLoadedDocs = loadedDocuments.length > 0;
 
   const [chartPopoverOpen, setChartPopoverOpen] = useState(false);
+  const [attachDialogOpen, setAttachDialogOpen] = useState(false);
 
   const handleChartSelect = (key: string) => {
     toggleSelectedChartKey(key);
     setChartPopoverOpen(false);
   };
 
-  // Auto-scroll to bottom on new messages and during streaming
-  const lastMessageText = messages.length
-    ? getMessageText(messages[messages.length - 1]!)
+  // Auto-scroll — track all content (text + reasoning) so we scroll during streaming
+  const lastMessageContent = messages.length
+    ? (messages[messages.length - 1]!.parts
+        ?.map((p) => {
+          if (p.type === "text") return (p as { text?: string }).text ?? "";
+          if (p.type === "reasoning")
+            return (p as { text?: string }).text ?? "";
+          return "";
+        })
+        .join("") ?? "")
     : "";
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, status, lastMessageText]);
+  }, [messages, status, lastMessageContent]);
 
   const storedFeedback =
     lastMsgHasChart && lastMsg?.id ? chartFeedbackMap[lastMsg.id] : undefined;
@@ -285,29 +298,10 @@ export function ChatSidebarContent({
             )}
 
             {messages.map((msg) => {
-              const text =
-                msg.role === "user" ? getDisplayText(msg) : getMessageText(msg);
-
-              return (
-                <div key={msg.id} className="space-y-2">
-                  {msg.role === "assistant" && (
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Image
-                          src="/logo.png"
-                          alt="Logo"
-                          width={20}
-                          height={20}
-                          className="size-5 rounded-full object-cover"
-                        />
-                        <span className="text-[13px] font-semibold text-sidebar-foreground">
-                          Ez2Chart
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  {msg.role === "user" && (
+              if (msg.role === "user") {
+                const text = getDisplayText(msg);
+                return (
+                  <div key={msg.id} className="space-y-2">
                     <div className="flex items-center justify-end gap-2">
                       <span className="text-[13px] font-semibold text-sidebar-foreground">
                         User
@@ -318,18 +312,176 @@ export function ChatSidebarContent({
                         </span>
                       </div>
                     </div>
+                    {text && (
+                      <p className="whitespace-pre-wrap text-right text-[13px] leading-relaxed text-sidebar-foreground/80">
+                        {text}
+                      </p>
+                    )}
+                  </div>
+                );
+              }
+
+              const hasVisibleContent = msg.parts?.some((p) => {
+                if (p.type === "reasoning" && (p as { text?: string }).text)
+                  return true;
+                if (p.type === "text" && getAssistantTextFromPart((p as { text?: string }).text ?? ""))
+                  return true;
+                if (p.type === "source-url" || p.type === "file") return true;
+                if (typeof p.type === "string" && p.type.startsWith("tool-"))
+                  return true;
+                return false;
+              });
+
+              return (
+                <div key={msg.id} className="space-y-2">
+                  {hasVisibleContent && (
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src="/logo.png"
+                        alt="Logo"
+                        width={20}
+                        height={20}
+                        className="size-5 rounded-full object-cover"
+                      />
+                      <span className="text-[13px] font-semibold text-sidebar-foreground">
+                        Ez2Chart
+                      </span>
+                    </div>
                   )}
 
-                  {text && (
-                    <p
-                      className={cn(
-                        "whitespace-pre-wrap text-[13px] leading-relaxed text-sidebar-foreground/80",
-                        msg.role === "user" && "text-right",
-                      )}
-                    >
-                      {text}
-                    </p>
-                  )}
+                  {msg.parts?.map((part, pIdx) => {
+                    if (part.type === "step-start") {
+                      if (pIdx === 0) return null;
+                      return (
+                        <div
+                          key={`step-${pIdx}`}
+                          className="my-1 border-t border-sidebar-border/40"
+                        />
+                      );
+                    }
+
+                    if (part.type === "reasoning") {
+                      const rPart = part as {
+                        type: "reasoning";
+                        text: string;
+                        state?: string;
+                      };
+                      if (!rPart.text) return null;
+                      return (
+                        <details
+                          key={`reasoning-${pIdx}`}
+                          className="rounded-lg bg-[#BCBDEA]/10 px-2.5 py-2"
+                        >
+                          <summary className="flex cursor-pointer select-none items-center gap-1.5 text-[12px] font-medium text-sidebar-foreground/50 hover:text-sidebar-foreground/70">
+                            <Brain className="size-3" />
+                            Reasoning
+                            {rPart.state === "streaming" && (
+                              <Loader2 className="ml-1 size-2.5 animate-spin" />
+                            )}
+                          </summary>
+                          <p className="mt-1.5 whitespace-pre-wrap text-[12px] leading-relaxed text-sidebar-foreground/60">
+                            {rPart.text}
+                          </p>
+                        </details>
+                      );
+                    }
+
+                    if (part.type === "text") {
+                      const tPart = part as {
+                        type: "text";
+                        text: string;
+                        state?: string;
+                      };
+                      const displayText = getAssistantTextFromPart(
+                        tPart.text ?? "",
+                      );
+                      if (!displayText) return null;
+                      return (
+                        <p
+                          key={`text-${pIdx}`}
+                          className="whitespace-pre-wrap text-[13px] leading-relaxed text-sidebar-foreground/80"
+                        >
+                          {displayText}
+                        </p>
+                      );
+                    }
+
+                    if (part.type === "source-url") {
+                      const sPart = part as {
+                        type: "source-url";
+                        url: string;
+                        title?: string;
+                      };
+                      return (
+                        <a
+                          key={`source-${pIdx}`}
+                          href={sPart.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded-md bg-sidebar-foreground/5 px-2 py-1 text-[11px] text-[#6C5DD3] hover:bg-[#BCBDEA]/20 hover:underline"
+                        >
+                          <ExternalLink className="size-3" />
+                          {sPart.title || sPart.url}
+                        </a>
+                      );
+                    }
+
+                    if (part.type === "file") {
+                      const fPart = part as {
+                        type: "file";
+                        mediaType: string;
+                        filename?: string;
+                        url: string;
+                      };
+                      return (
+                        <div
+                          key={`file-${pIdx}`}
+                          className="flex items-center gap-1.5 rounded-lg bg-sidebar-foreground/5 px-2.5 py-1.5 text-[11px] text-sidebar-foreground/70"
+                        >
+                          <FileText className="size-3 shrink-0" />
+                          <span className="truncate">
+                            {fPart.filename ?? "File"}
+                          </span>
+                        </div>
+                      );
+                    }
+
+                    if (
+                      typeof part.type === "string" &&
+                      part.type.startsWith("tool-")
+                    ) {
+                      const tPart = part as {
+                        type: string;
+                        toolCallId: string;
+                        state: string;
+                        input?: unknown;
+                        output?: unknown;
+                        errorText?: string;
+                      };
+                      const toolName = tPart.type.replace("tool-", "");
+                      return (
+                        <div
+                          key={`tool-${pIdx}`}
+                          className="flex items-center gap-1.5 rounded-lg bg-sidebar-foreground/5 px-2.5 py-1.5 text-[12px] text-sidebar-foreground/60"
+                        >
+                          {tPart.state === "input-streaming" ||
+                          tPart.state === "input-available" ? (
+                            <Loader2 className="size-3 animate-spin" />
+                          ) : (
+                            <Settings className="size-3" />
+                          )}
+                          <span className="font-medium">{toolName}</span>
+                          {tPart.state === "output-error" && tPart.errorText && (
+                            <span className="text-[11px] text-red-500">
+                              {tPart.errorText}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    return null;
+                  })}
                 </div>
               );
             })}
@@ -408,7 +560,15 @@ export function ChatSidebarContent({
               (messages.length === 0 ||
                 messages[messages.length - 1]?.role === "user" ||
                 (messages[messages.length - 1]?.role === "assistant" &&
-                  !getMessageText(messages[messages.length - 1]!))) && (
+                  !messages[messages.length - 1]!.parts?.some(
+                    (p) =>
+                      (p.type === "text" &&
+                        getAssistantTextFromPart(
+                          (p as { text?: string }).text ?? "",
+                        )) ||
+                      (p.type === "reasoning" &&
+                        (p as { text?: string }).text),
+                  ))) && (
                 <div className="space-y-2">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
@@ -438,22 +598,6 @@ export function ChatSidebarContent({
         </div>
 
         <div className="border-t border-sidebar-border px-4 py-3">
-          {/* Hidden file input */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept={ACCEPTED_FILE_TYPES}
-            className="hidden"
-            onChange={(e) => {
-              if (e.target.files && e.target.files.length > 0) {
-                addFiles(e.target.files);
-              }
-              // Reset so same file can be re-added
-              e.target.value = "";
-            }}
-          />
-
           {/* Chart context chip — from explicit attach or current AI Builds selection */}
           {hasChartContext && effectiveChartContext && (
             <div className="mb-2 flex flex-wrap gap-1.5">
@@ -667,12 +811,16 @@ export function ChatSidebarContent({
             variant="ghost"
             size="xs"
             type="button"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => setAttachDialogOpen(true)}
             className="gap-1 rounded-lg text-[12px] text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
             <Paperclip className="size-3" />
             Files
           </Button>
+          <AttachDialog
+            open={attachDialogOpen}
+            onOpenChange={setAttachDialogOpen}
+          />
 
           <Popover open={chartPopoverOpen} onOpenChange={setChartPopoverOpen}>
             <PopoverTrigger asChild>

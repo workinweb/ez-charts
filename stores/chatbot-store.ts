@@ -4,7 +4,8 @@ import { create } from "zustand";
 import { DEFAULT_CHART_KEY } from "@/lib/chart/chart-registry";
 
 export interface AttachedFile {
-  file: File;
+  /** Optional for URL imports (no local file) */
+  file?: File;
   name: string;
   size: number;
   parsedContent?: string;
@@ -14,6 +15,8 @@ export interface AttachedFile {
   savedToDb?: boolean;
   /** Vercel Blob URL; deleted when file is removed or conversation ends */
   blobUrl?: string;
+  /** Source of the attachment */
+  source?: "local" | "url";
 }
 
 export type ChatSidebarView = "chat" | "settings";
@@ -59,6 +62,14 @@ interface ChatbotState {
   clearChartFeedback: () => void;
   clearConversation: () => void;
   addFiles: (files: FileList | File[]) => void;
+  addFileFromUrl: (url: string) => Promise<void>;
+  /** Add pre-parsed content (e.g. from AttachDialog) */
+  addFileFromParsedContent: (
+    name: string,
+    size: number,
+    content: string,
+    source?: "local" | "url",
+  ) => void;
   removeFile: (index: number) => void;
   clearFiles: () => void;
   markFileSavedToDb: (file: File) => void;
@@ -184,13 +195,14 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
       name: file.name,
       size: file.size,
       parsing: true,
+      source: "local" as const,
     }));
 
     set((s) => ({ attachedFiles: [...s.attachedFiles, ...newFiles] }));
 
     newFiles.forEach(async (af) => {
       try {
-        const { textContent, blobUrl } = await uploadAndParseFile(af.file);
+        const { textContent, blobUrl } = await uploadAndParseFile(af.file!);
         set((s) => ({
           attachedFiles: s.attachedFiles.map((f) =>
             f.file === af.file
@@ -219,6 +231,80 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
       }
     });
   },
+
+  addFileFromUrl: async (url) => {
+    const placeholder: AttachedFile = {
+      name: url,
+      size: 0,
+      parsing: true,
+      source: "url",
+    };
+    set((s) => ({ attachedFiles: [...s.attachedFiles, placeholder] }));
+
+    try {
+      const res = await fetch("/api/parse-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(
+          typeof data?.error === "string"
+            ? data.error
+            : `Failed to import (${res.status})`,
+        );
+      }
+
+      const { fileName, textContent, size } = data as {
+        fileName: string;
+        textContent: string;
+        size: number;
+      };
+
+      set((s) => ({
+        attachedFiles: s.attachedFiles.map((f) =>
+          f.name === url && f.source === "url"
+            ? {
+                ...f,
+                name: fileName,
+                size,
+                parsedContent: textContent,
+                parsing: false,
+              }
+            : f,
+        ),
+      }));
+    } catch (err) {
+      set((s) => ({
+        attachedFiles: s.attachedFiles.map((f) =>
+          f.name === url && f.source === "url"
+            ? {
+                ...f,
+                parsing: false,
+                error:
+                  err instanceof Error ? err.message : "Failed to import from URL",
+              }
+            : f,
+        ),
+      }));
+    }
+  },
+
+  addFileFromParsedContent: (name, size, content, source = "url") =>
+    set((s) => ({
+      attachedFiles: [
+        ...s.attachedFiles,
+        {
+          name,
+          size,
+          parsedContent: content,
+          parsing: false,
+          source,
+        },
+      ],
+    })),
 
   removeFile: (index) =>
     set((s) => {

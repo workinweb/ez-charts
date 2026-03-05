@@ -472,7 +472,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
       const contextParts: string[] = [];
       const filesToSave = hasFiles
-        ? attachedFiles.filter((f) => f.parsedContent && !f.savedToDb)
+        ? attachedFiles.filter(
+            (f) => f.parsedContent && !f.savedToDb && f.file,
+          )
         : [];
       if (hasFiles) {
         const fileParts = attachedFiles
@@ -500,9 +502,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           : combined;
       }
 
-      // Auto-save attached files to Convex when Save documents on DB is enabled
+      // Auto-save attached files to Convex when Save documents on DB is enabled (local files only)
       if (saveDocumentsOnDb && filesToSave.length > 0) {
         for (const af of filesToSave) {
+          if (!af.file) continue;
           try {
             const uploadUrl = await generateUploadUrl();
             const res = await fetch(uploadUrl, {
