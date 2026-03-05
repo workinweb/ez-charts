@@ -60,71 +60,26 @@ export function AttachDialog({ open, onOpenChange }: AttachDialogProps) {
   const [urlError, setUrlError] = useState<string | null>(null);
   const [pending, setPending] = useState<PendingItem[]>([]);
 
+  const addFiles = useChatbotStore((s) => s.addFiles);
   const addFileFromParsedContent = useChatbotStore(
     (s) => s.addFileFromParsedContent,
   );
+  const attachedFiles = useChatbotStore((s) => s.attachedFiles);
 
   const hasPending = pending.length > 0;
   const hasReady = pending.some((p) => p.content && !p.error && !p.parsing);
   const hasParsing = pending.some((p) => p.parsing);
+  const hasLocalLoaded = attachedFiles.some(
+    (f) => f.parsedContent && !f.error && f.source === "local",
+  );
+  const hasLocalParsing = attachedFiles.some((f) => f.parsing && f.source === "local");
 
-  const handleLocalSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLocalSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files?.length) return;
+    const fileArray = Array.from(files);
+    addFiles(fileArray);
     e.target.value = "";
-
-    for (const file of Array.from(files)) {
-      const placeholder: PendingItem = {
-        type: "local",
-        name: file.name,
-        size: file.size,
-        content: "",
-        parsing: true,
-        file,
-      };
-      setPending((prev) => [...prev, placeholder]);
-
-      try {
-        const formData = new FormData();
-        formData.append("file", file);
-        const res = await fetch("/api/parse-file", {
-          method: "POST",
-          body: formData,
-        });
-        const data = await res.json().catch(() => ({}));
-
-        if (!res.ok) {
-          throw new Error(
-            typeof data?.error === "string"
-              ? data.error
-              : res.status === 413
-                ? "File too large (max 10 MB)"
-                : `Failed to parse (${res.status})`,
-          );
-        }
-
-        const { textContent, size } = data as { textContent: string; size: number };
-        setPending((prev) =>
-          prev.map((p) =>
-            p.file === file
-              ? { ...p, content: textContent, size, parsing: false }
-              : p,
-          ),
-        );
-      } catch (err) {
-        setPending((prev) =>
-          prev.map((p) =>
-            p.file === file
-              ? {
-                  ...p,
-                  parsing: false,
-                  error: err instanceof Error ? err.message : "Failed to parse",
-                }
-              : p,
-          ),
-        );
-      }
-    }
   };
 
   const handleUrlImport = async () => {
@@ -196,8 +151,6 @@ export function AttachDialog({ open, onOpenChange }: AttachDialogProps) {
 
   const handleAccept = () => {
     const ready = pending.filter((p) => p.content && !p.error && !p.parsing);
-    if (ready.length === 0) return;
-
     for (const p of ready) {
       addFileFromParsedContent(p.name, p.size, p.content, p.type);
     }
@@ -206,6 +159,8 @@ export function AttachDialog({ open, onOpenChange }: AttachDialogProps) {
     setUrlError(null);
     onOpenChange(false);
   };
+
+  const canAccept = (hasReady || hasLocalLoaded) && !hasParsing && !hasLocalParsing;
 
   const handleClose = (next: boolean) => {
     if (!next) {
@@ -286,7 +241,53 @@ export function AttachDialog({ open, onOpenChange }: AttachDialogProps) {
             )}
           </div>
 
-          {/* Pending list with errors */}
+          {/* Local files loaded (from store — same as old chat UI) */}
+          {attachedFiles.filter((f) => f.source === "local").length > 0 && (
+            <div className="min-h-0 flex-1 space-y-3">
+              <label className="text-[14px] font-medium text-[#3D4035]">
+                Loaded ({attachedFiles.filter((f) => f.source === "local").length})
+              </label>
+              <div className="min-h-[80px] max-h-[24vh] space-y-2 overflow-y-auto rounded-xl border border-sidebar-border bg-sidebar-foreground/2 p-3 sm:p-4">
+                {attachedFiles
+                  .filter((f) => f.source === "local")
+                  .map((f, idx) => {
+                    const Icon = getFileIcon(f.name);
+                    return (
+                      <div
+                        key={`${f.name}-${idx}`}
+                        className={cn(
+                          "flex items-center gap-2 rounded-lg px-2.5 py-2 text-[12px]",
+                          f.error
+                            ? "border border-red-200 bg-red-50/80"
+                            : "bg-white",
+                        )}
+                      >
+                        {f.parsing ? (
+                          <Loader2 className="size-3.5 shrink-0 animate-spin text-sidebar-foreground/50" />
+                        ) : (
+                          <Icon className="size-3.5 shrink-0 text-sidebar-foreground/60" />
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <span className="truncate font-medium">{f.name}</span>
+                          {f.size > 0 && (
+                            <span className="ml-1.5 text-sidebar-foreground/50">
+                              {formatFileSize(f.size)}
+                            </span>
+                          )}
+                          {f.error && (
+                            <p className="mt-0.5 text-[11px] text-red-600">
+                              {f.error}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
+
+          {/* URL imports pending */}
           {hasPending && (
             <div className="min-h-0 flex-1 space-y-3">
               <label className="text-[14px] font-medium text-[#3D4035]">
@@ -363,7 +364,7 @@ export function AttachDialog({ open, onOpenChange }: AttachDialogProps) {
           <Button
             type="button"
             onClick={handleAccept}
-            disabled={!hasReady || hasParsing}
+            disabled={!canAccept}
             className="bg-[#6C5DD3] text-white hover:bg-[#5a4dbf]"
           >
             Accept
