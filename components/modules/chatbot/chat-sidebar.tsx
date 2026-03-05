@@ -38,6 +38,7 @@ import { useChatbotStore } from "@/stores/chatbot-store";
 import { useSectionStore } from "@/stores/section-store";
 import { useMutation } from "convex/react";
 import { useChatContext } from "./chat-context";
+import { AttachDialog } from "./attach-dialog";
 import { ChatSettingsView } from "./chat-settings-view";
 import { ErrorMessage } from "./error-message";
 import { TypewriterText } from "./typewriter-text";
@@ -153,7 +154,6 @@ export function ChatSidebarContent({
     status,
     error,
     attachedFiles,
-    addFiles,
     removeFile,
     setAttachedChartContext,
     effectiveChartContext,
@@ -161,7 +161,6 @@ export function ChatSidebarContent({
     removeLoadedDocument,
   } = useChatContext();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const {
     selectedChartKey,
     toggleSelectedChartKey,
@@ -199,6 +198,7 @@ export function ChatSidebarContent({
   const hasLoadedDocs = loadedDocuments.length > 0;
 
   const [chartPopoverOpen, setChartPopoverOpen] = useState(false);
+  const [attachDialogOpen, setAttachDialogOpen] = useState(false);
 
   const handleChartSelect = (key: string) => {
     toggleSelectedChartKey(key);
@@ -438,22 +438,6 @@ export function ChatSidebarContent({
         </div>
 
         <div className="border-t border-sidebar-border px-4 py-3">
-          {/* Hidden file input */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept={ACCEPTED_FILE_TYPES}
-            className="hidden"
-            onChange={(e) => {
-              if (e.target.files && e.target.files.length > 0) {
-                addFiles(e.target.files);
-              }
-              // Reset so same file can be re-added
-              e.target.value = "";
-            }}
-          />
-
           {/* Chart context chip — from explicit attach or current AI Builds selection */}
           {hasChartContext && effectiveChartContext && (
             <div className="mb-2 flex flex-wrap gap-1.5">
@@ -667,12 +651,16 @@ export function ChatSidebarContent({
             variant="ghost"
             size="xs"
             type="button"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => setAttachDialogOpen(true)}
             className="gap-1 rounded-lg text-[12px] text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
             <Paperclip className="size-3" />
             Files
           </Button>
+          <AttachDialog
+            open={attachDialogOpen}
+            onOpenChange={setAttachDialogOpen}
+          />
 
           <Popover open={chartPopoverOpen} onOpenChange={setChartPopoverOpen}>
             <PopoverTrigger asChild>
