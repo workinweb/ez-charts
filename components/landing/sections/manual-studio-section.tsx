@@ -38,7 +38,7 @@ export function ManualStudioSection() {
   }, [isAutomatic]);
 
   return (
-    <section className="translate-y-[-50px] overflow-hidden rounded-t-[3rem]  bg-[#111827] text-white">
+    <section className="translate-y-[-50px] overflow-hidden rounded-t-[3rem] py-18  bg-[#111827] text-white">
       <div className="mx-auto max-w-7xl px-6 py-16">
         <div className="flex flex-col items-center gap-20 lg:flex-row-reverse">
           <div className="relative flex w-full flex-col gap-6 lg:w-1/2">
@@ -285,7 +285,10 @@ export function ManualStudioSection() {
           </div>
 
           <div className="lg:w-1/2">
-            <div className="mb-8 size-12 rounded-full bg-[#6C5DD3]" />
+            <div className="mb-8 w-fit rounded-full px-5 py-2 bg-[#6C5DD3]">
+              How to use it
+            </div>
+
             <h2 className="mb-6 text-4xl font-medium uppercase leading-tight tracking-tight text-white">
               Manual control when{" "}
               <span className="text-slate-400">you need it.</span>

@@ -18,8 +18,8 @@ import Link from "next/link";
 
 export function HeroSection() {
   return (
-    <section className="relative h-dvh max-h-dvh overflow-hidden bg-[#F2F4F7] pt-40 pb-20 lg:pt-48 lg:pb-32 bg-[radial-gradient(at_10%_10%,hsla(254,70%,90%,1)_0px,transparent_40%),radial-gradient(at_90%_90%,hsla(220,80%,92%,1)_0px,transparent_40%)]">
-      <div className="mx-auto max-w-7xl px-6 relative z-10">
+    <section className="relative flex h-dvh max-h-dvh overflow-hidden bg-[#F2F4F7] pt-40 pb-20 lg:pt-48 lg:pb-32 bg-[radial-gradient(at_10%_10%,hsla(254,70%,90%,1)_0px,transparent_40%),radial-gradient(at_90%_90%,hsla(220,80%,92%,1)_0px,transparent_40%)]">
+      <div className="relative z-10 mx-auto flex max-w-7xl flex-1 flex-col justify-center px-6">
         <div className="flex flex-col lg:flex-row items-center gap-16">
           <div className="lg:w-1/2 text-center lg:text-left">
             <h1 className="mb-8 text-5xl font-medium uppercase leading-[1.1] tracking-tight text-slate-900 lg:text-6xl">

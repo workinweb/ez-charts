@@ -17,7 +17,7 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
       "connect-src 'self' wss: https: https://*.convex.cloud https://*.convex.site https://us.i.posthog.com https://eu.i.posthog.com https://va.vercel-insights.com https://vitals.vercel-insights.com https://accounts.google.com",
-      "frame-src 'self' https://accounts.google.com https://js.stripe.com https://hooks.stripe.com",
+      "frame-src 'self' https://accounts.google.com https://js.stripe.com https://hooks.stripe.com https://demo.arcade.software",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

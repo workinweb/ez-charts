@@ -8,7 +8,7 @@ export function PromptExamplesSection() {
   return (
     <section
       id="prompt-examples"
-      className="scroll-mt-20 bg-[#F2F4F7] py-24"
+      className="scroll-mt-20 bg-[#F2F4F7] py-24 pb-32"
     >
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

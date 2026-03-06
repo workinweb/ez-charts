@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useChatbotStore } from "@/stores/chatbot-store";
 import { cn } from "@/lib/utils";
 import { authClient } from "@/lib/(auth)/auth-client";
@@ -25,8 +25,11 @@ import { ChevronDown, LogOut, Menu, User } from "lucide-react";
 
 export function LandingNavbar() {
   const router = useRouter();
+  const pathname = usePathname();
   const { data: session } = authClient.useSession();
   const [hidden, setHidden] = useState(false);
+  const hideMarketingLinks =
+    pathname === "/opinions" && !!session?.user;
   const [scrolled, setScrolled] = useState(false);
   const prevY = useRef(0);
   const ticking = useRef(false);
@@ -103,30 +106,34 @@ export function LandingNavbar() {
 
           {/* Desktop nav */}
           <div className="hidden items-center gap-1 rounded-full bg-slate-100/80 px-1 py-1 lg:flex">
-            <a
-              href="#features"
-              className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-white hover:text-slate-900"
-            >
-              Features
-            </a>
-            <Link
-              href="/examples"
-              className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-white hover:text-slate-900"
-            >
-              Templates
-            </Link>
-            <a
-              href="#pricing"
-              className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-white hover:text-slate-900"
-            >
-              Pricing
-            </a>
-            <Link
-              href="/contact"
-              className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-white hover:text-slate-900"
-            >
-              Contact
-            </Link>
+            {!hideMarketingLinks && (
+              <>
+                <a
+                  href="#features"
+                  className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-white hover:text-slate-900"
+                >
+                  Features
+                </a>
+                <Link
+                  href="/examples"
+                  className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-white hover:text-slate-900"
+                >
+                  Templates
+                </Link>
+                <a
+                  href="#pricing"
+                  className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-white hover:text-slate-900"
+                >
+                  Pricing
+                </a>
+                <Link
+                  href="/contact"
+                  className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-white hover:text-slate-900"
+                >
+                  Contact
+                </Link>
+              </>
+            )}
             <Link
               href="/opinions"
               className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-white hover:text-slate-900"
@@ -152,30 +159,34 @@ export function LandingNavbar() {
               className="w-56 rounded-2xl border-slate-200 bg-white p-2 shadow-xl"
             >
               <nav className="flex flex-col gap-0.5">
-                <a
-                  href="#features"
-                  className="rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
-                >
-                  Features
-                </a>
-                <Link
-                  href="/examples"
-                  className="rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
-                >
-                  Templates
-                </Link>
-                <a
-                  href="#pricing"
-                  className="rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
-                >
-                  Pricing
-                </a>
-                <Link
-                  href="/contact"
-                  className="rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
-                >
-                  Contact
-                </Link>
+                {!hideMarketingLinks && (
+                  <>
+                    <a
+                      href="#features"
+                      className="rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                    >
+                      Features
+                    </a>
+                    <Link
+                      href="/examples"
+                      className="rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                    >
+                      Templates
+                    </Link>
+                    <a
+                      href="#pricing"
+                      className="rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                    >
+                      Pricing
+                    </a>
+                    <Link
+                      href="/contact"
+                      className="rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                    >
+                      Contact
+                    </Link>
+                  </>
+                )}
                 <Link
                   href="/opinions"
                   className="rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"

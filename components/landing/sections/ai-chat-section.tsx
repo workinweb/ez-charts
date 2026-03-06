@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { MessageSquare, RefreshCw, Palette } from "lucide-react";
+import { MessageSquare, RefreshCw, Palette, ExternalLink } from "lucide-react";
 
 export function AIChatSection() {
   return (
@@ -31,13 +31,17 @@ export function AIChatSection() {
                     </div>
                     <div className="w-full space-y-4">
                       <div className="rounded-[2rem] rounded-tl-sm border border-slate-100 bg-white p-6 shadow-sm">
-                        <p className="mb-6 text-sm font-medium text-slate-600">
+                        <p className="mb-4 text-sm font-medium text-slate-600">
                           Done! I&apos;ve converted the visualization and
                           applied the highlight color.
                         </p>
-                        <div className="flex items-center justify-center rounded-[1.5rem] bg-[#F1F5F9] p-8">
-                          <div className="relative size-40 rounded-full border-[16px] border-white border-t-[#6C5DD3] border-r-[#6C5DD3] -rotate-45 shadow-sm" />
-                        </div>
+                        <a
+                          href="#"
+                          className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[#6C5DD3] hover:underline"
+                        >
+                          <ExternalLink className="size-3" />
+                          See chart
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -47,7 +51,7 @@ export function AIChatSection() {
           </div>
           <div className="lg:w-1/2">
             <div className="mb-6 inline-block rounded-full bg-slate-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-600">
-              Interaction
+              How to use it
             </div>
             <h2 className="mb-6 text-4xl font-medium uppercase leading-tight tracking-tight text-slate-900">
               Describe the chart. <br />

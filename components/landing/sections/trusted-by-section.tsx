@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart3, Presentation, FileText } from "lucide-react";
+import { BarChart3, Bot, FileText, Pencil, Presentation } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +14,22 @@ const ITEMS = [
     headline: "Save and organize your work",
     description:
       "All your charts in one place. Find them quickly, share with a link, or embed in presentations.",
+  },
+  {
+    id: "editor",
+    icon: Pencil,
+    label: "Editor",
+    headline: "Full control over your data",
+    description:
+      "Edit data in a spreadsheet or expandable cards. Tweak colors per slice or series. Toggle tooltips and animations—no code required.",
+  },
+  {
+    id: "ai-assistant",
+    icon: Bot,
+    label: "AI Assistant",
+    headline: "Chat with your data",
+    description:
+      'Ask in plain English: "Make a bar chart of quarterly revenue" or "Turn this into a donut." The AI creates and refines charts on the fly.',
   },
   {
     id: "slides",
@@ -52,18 +68,28 @@ export function TrustedBySection() {
     <section className="bg-[#F2F4F7] py-24">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-12">
+          <div className="mb-4 inline-block rounded-full bg-indigo-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#6C5DD3]">
+            Our Tool for you
+          </div>
           <h2 className="mb-4 text-3xl font-medium uppercase tracking-tight text-slate-900 md:text-4xl">
             Everything in one place
           </h2>
-          <p className="max-w-2xl text-lg font-medium text-slate-500">
-            Charts, slide decks, and documents—all in your workspace. Pick any to
-            explore.
-          </p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-base font-medium text-slate-600">
+            {ITEMS.map((item) => {
+              const Icon = item.icon;
+              return (
+                <span key={item.id} className="flex items-center gap-1.5">
+                  <Icon className="size-4 text-[#6C5DD3]" strokeWidth={1.75} />
+                  {item.label}
+                </span>
+              );
+            })}
+          </div>
         </div>
 
         <div className="overflow-hidden rounded-[2.5rem] border border-slate-200 bg-[#F8FAFC] shadow-xl">
           <div className="flex flex-col gap-8 p-8 lg:flex-row lg:items-stretch lg:gap-12 lg:p-10">
-            {/* Left: changing text + selector cards */}
+            {/* Left: selector cards only */}
             <div className="flex flex-1 flex-col">
               <div className="space-y-3">
                 {ITEMS.map((item, idx) => {
@@ -106,75 +132,11 @@ export function TrustedBySection() {
                   );
                 })}
               </div>
-
-              <div
-                key={active}
-                className="mt-8 animate-in fade-in duration-300"
-              >
-                <h3 className="text-xl font-bold text-slate-900">
-                  {current.headline}
-                </h3>
-                <p className="mt-3 text-slate-600">{current.description}</p>
-              </div>
-
-              {/* Automatic / Manual toggle */}
-              <div className="mt-8 flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                  Preview
-                </span>
-                <div className="flex gap-1 rounded-lg bg-slate-100 p-0.5">
-                  <button
-                    type="button"
-                    onClick={() => setIsAutomatic(true)}
-                    className={cn(
-                      "rounded-md px-3 py-1.5 text-[11px] font-medium transition-colors",
-                      isAutomatic
-                        ? "bg-[#6C5DD3]/20 text-[#6C5DD3]"
-                        : "text-slate-500 hover:text-slate-700",
-                    )}
-                  >
-                    Automatic
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsAutomatic(false)}
-                    className={cn(
-                      "rounded-md px-3 py-1.5 text-[11px] font-medium transition-colors",
-                      !isAutomatic
-                        ? "bg-[#6C5DD3]/20 text-[#6C5DD3]"
-                        : "text-slate-500 hover:text-slate-700",
-                    )}
-                  >
-                    Manual
-                  </button>
-                </div>
-              </div>
-
-              {/* Dot indicators */}
-              <div className="mt-4 flex gap-2">
-                {ITEMS.map((_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => {
-                      setActiveIndex(i);
-                      setIsAutomatic(false);
-                    }}
-                    className={cn(
-                      "size-2 rounded-full transition-colors",
-                      i === activeIndex
-                        ? "bg-[#6C5DD3]"
-                        : "bg-slate-200 hover:bg-slate-300",
-                    )}
-                    aria-label={`Show ${ITEMS[i].label}`}
-                  />
-                ))}
-              </div>
             </div>
 
-            {/* Right: example visual */}
-            <div className="flex min-h-[340px] flex-[1.25] items-center justify-center lg:min-h-[400px] lg:min-w-[420px]">
-              <div className="w-full max-w-xl">
+            {/* Right: dynamic visual + Save and organize + Preview toggle */}
+            <div className="flex min-h-[340px] flex-1 flex-col gap-6 lg:min-h-[400px]">
+              <div className="w-full max-w-xl shrink-0">
                 {active === "charts" && (
                   <div
                     key="charts"
@@ -201,6 +163,73 @@ export function TrustedBySection() {
                           </div>
                         </div>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {active === "editor" && (
+                  <div
+                    key="editor"
+                    className="animate-in fade-in duration-300 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm"
+                  >
+                    <div className="mb-5 flex gap-2">
+                      {["Data", "Colors", "Settings"].map((tab, i) => (
+                        <div
+                          key={tab}
+                          className={cn(
+                            "rounded-lg px-3 py-1.5 text-xs font-medium",
+                            i === 0
+                              ? "bg-[#6C5DD3]/10 text-[#6C5DD3]"
+                              : "bg-slate-100 text-slate-500",
+                          )}
+                        >
+                          {tab}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 rounded-lg border border-slate-200 bg-slate-50/50 p-3">
+                      {["Jan", "Feb", "Mar", "Apr"].map((m, i) => (
+                        <div
+                          key={m}
+                          className="flex items-center justify-between rounded border border-slate-200 bg-white px-3 py-2"
+                        >
+                          <span className="text-xs text-slate-600">{m}</span>
+                          <span className="text-xs font-medium text-slate-800">
+                            {[186, 305, 237, 73][i]}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {active === "ai-assistant" && (
+                  <div
+                    key="ai-assistant"
+                    className="animate-in fade-in duration-300 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm"
+                  >
+                    <div className="mb-4 flex items-start gap-3">
+                      <div className="size-8 shrink-0 rounded-full bg-[#6C5DD3]/10" />
+                      <div className="rounded-xl bg-slate-100 px-4 py-2.5 text-xs text-slate-700">
+                        Make a bar chart of Q1 revenue
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="size-8 shrink-0 overflow-hidden rounded-full bg-slate-200" />
+                      <div className="rounded-xl bg-[#6C5DD3]/10 px-4 py-2.5 text-xs text-slate-700">
+                        Here&apos;s your chart. Want to change the colors?
+                      </div>
+                    </div>
+                    <div className="mt-4 flex gap-2 rounded-full border border-slate-200 bg-slate-50 p-1">
+                      <input
+                        type="text"
+                        placeholder="Reply..."
+                        className="flex-1 bg-transparent px-3 py-1.5 text-xs focus:outline-none"
+                        readOnly
+                      />
+                      <button className="rounded-full bg-[#6C5DD3] p-1.5 text-white">
+                        →
+                      </button>
                     </div>
                   </div>
                 )}
@@ -263,6 +292,68 @@ export function TrustedBySection() {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* Save and organize + Preview toggle — under dynamic part */}
+              <div className="flex flex-col gap-4">
+                <div key={active} className="animate-in fade-in duration-300">
+                  <h3 className="text-xl font-bold text-slate-900">
+                    {current.headline}
+                  </h3>
+                  <p className="mt-3 text-slate-600">{current.description}</p>
+                </div>
+
+                <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    Preview
+                  </span>
+                  <div className="flex gap-1 rounded-lg bg-slate-100 p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setIsAutomatic(true)}
+                      className={cn(
+                        "rounded-md px-3 py-1.5 text-[11px] font-medium transition-colors",
+                        isAutomatic
+                          ? "bg-[#6C5DD3]/20 text-[#6C5DD3]"
+                          : "text-slate-500 hover:text-slate-700",
+                      )}
+                    >
+                      Automatic
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsAutomatic(false)}
+                      className={cn(
+                        "rounded-md px-3 py-1.5 text-[11px] font-medium transition-colors",
+                        !isAutomatic
+                          ? "bg-[#6C5DD3]/20 text-[#6C5DD3]"
+                          : "text-slate-500 hover:text-slate-700",
+                      )}
+                    >
+                      Manual
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  {ITEMS.map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => {
+                        setActiveIndex(i);
+                        setIsAutomatic(false);
+                      }}
+                      className={cn(
+                        "size-2 rounded-full transition-colors",
+                        i === activeIndex
+                          ? "bg-[#6C5DD3]"
+                          : "bg-slate-200 hover:bg-slate-300",
+                      )}
+                      aria-label={`Show ${ITEMS[i].label}`}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </div>

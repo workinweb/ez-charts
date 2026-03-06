@@ -19,26 +19,18 @@ export function CTASection() {
             <span className="text-white/90">if charts were easy?</span>
           </h2>
           <p className="mx-auto mb-10 max-w-lg text-lg font-medium leading-relaxed text-indigo-100">
-            No coding. No complex tools. Just describe what you need and watch it
-            appear. Free to start—no credit card.
+            No coding. No complex tools. Just describe what you need and watch
+            it appear. Free to start—no credit card.
           </p>
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              href="/sign-up"
-              className="group inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-[#6C5DD3] shadow-xl transition-all hover:scale-[1.02] hover:shadow-2xl sm:w-auto"
-            >
-              Start free
-              <ArrowRight className="size-5 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-            <Link
-              href="/examples"
-              className="inline-flex w-full max-w-xs items-center justify-center rounded-full border-2 border-white/40 bg-white/5 px-8 py-4 text-base font-bold text-white backdrop-blur-sm transition-all hover:bg-white/15 hover:border-white/60 sm:w-auto"
-            >
-              Explore templates
-            </Link>
-          </div>
+          <Link
+            href="/about"
+            className="group inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-[#6C5DD3] shadow-xl transition-all hover:scale-[1.02] hover:shadow-2xl"
+          >
+            Get the full picture — About us
+            <ArrowRight className="size-5 transition-transform group-hover:translate-x-0.5" />
+          </Link>
           <p className="mt-6 text-sm text-white/60">
-            Join analysts who are already making charts the easy way
+            We&apos;ll love to chart with you
           </p>
         </div>
       </div>
