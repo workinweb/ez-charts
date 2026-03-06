@@ -4,6 +4,7 @@ import { CTASection } from "@/components/landing/sections/cta-section";
 import { FeaturesSection } from "@/components/landing/sections/features-section";
 import { FooterSection } from "@/components/landing/sections/footer-section";
 import { HeroSection } from "@/components/landing/sections/hero-section";
+import { HowToUseSection } from "@/components/landing/sections/how-to-use-section";
 import { ManualStudioSection } from "@/components/landing/sections/manual-studio-section";
 import { LandingNavbar } from "@/components/landing/sections/navbar-section";
 import { PricingSection } from "@/components/landing/sections/pricing-section";
@@ -31,6 +32,7 @@ export default function LandingPage() {
         <ManualStudioSection />
         <TemplatesSection />
         <ChartLibrariesSection />
+        <HowToUseSection />
         <PricingSection />
         <CTASection />
         <FooterSection />

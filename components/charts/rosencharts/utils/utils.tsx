@@ -120,8 +120,14 @@ export const chartTypes: ReadonlyArray<{
   // Line
   { key: "line", label: "Line", category: "line", icon: LineChartIcon },
   {
-    key: "line-multi",
+    key: "line-curved",
     label: "Line Curved",
+    category: "line",
+    icon: TrendingUp,
+  },
+  {
+    key: "line-multi",
+    label: "Multi Line",
     category: "line",
     icon: TrendingUp,
   },
