@@ -61,13 +61,23 @@ export default function ExamplesPage() {
                 data: _data,
                 ...rest
               } = item as Record<string, unknown>;
+              const chartType = item.chartType as string;
+              const isPieOrDonut =
+                chartType === "shadcn:donut" ||
+                chartType === "shadcn:pie" ||
+                chartType === "shadcn:pie-stacked" ||
+                chartType === "shadcn:radial" ||
+                ["donut", "pie", "pie-image", "fillable-donut", "half-donut"].includes(chartType);
+              const chartClassName = isPieOrDonut
+                ? "aspect-square min-h-[280px] w-full"
+                : "min-h-[200px] w-full";
               const chart = renderChart(item.data, item.chartType, {
                 chartSettings: {
                   withTooltip: true,
                   withAnimation: true,
                   ...rest,
                 },
-                className: "min-h-[200px] w-full",
+                className: chartClassName,
               });
 
               if (!chart) return null;
@@ -80,7 +90,13 @@ export default function ExamplesPage() {
                   <h2 className="text-base font-bold text-slate-900 sm:text-lg">
                     {item.name}
                   </h2>
-                  <div className="min-h-[220px] w-full">{chart}</div>
+                  <div
+                    className={
+                      isPieOrDonut ? "min-h-[320px] w-full" : "min-h-[220px] w-full"
+                    }
+                  >
+                    {chart}
+                  </div>
                 </section>
               );
             })}
