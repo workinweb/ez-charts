@@ -463,7 +463,6 @@ export default function UserPage() {
                     <Crown
                       className="absolute right-4 top-1/2 size-4 -translate-y-1/2 text-[#6C5DD3]"
                       aria-hidden
-                      title="Upgrade to Pro"
                     />
                   )}
                   <Checkbox

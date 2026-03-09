@@ -35,7 +35,6 @@ export function ChatSettingsView() {
             <Crown
               className="absolute right-3 top-3 size-4 text-[#6C5DD3]"
               aria-hidden
-              title="Upgrade to Pro"
             />
           )}
           <div className="flex items-center justify-between gap-4">
