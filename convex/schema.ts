@@ -92,7 +92,7 @@ export default defineSchema({
     chartDataEditorMode: v.optional(
       v.union(v.literal("table"), v.literal("items")),
     ),
-    /** Credits available for AI usage (Free: 100, Pro: 500, Max: 1000) */
+    /** Credits available for AI usage (Free: 50, Pro: 300, Max: 650) */
     credits: v.optional(v.number()),
     /** Plan tier: free | pro | max */
     planTier: v.optional(
