@@ -44,6 +44,7 @@ import {
   CheckCircle2,
   Coins,
   CreditCard,
+  Crown,
   FileText,
   GripVertical,
   Loader2,
@@ -452,12 +453,19 @@ export default function UserPage() {
                 <label
                   htmlFor="save-docs"
                   className={cn(
-                    "flex cursor-pointer items-center gap-4 rounded-2xl border border-border/40 bg-white/80 px-4 py-3.5 transition-colors",
+                    "relative flex cursor-pointer items-center gap-4 rounded-2xl border border-border/40 bg-white/80 px-4 py-3.5 transition-colors",
                     canSaveDocuments && "hover:border-border/60",
                     !canSaveDocuments &&
                       "cursor-not-allowed opacity-70 hover:border-border/40",
                   )}
                 >
+                  {!canSaveDocuments && (
+                    <Crown
+                      className="absolute right-4 top-1/2 size-4 -translate-y-1/2 text-[#6C5DD3]"
+                      aria-hidden
+                      title="Upgrade to Pro"
+                    />
+                  )}
                   <Checkbox
                     id="save-docs"
                     checked={canSaveDocuments ? saveDocumentsOnDb : false}

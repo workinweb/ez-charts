@@ -1,16 +1,12 @@
 import Link from "next/link";
 import { Check, Coffee, Crown, Zap } from "lucide-react";
-import { TIER_DOC, TIER_LIMITS, type PlanTier } from "@/lib/tiers/tier-limits";
+import { TIER_DOC, type PlanTier } from "@/lib/tiers/tier-limits";
 
 const PRICES: Record<PlanTier, string> = {
   free: "$0",
   pro: "$4.99",
   max: "$9.99",
 };
-
-function formatLimit(n: number): string {
-  return n === Infinity ? "Unlimited" : String(n);
-}
 
 const TIERS: PlanTier[] = ["free", "pro", "max"];
 const ICONS = { free: Coffee, pro: Zap, max: Crown } as const;
@@ -40,22 +36,11 @@ export function PricingSection() {
         <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
           {TIERS.map((tier) => {
             const Icon = ICONS[tier];
-            const limits = TIER_LIMITS[tier];
             const doc = TIER_DOC[tier];
             const price = PRICES[tier];
             const isPro = tier === "pro";
 
-            const bullets = [
-              `${limits.credits} credits ${tier === "free" ? "to start" : "per month"}`,
-              `${formatLimit(limits.maxCharts)} charts, ${formatLimit(limits.maxSlides)} slide decks`,
-              limits.maxDocuments === 0
-                ? "Documents in chat only (no storage)"
-                : limits.maxDocuments === Infinity
-                  ? "Unlimited documents saved"
-                  : `Up to ${limits.maxDocuments} documents saved`,
-              "Export to PNG",
-              "Data presentations",
-            ];
+            const bullets = doc.bullets;
 
             return (
               <div

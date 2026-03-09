@@ -51,6 +51,44 @@ export function useChartById(id: string | undefined): UserChart | undefined {
   return unsaved ?? convexChart ?? undefined;
 }
 
+/** Chart for presentation: owner uses get; shared viewer uses getForSharedSlide. */
+export function useChartForPresent(
+  chartId: string | undefined,
+  slideId: Id<"slides"> | string | undefined,
+  isSharedView: boolean,
+): {
+  chart: UserChart | undefined;
+  isLoading: boolean;
+  isNotFound: boolean;
+} {
+  const ownerChart = useQuery(
+    api.charts.charts.get,
+    !isSharedView &&
+      chartId &&
+      typeof chartId === "string" &&
+      !chartId.startsWith("unsaved-")
+      ? { id: chartId as Id<"charts"> }
+      : "skip",
+  );
+  const sharedChart = useQuery(
+    api.charts.charts.getForSharedSlide,
+    isSharedView &&
+      chartId &&
+      slideId &&
+      typeof chartId === "string" &&
+      typeof slideId === "string" &&
+      !chartId.startsWith("unsaved-")
+      ? { chartId: chartId as Id<"charts">, slideId: slideId as Id<"slides"> }
+      : "skip",
+  );
+  const isConvexId = !!chartId && !chartId.startsWith("unsaved-");
+  const result = isSharedView ? sharedChart : ownerChart;
+  const isLoading = isConvexId && result === undefined;
+  const isNotFound = isConvexId && result === null;
+  const chart = result ? convexChartToUserChart(result) : undefined;
+  return { chart, isLoading, isNotFound };
+}
+
 /** Chart by ID with loading status (for edit page). */
 export function useChartByIdWithStatus(id: string | undefined): {
   chart: UserChart | undefined;
