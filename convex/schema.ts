@@ -46,6 +46,14 @@ export default defineSchema({
     name: v.string(),
     /** Ordered array of chart IDs in this deck */
     chartIds: v.array(v.string()),
+    /** Who can view: restricted (owner only), available (anyone with link), shared (future) */
+    shareSetting: v.optional(
+      v.union(
+        v.literal("restricted"),
+        v.literal("available"),
+        v.literal("shared"),
+      ),
+    ),
     /** Soft delete: false when user removes; never returned to user */
     isVisible: v.optional(v.boolean()),
     /** Blocked by plan tier limit — not shown in lists; separate from isVisible (removal) */

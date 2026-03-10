@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useMemo, useRef } from "react";
+import Link from "next/link";
 import {
+  Crown,
   FileText,
   FileSpreadsheet,
   FileJson,
@@ -278,9 +280,15 @@ export function DocumentsSection() {
               Add new
             </Button>
           ) : (
-            <span className="text-[12px] text-[#3D4035]/50">
-              Upgrade to Pro to upload documents
-            </span>
+            <Link
+              href="/ezcharts"
+              className="relative inline-flex items-center gap-2 rounded-xl border border-[#6C5DD3]/30 bg-[#6C5DD3]/10 px-4 py-2 text-[12px] font-semibold text-[#6C5DD3] transition-colors hover:bg-[#6C5DD3]/20"
+              title="Upgrade to Pro to upload documents"
+            >
+              <Plus className="size-3.5" />
+              Add new
+              <Crown className="size-3 text-[#6C5DD3]" />
+            </Link>
           )
         }
       />

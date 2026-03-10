@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { useFeatureCheck } from "@/hooks/use-feature-check";
 import { cn } from "@/lib/utils";
 import { useChatbotStore } from "@/stores/chatbot-store";
-import { Database, Settings } from "lucide-react";
+import { Crown, Database, Settings } from "lucide-react";
 
 export function ChatSettingsView() {
   const saveDocumentsOnDb = useChatbotStore((s) => s.saveDocumentsOnDb);
@@ -27,10 +27,16 @@ export function ChatSettingsView() {
 
         <div
           className={cn(
-            "flex flex-col gap-4 rounded-2xl border border-sidebar-border/50 bg-white/60 p-4",
+            "relative flex flex-col gap-4 rounded-2xl border border-sidebar-border/50 bg-white/60 p-4",
             !canSaveDocuments && "opacity-70",
           )}
         >
+          {!canSaveDocuments && (
+            <Crown
+              className="absolute right-3 top-3 size-4 text-[#6C5DD3]"
+              aria-hidden
+            />
+          )}
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="flex size-9 items-center justify-center rounded-xl bg-[#BCBDEA]/15">

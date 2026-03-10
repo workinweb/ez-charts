@@ -81,6 +81,34 @@ export const listPaginated = query({
   },
 });
 
+/** Get a chart when it's part of a shared slide (no auth required). Returns null if slide is not shared or owner is not Pro/Max. */
+export const getForSharedSlide = query({
+  args: {
+    chartId: v.id("charts"),
+    slideId: v.id("slides"),
+  },
+  handler: async (ctx, args) => {
+    const [slide, chart] = await Promise.all([
+      ctx.db.get(args.slideId),
+      ctx.db.get(args.chartId),
+    ]);
+    if (!slide || !chart) return null;
+    if (slide.isVisible === false || slide.blockedByTier === true) return null;
+    if (chart.isVisible === false || chart.blockedByTier === true) return null;
+    const shareSetting = slide.shareSetting ?? "restricted";
+    if (shareSetting !== "available") return null;
+    if (chart.userId !== slide.userId) return null;
+    if (!slide.chartIds.includes(args.chartId)) return null;
+    const ownerSettings = await ctx.db
+      .query("userSettings")
+      .withIndex("by_user", (q) => q.eq("userId", slide.userId))
+      .unique();
+    const ownerTier = getEffectiveTier(ownerSettings);
+    if (ownerTier === "free") return null;
+    return chart;
+  },
+});
+
 /** Get a single chart by ID (must belong to the authenticated user). */
 export const get = query({
   args: { id: v.id("charts") },

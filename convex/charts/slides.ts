@@ -86,6 +86,36 @@ export const get = query({
   },
 });
 
+/** Get slide for presentation: owner always sees it; others see it only when shareSetting is "available" and owner has Pro/Max. */
+export const getForPublicOrOwner = query({
+  args: { id: v.id("slides") },
+  handler: async (ctx, args) => {
+    const slide = await ctx.db.get(args.id);
+    if (!slide || slide.isVisible === false || slide.blockedByTier === true) {
+      return null;
+    }
+    const identity = await ctx.auth.getUserIdentity();
+    if (identity && slide.userId === identity.subject) {
+      const ownerSettings = await ctx.db
+        .query("userSettings")
+        .withIndex("by_user", (q) => q.eq("userId", slide.userId))
+        .unique();
+      const ownerTier = getEffectiveTier(ownerSettings);
+      const canChangeShare = ownerTier === "pro" || ownerTier === "max";
+      return { slide, isOwner: true, canChangeShare };
+    }
+    const shareSetting = slide.shareSetting ?? "restricted";
+    if (shareSetting !== "available") return null;
+    const ownerSettings = await ctx.db
+      .query("userSettings")
+      .withIndex("by_user", (q) => q.eq("userId", slide.userId))
+      .unique();
+    const ownerTier = getEffectiveTier(ownerSettings);
+    if (ownerTier === "free") return null;
+    return { slide, isOwner: false, canChangeShare: false };
+  },
+});
+
 // ─── Mutations ──────────────────────────────────────────────────────────────
 
 /** Create a new slide deck. */
@@ -125,6 +155,7 @@ export const create = mutation({
       userId,
       name: args.name,
       chartIds: args.chartIds,
+      shareSetting: "restricted",
       isVisible: true,
       createdAt: now,
       updatedAt: now,
@@ -132,12 +163,19 @@ export const create = mutation({
   },
 });
 
+const shareSettingValidator = v.union(
+  v.literal("restricted"),
+  v.literal("available"),
+  v.literal("shared"),
+);
+
 /** Update a slide deck's name and/or chart order. */
 export const update = mutation({
   args: {
     id: v.id("slides"),
     name: v.optional(v.string()),
     chartIds: v.optional(v.array(v.string())),
+    shareSetting: v.optional(shareSettingValidator),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -149,6 +187,21 @@ export const update = mutation({
     const updates: Record<string, unknown> = { updatedAt: Date.now() };
     if (args.name !== undefined) updates.name = args.name;
     if (args.chartIds !== undefined) updates.chartIds = args.chartIds;
+    if (args.shareSetting !== undefined) {
+      if (args.shareSetting === "available") {
+        const settings = await ctx.db
+          .query("userSettings")
+          .withIndex("by_user", (q) => q.eq("userId", identity.subject))
+          .unique();
+        const tier = getEffectiveTier(settings);
+        if (tier === "free") {
+          throw new Error(
+            "Shareable links require Pro or Max. Upgrade to share slides.",
+          );
+        }
+      }
+      updates.shareSetting = args.shareSetting;
+    }
     await ctx.db.patch(args.id, updates);
   },
 });

@@ -1,11 +1,14 @@
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 
+export type ShareSetting = "restricted" | "available" | "shared";
+
 export interface Slide {
   id: string;
   name: string;
   chartIds: string[];
   type: "custom";
   createdAt: string;
+  shareSetting?: ShareSetting;
 }
 
 function formatSlideDate(timestamp: number): string {
@@ -37,5 +40,6 @@ export function convexSlideToSlide(doc: Doc<"slides">): Slide {
     chartIds: doc.chartIds,
     type: "custom",
     createdAt: formatSlideDate(doc.updatedAt),
+    shareSetting: doc.shareSetting,
   };
 }
