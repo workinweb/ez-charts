@@ -48,6 +48,16 @@ export interface VerticalBarData {
 
 export type VerticalMultiBarData = MultiBarData;
 
+/** Hybrid bar + line: bars for barValue, line for lineValue. Shared X-axis (key). */
+export interface BarLineChartData {
+  id?: string;
+  key: string;
+  barValue: number;
+  lineValue: number;
+  barColor?: string;
+  lineColor?: string;
+}
+
 // ── Line Charts ───────────────────────────────────────────────────────
 export interface LineDataSeries {
   id?: string;

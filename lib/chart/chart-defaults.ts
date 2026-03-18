@@ -80,6 +80,13 @@ export const ROSENCHARTS_BAR_MULTI_DEFAULT = [
   { key: "Item 1", values: [10, 20, 30] },
 ];
 
+/** Default data for Rosencharts bar-line (hybrid) */
+export const ROSENCHARTS_BAR_LINE_DEFAULT = [
+  { key: "Jan", barValue: 34.7, lineValue: 12 },
+  { key: "Feb", barValue: 41.2, lineValue: 18 },
+  { key: "Mar", barValue: 38.1, lineValue: 15 },
+];
+
 /** Default data for Rosencharts line/area (single series) */
 export const ROSENCHARTS_LINE_DEFAULT = [
   {
@@ -171,6 +178,9 @@ export function getDefaultDataForChartType(chartType: string): unknown[] {
     chartType === "vertical-bar-multi"
   ) {
     return JSON.parse(JSON.stringify(ROSENCHARTS_BAR_MULTI_DEFAULT));
+  }
+  if (chartType === "bar-line") {
+    return JSON.parse(JSON.stringify(ROSENCHARTS_BAR_LINE_DEFAULT));
   }
   if (
     chartType === "line" ||

@@ -99,6 +99,21 @@ export const data = [
   },
 
   {
+    id: "7.5",
+    name: "Bar + Line",
+    chartType: "bar-line",
+    data: [
+      { key: "Jan", barValue: 34.7, lineValue: 12 },
+      { key: "Feb", barValue: 41.2, lineValue: 18 },
+      { key: "Mar", barValue: 38.1, lineValue: 15 },
+      { key: "Apr", barValue: 52.3, lineValue: 22 },
+      { key: "May", barValue: 45.8, lineValue: 19 },
+    ],
+    withTooltip: true,
+    withAnimation: true,
+  },
+
+  {
     id: "8",
     name: "Breakdown",
     chartType: "breakdown",

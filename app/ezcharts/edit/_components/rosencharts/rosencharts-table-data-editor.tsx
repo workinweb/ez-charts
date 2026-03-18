@@ -169,7 +169,11 @@ function useTableConfig(
         return;
       }
       const isNumeric =
-        key === "value" || key === "xValue" || key === "yValue";
+        key === "value" ||
+        key === "xValue" ||
+        key === "yValue" ||
+        key === "barValue" ||
+        key === "lineValue";
       const value = isNumeric
         ? (parseFloat(rawValue) || 0)
         : rawValue;
@@ -205,6 +209,12 @@ function useTableConfig(
         break;
       case "bar-multi":
         updateRows([...arr, { key: `Item ${len + 1}`, values: [0] }]);
+        break;
+      case "bar-line":
+        updateRows([
+          ...arr,
+          { key: `Item ${len + 1}`, barValue: 0, lineValue: 0 },
+        ]);
         break;
       case "pie":
         updateRows([...arr, { name: `Slice ${len + 1}`, value: 0 }]);
@@ -263,6 +273,16 @@ function useTableConfig(
         columns: [
           { key: "key", label: "Label", type: "text" as const, removable: false, placeholder: "" },
           { key: "value", label: "Value", type: "number" as const, removable: false, placeholder: "0" },
+        ],
+        canAddValueColumn: false,
+      };
+    }
+    if (shape === "bar-line") {
+      return {
+        columns: [
+          { key: "key", label: "Label", type: "text" as const, removable: false, placeholder: "" },
+          { key: "barValue", label: "Bar", type: "number" as const, removable: false, placeholder: "0" },
+          { key: "lineValue", label: "Line", type: "number" as const, removable: false, placeholder: "0" },
         ],
         canAddValueColumn: false,
       };

@@ -12,6 +12,7 @@ export type EditorShape =
   | "keyValue" // { key, value, color? }
   | "bar-image" // { key, value, color?, image }
   | "bar-multi" // { key, values[], multipleColors[] }
+  | "bar-line" // { key, barValue, lineValue, barColor?, lineColor? }
   | "line" // series → { data: [{ date, value }], color }
   | "pie" // { name, value, colorFrom?, colorTo?, logo? }
   | "treemap" // { name, subtopics, colorFrom?, colorTo? }
@@ -59,6 +60,7 @@ export function getEditorShape(chartType: string): EditorShape {
     chartType === "vertical-bar-multi"
   )
     return "bar-multi";
+  if (chartType === "bar-line") return "bar-line";
   if (chartType.includes("line") || chartType === "area") return "line";
   if (
     chartType.includes("pie") ||

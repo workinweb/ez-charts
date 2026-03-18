@@ -7,6 +7,7 @@ export type {
   ImageBarData,
   VerticalBarData,
   VerticalMultiBarData,
+  BarLineChartData,
   LineDataSeries,
   LineChartData,
   LineChartCurvedData,
@@ -35,6 +36,7 @@ export { BarChartHorizontalThin } from "./BarChartHorizontal/BarChartHorizontalT
 // Bar Charts — Vertical
 export { BarChartVertical } from "./BarChartVertical/BarChartVertical";
 export { BarChartVerticalMulti } from "./BarChartVertical/BarChartVerticalMulti";
+export { BarLineChart } from "./BarLineChart/BarLineChart";
 
 // Benchmark
 export { BenchmarkChart } from "./BenchmarkChart/BenchmarkChart";

@@ -27,6 +27,7 @@ import { BarChartHorizontalMulti } from "../BarChartHorizontal/BarChartHorizonta
 import { BarChartHorizontalThin } from "../BarChartHorizontal/BarChartHorizontalThin";
 import { BarChartVertical } from "../BarChartVertical/BarChartVertical";
 import { BarChartVerticalMulti } from "../BarChartVertical/BarChartVerticalMulti";
+import { BarLineChart } from "../BarLineChart/BarLineChart";
 import { BenchmarkChart } from "../BenchmarkChart/BenchmarkChart";
 import { BreakdownChart } from "../BreakdownChart/BreakdownChart";
 import { BreakdownChartThin } from "../BreakdownChart/BreakdownChartThin";
@@ -64,6 +65,7 @@ import {
   TreeMapChartItem,
   VerticalBarData,
   VerticalMultiBarData,
+  BarLineChartData,
 } from "../types";
 
 // ── Chart type registry ───────────────────────────────────────────────
@@ -116,6 +118,12 @@ export const chartTypes: ReadonlyArray<{
     label: "Multi Bar (V)",
     category: "bar",
     icon: BarChart3,
+  },
+  {
+    key: "bar-line",
+    label: "Bar + Line",
+    category: "bar",
+    icon: TrendingUp,
   },
   // Line
   { key: "line", label: "Line", category: "line", icon: LineChartIcon },
@@ -221,6 +229,8 @@ export const interchangeGroups: ReadonlyArray<ReadonlyArray<ChartTypeKey>> = [
   ],
   // ── Multi‑bar (horizontal ↔ vertical) ─────────────────────────────
   ["horizontal-bar-multi", "vertical-bar-multi"],
+  // ── Bar + Line (hybrid) ───────────────────────────────────────────
+  ["bar-line"],
   // ── Line charts ───────────────────────────────────────────────────
   ["line", "line-multi", "area"],
   // ── Standalone (no interchange) ───────────────────────────────────
@@ -363,10 +373,11 @@ export function transformChartData(
   return JSON.parse(JSON.stringify(data));
 }
 
-type ShapeFamily = "keyValue" | "pie" | "multi" | "line" | "treemap" | "scatter" | "bubble" | "imageBar";
+type ShapeFamily = "keyValue" | "pie" | "multi" | "line" | "treemap" | "scatter" | "bubble" | "imageBar" | "barLine";
 
 function getShapeFamily(chartType: string): ShapeFamily {
   if (chartType === "horizontal-bar-image") return "imageBar";
+  if (chartType === "bar-line") return "barLine";
   if (chartType === "horizontal-bar-multi" || chartType === "vertical-bar-multi") return "multi";
   if (chartType.includes("line") || chartType.includes("area")) return "line";
   if (
@@ -394,6 +405,7 @@ export const getChartTypeByName = (
     | ImageBarData[]
     | VerticalBarData[]
     | VerticalMultiBarData[]
+    | BarLineChartData[]
     | LineChartData[]
     | LineChartCurvedData[]
     | PieChartItem[]
@@ -484,6 +496,17 @@ export const getChartTypeByName = (
           withTooltip={withTooltip}
           className={className}
           withAnimation={withAnimation}
+        />
+      );
+    }
+    case "bar-line": {
+      return (
+        <BarLineChart
+          data={data as BarLineChartData[]}
+          className={className}
+          withTooltip={withTooltip}
+          withAnimation={withAnimation}
+          chartSettings={chartSettings}
         />
       );
     }

@@ -44,7 +44,8 @@ export function StyleEditor({
 
   const isAreaChart = chartType === "area";
   const areaFillStyle =
-    (chartSettings.areaFillStyle as "gradient" | "full" | "outline") ?? "gradient";
+    (chartSettings.areaFillStyle as "gradient" | "full" | "outline") ??
+    "gradient";
 
   const updateRow = useCallback(
     (idx: number, patch: Record<string, unknown>) => {
@@ -56,8 +57,7 @@ export function StyleEditor({
   );
 
   const [gradientSync, setGradientSync] = useState(false);
-  const isNonColor =
-    NON_COLOR_CHARTS.includes(shape) && !isAreaChart;
+  const isNonColor = NON_COLOR_CHARTS.includes(shape) && !isAreaChart;
   const hasGradient = GRADIENT_CHART_TYPES.includes(chartType);
   const hasSingleColorFrom =
     shape === "pie" &&
@@ -71,16 +71,31 @@ export function StyleEditor({
     shape === "scatter" ||
     shape === "bubble";
   const hasBarMulti = shape === "bar-multi";
+  const hasBarLine = shape === "bar-line";
 
   const goToDefaults = useCallback(() => {
-    const colorKeys = ["color", "colorFrom", "colorTo", "multipleColors"];
+    const colorKeys = [
+      "color",
+      "colorFrom",
+      "colorTo",
+      "multipleColors",
+      "barColor",
+      "lineColor",
+    ];
     const next = arr.map((item: Record<string, unknown>) => {
       const out = { ...item };
       colorKeys.forEach((k) => delete out[k]);
       return out;
     });
     onChange(next);
-  }, [arr, onChange]);
+    if (hasBarLine && onChartSettingsChange && chartSettings) {
+      const { lineColor: _, ...rest } = chartSettings as Record<
+        string,
+        unknown
+      >;
+      onChartSettingsChange(rest);
+    }
+  }, [arr, onChange, hasBarLine, onChartSettingsChange, chartSettings]);
 
   if (isNonColor) {
     return (
@@ -133,7 +148,9 @@ export function StyleEditor({
                   <label className="text-[11px] text-[#3D4035]/40">Top</label>
                   <input
                     type="color"
-                    value={(chartSettings.areaGradientTop as string) ?? "#84cc16"}
+                    value={
+                      (chartSettings.areaGradientTop as string) ?? "#84cc16"
+                    }
                     onChange={(e) =>
                       onChartSettingsChange({
                         ...chartSettings,
@@ -144,10 +161,14 @@ export function StyleEditor({
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <label className="text-[11px] text-[#3D4035]/40">Bottom</label>
+                  <label className="text-[11px] text-[#3D4035]/40">
+                    Bottom
+                  </label>
                   <input
                     type="color"
-                    value={(chartSettings.areaGradientBottom as string) ?? "#14532d"}
+                    value={
+                      (chartSettings.areaGradientBottom as string) ?? "#14532d"
+                    }
                     onChange={(e) =>
                       onChartSettingsChange({
                         ...chartSettings,
@@ -168,7 +189,9 @@ export function StyleEditor({
               <div className="flex items-center gap-2">
                 <input
                   type="color"
-                  value={(chartSettings.areaOutlineColor as string) ?? "#eab308"}
+                  value={
+                    (chartSettings.areaOutlineColor as string) ?? "#eab308"
+                  }
                   onChange={(e) =>
                     onChartSettingsChange({
                       ...chartSettings,
@@ -246,12 +269,32 @@ export function StyleEditor({
         </div>
       </div>
 
+      {/* Bar-line: general Line color (single picker) */}
+      {hasBarLine && onChartSettingsChange && (
+        <div className="flex flex-wrap items-center gap-3 rounded-xl bg-white/60 px-4 py-3 ring-1 ring-black/[0.03]">
+          <span className="min-w-0 flex-1 text-[13px] font-medium text-[#3D4035]">
+            Line color
+          </span>
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={(chartSettings?.lineColor as string) ?? "#06b6d4"}
+              onChange={(e) =>
+                onChartSettingsChange({
+                  ...chartSettings,
+                  lineColor: e.target.value,
+                })
+              }
+              className="size-7 cursor-pointer rounded-lg border-0 bg-transparent p-0"
+            />
+          </div>
+        </div>
+      )}
+
       <div className="flex max-h-[40vh] flex-col gap-3 overflow-y-auto pr-1 sm:max-h-[45vh] md:max-h-[50vh] lg:max-h-[56vh]">
         {arr.map((item: Record<string, unknown>, idx: number) => {
           const label =
-            (item.key as string) ||
-            (item.name as string) ||
-            `#${idx + 1}`;
+            (item.key as string) || (item.name as string) || `#${idx + 1}`;
 
           return (
             <div
@@ -265,9 +308,7 @@ export function StyleEditor({
               {/* Single color (writes to `color`) */}
               {hasSingleColor && !hasGradient && !hasSingleColorFrom && (
                 <div className="flex items-center gap-2">
-                  <label className="text-[11px] text-[#3D4035]/40">
-                    Color
-                  </label>
+                  <label className="text-[11px] text-[#3D4035]/40">Color</label>
                   <input
                     type="color"
                     value={(item.color as string) ?? "#6C5DD3"}
@@ -280,13 +321,13 @@ export function StyleEditor({
               {/* Single color (writes to colorFrom) for donut, half-donut, fillable */}
               {hasSingleColorFrom && (
                 <div className="flex items-center gap-2">
-                  <label className="text-[11px] text-[#3D4035]/40">
-                    Color
-                  </label>
+                  <label className="text-[11px] text-[#3D4035]/40">Color</label>
                   <input
                     type="color"
                     value={
-                      (item.colorFrom as string) ?? (item.color as string) ?? "#6C5DD3"
+                      (item.colorFrom as string) ??
+                      (item.color as string) ??
+                      "#6C5DD3"
                     }
                     onChange={(e) =>
                       updateRow(idx, { colorFrom: e.target.value })
@@ -340,10 +381,41 @@ export function StyleEditor({
                   updateRow={updateRow}
                 />
               )}
+
+              {/* Bar + Line: barColor + lineColor */}
+              {hasBarLine && (
+                <BarLineColorEditor
+                  item={item}
+                  idx={idx}
+                  updateRow={updateRow}
+                />
+              )}
             </div>
           );
         })}
       </div>
+    </div>
+  );
+}
+
+function BarLineColorEditor({
+  item,
+  idx,
+  updateRow,
+}: {
+  item: Record<string, unknown>;
+  idx: number;
+  updateRow: (idx: number, patch: Record<string, unknown>) => void;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <label className="text-[11px] text-[#3D4035]/40">Bar</label>
+      <input
+        type="color"
+        value={(item.barColor as string) ?? "#a78bfa"}
+        onChange={(e) => updateRow(idx, { barColor: e.target.value })}
+        className="size-7 cursor-pointer rounded-lg border-0 bg-transparent p-0"
+      />
     </div>
   );
 }

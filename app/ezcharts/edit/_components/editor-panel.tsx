@@ -19,6 +19,7 @@ const tabs: { id: EditorTab; label: string; icon: React.ElementType }[] = [
 const ROSENCHARTS_TABULAR_SHAPES: EditorShape[] = [
   "keyValue",
   "bar-multi",
+  "bar-line",
   "pie",
   "bar-image",
   "scatter",

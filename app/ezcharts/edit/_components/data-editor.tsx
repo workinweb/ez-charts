@@ -47,6 +47,12 @@ export function DataEditor({ shape, chartType = "", data, onChange }: EditorProp
       case "bar-multi":
         onChange([...arr, { key: `Item ${arr.length + 1}`, values: [0] }]);
         break;
+      case "bar-line":
+        onChange([
+          ...arr,
+          { key: `Item ${arr.length + 1}`, barValue: 0, lineValue: 0 },
+        ]);
+        break;
       case "line":
         onChange([
           ...arr,
@@ -238,6 +244,45 @@ function DataRow({
                     placeholder="https://..."
                   />
                 </FieldRow>
+              </>
+            )}
+
+            {/* ── Bar + Line ───────────────────────── */}
+            {shape === "bar-line" && (
+              <>
+                <FieldRow label="Label">
+                  <Input
+                    value={(item.key as string) ?? ""}
+                    onChange={(e) => onUpdate({ key: e.target.value })}
+                    className="h-8 min-w-0 rounded-lg text-[13px]"
+                  />
+                </FieldRow>
+                <div className="flex min-w-0 flex-wrap gap-4 sm:gap-6">
+                  <div className="min-w-0 flex-1 sm:min-w-[80px] sm:max-w-[100px]">
+                    <FieldRow label="Bar value">
+                      <Input
+                        type="number"
+                        value={(item.barValue as number) ?? 0}
+                        onChange={(e) =>
+                          onUpdate({ barValue: parseFloat(e.target.value) || 0 })
+                        }
+                        className="h-8 min-w-0 rounded-lg text-[13px]"
+                      />
+                    </FieldRow>
+                  </div>
+                  <div className="min-w-0 flex-1 sm:min-w-[80px] sm:max-w-[100px]">
+                    <FieldRow label="Line value">
+                      <Input
+                        type="number"
+                        value={(item.lineValue as number) ?? 0}
+                        onChange={(e) =>
+                          onUpdate({ lineValue: parseFloat(e.target.value) || 0 })
+                        }
+                        className="h-8 min-w-0 rounded-lg text-[13px]"
+                      />
+                    </FieldRow>
+                  </div>
+                </div>
               </>
             )}
 

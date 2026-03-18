@@ -69,6 +69,15 @@ export const horizontalBarThinSchema = z.array(keyValueItem).min(1);
 export const verticalBarSchema = z.array(keyValueItem).min(1);
 export const verticalBarMultiSchema = z.array(multiBarItem).min(1);
 
+const barLineItem = z.object({
+  key: z.string(),
+  barValue: z.number(),
+  lineValue: z.number(),
+  barColor: z.string().nullable(),
+  lineColor: z.string().nullable(),
+});
+export const barLineSchema = z.array(barLineItem).min(1);
+
 export const lineSchema = z.array(lineSeries).min(1).max(1);
 export const lineMultiSchema = z.array(lineSeries).min(1);
 export const areaSchema = lineSchema;
@@ -125,6 +134,7 @@ export const ROSENCHARTS_OUTPUT_SCHEMAS: Record<string, z.ZodType<unknown>> = {
   "horizontal-bar-thin": horizontalBarThinSchema,
   "vertical-bar": verticalBarSchema,
   "vertical-bar-multi": verticalBarMultiSchema,
+  "bar-line": barLineSchema,
   line: lineSchema,
   "line-multi": lineMultiSchema,
   area: areaSchema,
